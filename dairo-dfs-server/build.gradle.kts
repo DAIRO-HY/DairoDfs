@@ -76,10 +76,11 @@ tasks.withType<Test> {
  */
 fun downloadJar(jarUrl: String): String {
     val jarName = jarUrl.substring(jarUrl.lastIndexOf("/") + 1)
+    val tempFolder = File(System.getProperty("java.io.tmpdir"))
 
     //jar存储文件
 //    val jarFile = file("${rootDir.absolutePath}/.gradle/libs/$jarName")
-    val jarFile = file(System.getProperty("java.io.tmpdir") + jarName)
+    val jarFile = file(tempFolder.path + "/" + jarName)
     if (!jarFile.parentFile.exists()) {
         jarFile.parentFile.mkdirs()
     }
