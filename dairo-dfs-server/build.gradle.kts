@@ -19,7 +19,6 @@ repositories {
 
 springBoot {
     mainClass.set("cn.dairo.dfs.DairoApplicationKt")
-//    mainClass.set("ExtractFirstFrame")
 }
 
 dependencies {
