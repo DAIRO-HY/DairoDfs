@@ -70,7 +70,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-
 /**
  * 下载jar包
  */
