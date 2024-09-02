@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="app/icd/css :: header('同步状态')"/>
+</head>
+<body>
+<th:block th:include="app/icd/top-bar :: top-bar"/>
+<th:block th:insert="app/icd/uc::content">
+    <common-content>
+        <div id="table"></div>
+        <button class="btn btn-primary" type="button" onclick="onSyncClick()">日志同步</button>
+        <button class="btn btn-primary" type="button" onclick="onSyncAllClick()">全量同步</button>
+    </common-content>
+</th:block>
+<th:block th:include="app/icd/js :: js"/>
+<script>
+    $(function () {
+        getInfoList()
+    })
+
+    function getInfoList() {
+        $.ajaxByData("./sync/info_list", data => {
+            fillDataTable(data)
+        })
+    }
+
+
+    /**
+     * 填充表格数据
+     * @param data 要填充的数据
+     */
+    function fillDataTable(data) {
+        $("#table").createTable({
+            data: data,
+            columns: [
+                {
+                    data: "domain",
+                    title: "域名"
+                },
+                {
+                    data: "state",
+                    title: "状态"
+                },
+                {
+                    data: "msg",
+                    title: "错误消息"
+                }
+            ]
+        })
+    }
+
+    function onSubmitClick() {
+        $("form").ajaxByForm(() => {
+            alert("修改成功")
+            getInfoList()
+        })
+    }
+
+    /**
+     * 日志同步按钮点击事件
+     */
+    function onSyncClick() {
+        $.ajaxByData("./sync/sync", () => {
+            getInfoList()
+        })
+    }
+
+    /**
+     * 全量同步按钮点击事件
+     */
+    function onSyncAllClick() {
+        $.ajaxByData("./sync/sync_all", () => {
+            getInfoList()
+        })
+    }
+</script>
+</body>
+</html>

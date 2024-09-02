@@ -1,0 +1,25 @@
+stages:
+  - build
+
+#打包和构建镜像
+build:
+  stage: build
+
+  # 在哪个分支上可用
+  only:
+    - prod
+  script:
+    - /usr/local/gradle/bin/gradle clean
+    - cd dairo-dfs-server
+
+    #这里需要写全路径
+    #打包
+    - /usr/local/gradle/bin/gradle build -x test
+    - cp -rf docker/* /home/docker/dairo-dfs/
+
+    #复制文件
+    - mv build/libs/dairo-dfs-server-1.0.jar /home/docker/dairo-dfs/build/dairo-dfs-server.jar
+    - cd /home/docker/dairo-dfs
+    #- yes|docker image prune
+    - /usr/local/bin/docker-compose down
+    - /usr/local/bin/docker-compose up -d --build

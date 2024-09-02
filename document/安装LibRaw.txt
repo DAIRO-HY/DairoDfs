@@ -1,0 +1,106 @@
+安装LibRaw说明
+LibRaw负责处理RAW格式的图片,详细说明请参考官网:https://www.libraw.org
+
+下载地址：https://www.libraw.org/download
+如果该网址无法打开，请直接使用该文档目录下的安装包
+LibRaw-0.21.2.tar.gz(Linux版)
+LibRaw-0.21.2-macOS.zip(MAC版)
+LibRaw-0.21.2-Win64.zip(Windows版)
+
+MAC系统安装
+    下载的二进制安装包并解压,将解压之后的bin目录添加到环境变量.
+    MAC系统会提示这是一个不受信任的软件,手动在 设置->隐私与安全性中找到LibRaw证书警告,然后点击信任
+
+
+
+
+使用说明：
+dcraw_emu,这是一个控制台处理程序，具体参数可参考源码中的dcraw_emu.cpp文件
+
+一些常用指令
+
+#T:将tt.cr3文件转换成tiff文件
+dcraw_emu -T tt.cr3
+
+#h:输出原图片一半尺寸的大小图片，速度快，用于生成缩略图比较使用
+dcraw_emu -T -h tt.cr3
+
+#Z:指定生产的文件后缀，默认情况下，生成的文件名是tt.cr3.tiff,当指定tiff之后生成的文件名为tt.tiff
+dcraw_emu -T -Z tiff tt.cr3
+
+#如果在使用[-Z -]，将输出发送到标准输出（stdout），而不是写入文件。这对于使用其他计算机语言调用非常有用，直接将图片输出到InputStream，减少磁盘IO
+dcraw_emu -T -h -Z - tt.cr3 > my.tiff
+
+#mem：使用内存代替文件缓冲，加快处理速度并减少磁盘IO
+#mmap：使用内存代替文件缓冲，加快处理速度并减少磁盘IO
+#mem和mmap有什么区别，暂时未知
+dcraw_emu -T -h -Z - -mem -mmap tt.cr3 > my.tiff
+
+
+
+
+
+所有指令：
+-c float-num       Set adjust maximum threshold (default 0.75)
+-v        Verbose: print progress messages (repeated -v will add verbosity)
+-w        Use camera white balance, if possible
+-a        Average the whole image for white balance
+-A <x y w h> Average a grey box for white balance
+-r <r g b g> Set custom white balance +M/-M     Use/don't use an embedded color matrix
+-C <r b>  Correct chromatic aberration
+-P <file> Fix the dead pixels listed in this file
+-K <file> Subtract dark frame (16-bit raw PGM)
+-k <num>  Set the darkness level
+-S <num>  Set the saturation level
+-R <num>  Set raw processing options to num
+-n <num>  Set threshold for wavelet denoising
+-H [0-9]  Highlight mode (0=clip, 1=unclip, 2=blend, 3+=rebuild)
+
+#旋转图片
+-t [0-7]  Flip image (0=none, 3=180, 5=90CCW, 6=90CW)
+-o [0-8]  Output colorspace (raw,sRGB,Adobe,Wide,ProPhoto,XYZ,ACES,DCI-P3,Rec2020)
+-o file   Output ICC profile
+-p file   Camera input profile (use \'embed\' for embedded profile)
+-j        Don't stretch or rotate raw pixels
+-W        Don't automatically brighten the image
+-b <num>  Adjust brightness (default = 1.0)
+-q N      Set the interpolation quality:
+          0 - linear, 1 - VNG, 2 - PPG, 3 - AHD, 4 - DCB
+          11 - DHT, 12 - AAHD
+-h        Half-size color image (twice as fast as \"-q 0\")
+-f        Interpolate RGGB as four colors
+-m <num>  Apply a 3x3 median filter to R-G and B-G
+-s [0..N-1] Select one raw image from input file
+-4        Linear 16-bit, same as \"-6 -W -g 1 1
+-6        Write 16-bit output
+-g pow ts Set gamma curve to gamma pow and toe slope ts (default = 2.222 4.5)
+-T        Write TIFF instead of PPM
+-G        Use green_matching() filter
+
+#图片裁剪
+-B <x y w h> use cropbox
+-F        Use FILE I/O instead of streambuf API
+-Z <suf>  Output filename generation rules
+          .suf => append .suf to input name, keeping existing suffix too
+           suf => replace input filename last extension
+
+          #将输出发送到标准输出（stdout），而不是写入文件。
+          - => output to stdout
+          filename.suf => output to filename.suf
+-timing   Detailed timing report
+-fbdd N   0 - disable FBDD noise reduction (default), 1 - light FBDD, 2 - full
+-dcbi N   Number of extra DCD iterations (default - 0)
+-dcbe     DCB color enhance
+-aexpo <e p> exposure correction
+-apentax4shot enables merge of 4-shot pentax files
+-apentax4shotorder 3102 sets pentax 4-shot alignment order
+-arsbits V Set use_rawspeed to V
+-mmap     Use memory mmaped buffer instead of plain FILE I/O
+-mem	   Use memory buffer instead of FILE I/O
+-disars   Do not use RawSpeed library
+-disinterp Do not run interpolation step
+-dsrawrgb1 Disable YCbCr to RGB conversion for sRAW (Cb/Cr interpolation enabled)
+-dsrawrgb2 Disable YCbCr to RGB conversion for sRAW (Cb/Cr interpolation disabled)
+-dngsdk   Use Adobe DNG SDK for DNG decode
+-dngflags N set DNG decoding options to value N
+-doutputflags N set params.output_flags to N

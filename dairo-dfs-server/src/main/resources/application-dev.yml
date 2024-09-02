@@ -1,0 +1,12 @@
+#启动模式,dev:开发模式,prod:生产模式
+active: dev
+
+#thymeleaf缓存,开发阶段建议为false,否则可能导致热更新html失效,发布之后设置为true
+spring:
+  thymeleaf:
+    cache: false
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true

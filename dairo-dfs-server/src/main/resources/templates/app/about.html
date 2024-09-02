@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="app/icd/css :: header('关于')"/>
+</head>
+<body>
+<th:block th:include="app/icd/top-bar :: top-bar"/>
+<th:block th:insert="app/icd/uc::content">
+    <common-content>
+        GLDFS 将您的数据置于您的掌控之中。在您公司、家中、我们的一个供应商或您了解的数据中心里的服务器上保存您的文档、日历、联系人以及照片。
+    </common-content>
+</th:block>
+<th:block th:include="app/icd/js :: js"/>
+<script>
+</script>
+</body>
+</html>

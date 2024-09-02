@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="app/icd/css :: header('配置')"/>
+</head>
+<body>
+<th:block th:include="app/icd/top-bar :: top-bar"/>
+<th:block th:insert="app/icd/uc::content">
+    <common-content>
+        <th:block th:insert="app/icd/uc :: c-form('/app/profile/update')">
+            <common-form>
+                <th:block
+                        th:insert="app/icd/uc::form-input(label='最大文件(Byte)', name='uploadMaxSize', btn='MB')"/>
+                <th:block
+                        th:insert="app/icd/uc::form-textarea(label='存储目录', name='folders')"/>
+                <th:block
+                        th:insert="app/icd/uc::form-textarea(label='同步域名', name='syncDomains')"/>
+            </common-form>
+            <common-form-btn>
+                <button type="button" class="btn btn-primary" onclick="onSubmitClick()">提交</button>
+            </common-form-btn>
+        </th:block>
+    </common-content>
+</th:block>
+<th:block th:include="app/icd/js :: js"/>
+<script>
+    $(function () {
+        $("form").initData()
+    })
+
+    function onSubmitClick() {
+        $("form").ajaxByForm(() => {
+            alert("修改成功")
+        })
+    }
+</script>
+</body>
+</html>

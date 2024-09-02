@@ -1,0 +1,25 @@
+version: '3.1'
+services:
+  dairo-dfs:
+    #build: ./build
+    restart: always
+    container_name: dairo-dfs
+    image: dairopapa/dairo-dfs:1.0
+    #network_mode: host
+
+    #使用真root权限进入
+    privileged: true
+
+    #模拟一个伪终端,某些镜像依赖于伪终端,若不加这段代码会报错,如ubuntu,centos等操作系统镜像,不加tty:true将会报错
+    tty: true
+    ports:
+      # 发布端口
+      - 8030:8030
+    environment:
+      #时区,解决时间不一致的bug
+      TZ: Asia/Shanghai
+      #解决控制台输出中文乱码
+      LANG: C.UTF-8
+    volumes:
+      - ./data:/app/data
+      #- /mnt/gldfs:/mnt/gldfs1

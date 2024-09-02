@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="app/icd/css :: header('创建管理员')"/>
+</head>
+<body class="bg-login">
+<div class="text-center d-table" style="width: 100vw;height: 100vh;">
+    <div class="d-table-cell align-middle">
+        <div class="d-inline-block border rounded bg-white p-3" style="width: 300px;">
+            <span class="fs-4">创建管理员</span>
+            <form action="/app/init/add_admin">
+                <div>
+                    <input name="name" class="form-control mt-3" type="text" placeholder="用户名" autocomplete="off">
+                </div>
+                <div>
+                    <input name="pwd" class="form-control mt-3" type="password" placeholder="密码" autocomplete="off">
+                </div>
+                <div>
+                    <input id="repwd" class="form-control mt-3" type="password" placeholder="确认密码"
+                           autocomplete="off">
+                </div>
+                <button type="button" class="btn btn-primary w-100 mt-4" onclick="onInitClick()">创建</button>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:include="app/icd/js :: js"/>
+<script>
+
+    /**
+     * 初始化按钮点击事件
+     */
+    function onInitClick() {
+        const pwd = $("[name='pwd']").val()
+        const repwd = $("#repwd").val()
+        if (pwd !== repwd) {
+            alert("两次输入密码不一致")
+            return
+        }
+        $("form").ajaxByForm(() => {
+            window.location.href = "/app/login"
+        })
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" xmlns="">
+<head>
+    <th:block th:include="app/icd/css :: header('用户编辑')"/>
+</head>
+<body>
+<th:block th:include="app/icd/top-bar :: top-bar"/>
+<th:block th:insert="app/icd/uc::content">
+    <common-content>
+        <th:block th:insert="app/icd/uc :: c-form('user_edit/edit')">
+            <common-form>
+                <input type="hidden" name="id">
+                <th:block
+                        th:insert="app/icd/uc::form-input(label='用户名', name='name')"/>
+                <th:block
+                        th:insert="app/icd/uc::form-input(label='邮箱', name = 'email')"/>
+                <th:block
+                        th:insert="app/icd/uc::form-select-state(label='状态', name='state')"/>
+                <th:block th:if="${param.id != null}"
+                          th:insert="app/icd/uc::form-input(label='创建日期', name = 'date', disabled=true)"/>
+            </common-form>
+            <common-form-btn>
+                <button type="button" class="btn btn-primary" onclick="onSubmitClick()">提交</button>
+            </common-form-btn>
+        </th:block>
+    </common-content>
+</th:block>
+<th:block th:include="app/icd/js :: js"/>
+<script>
+    $(function () {
+        $("form").initData()
+    })
+
+    function onSubmitClick() {
+        $("form").ajaxByForm(() => {
+            location.href = "/app/user_list"
+        })
+    }
+</script>
+</body>
+</html>
