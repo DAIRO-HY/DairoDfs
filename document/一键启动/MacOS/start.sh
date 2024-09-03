@@ -44,7 +44,7 @@ if [ ! -d "jdk-17.0.1.jdk" ]; then
   echo "JDK安装完成"
 fi
 
-if [ ! -d "dairo-dfs-server.jar" ]; then
+if [ ! -f "dairo-dfs-server.jar" ]; then
   echo "正在下载dairo-dfs-server.jar"
   curl -L -o dairo-dfs-server.jar https://github.com/DAIRO-HY/DairoDfs/releases/download/$JAR_VERSION/dairo-dfs-server.jar
   echo "dairo-dfs-server.jar下载完成"
