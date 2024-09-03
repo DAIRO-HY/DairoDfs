@@ -12,9 +12,9 @@ cd $SCRIPT_DIR
 apt update
 
 #构建工具和依赖项
-yes|apt install build-essential cmake wget
+yes|apt install build-essential cmake
 
-wget https://github.com/DAIRO-HY/DairoDfsLib/raw/main/LibRaw-0.21.2-source.tar.gz
+curl -L -o LibRaw-0.21.2-source.tar.gz https://github.com/DAIRO-HY/DairoDfsLib/raw/main/LibRaw-0.21.2-source.tar.gz
 
 tar -xzf LibRaw-0.21.2-source.tar.gz
 
