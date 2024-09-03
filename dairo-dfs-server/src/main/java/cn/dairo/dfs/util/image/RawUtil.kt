@@ -1,5 +1,6 @@
 package cn.dairo.dfs.util.image
 
+import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.extension.toDataSize
 import cn.dairo.dfs.util.ShellUtil
 import com.gl.lib.imaging.Image
@@ -29,7 +30,7 @@ object RawUtil {
         try {//获取视频第一帧作为缩略图
             File(path).renameTo(File(renameTo))
             val tiffData =
-                ShellUtil.execToByteArray("""dcraw_emu -T -w -h -Z - -mem -mmap $renameTo""")
+                ShellUtil.execToByteArray("""${Constant.LIBRAW_BIN}/dcraw_emu -T -w -h -Z - -mem -mmap $renameTo""")
             return ImageUtil.thumb(tiffData.inputStream(), maxWidth, maxHeight)
         } finally {
             File(renameTo).renameTo(File(path))
@@ -49,7 +50,7 @@ object RawUtil {
         try {//获取视频第一帧作为缩略图
             File(path).renameTo(File(renameTo))
             val tiffData =
-                ShellUtil.execToByteArray("""dcraw_emu -T -w -Z - -mem -mmap $renameTo""")
+                ShellUtil.execToByteArray("""${Constant.LIBRAW_BIN}/dcraw_emu -T -w -Z - -mem -mmap $renameTo""")
 
             val tiff = Image.load(tiffData.inputStream())
             val pngOption = PngOptions()
@@ -66,9 +67,9 @@ object RawUtil {
 
     /**
      * 生成jpg图片
-     * @param path 视频文件路径
+     * @param path raw文件路径
      * @param ext 文件后最，raw图片处理时，必须携带文件后缀名
-     * @return PNG图片字节数组
+     * @return JPEG图片字节数组
      */
     fun jpeg(path: String, ext: String): ByteArray {
         val now = System.currentTimeMillis()
@@ -78,7 +79,7 @@ object RawUtil {
         try {//获取视频第一帧作为缩略图
             File(path).renameTo(File(renameTo))
             val tiffData =
-                ShellUtil.execToByteArray("""dcraw_emu -T -w -Z - -mem -mmap $renameTo""")
+                ShellUtil.execToByteArray(""""${Constant.LIBRAW_BIN}/dcraw_emu" -T -w -Z - -mem -mmap "$renameTo"""")
             val tiff = Image.load(tiffData.inputStream())
             val jpgOption = JpegOptions()
             jpgOption.quality = 85
@@ -97,7 +98,7 @@ object RawUtil {
     fun getInfo(path: String): ImageInfo {
 
         //获取视频第一帧作为缩略图
-        val infoData = ShellUtil.execToByteArray("""raw-identify -v "$path"""")
+        val infoData = ShellUtil.execToByteArray(""""${Constant.LIBRAW_BIN}/raw-identify" -v "$path"""")
         val infoStr = String(infoData)
 
         //拍摄时间

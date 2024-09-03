@@ -111,7 +111,7 @@ class FfprobeInstallAppController : AppBase() {
                 }
                 this.total = http.contentLengthLong
                 val iStream = http.inputStream
-                val file = File(Constant.FFPROBE_PATH.fileParent + ".zip")
+                val file = File(Constant.FFPROBE_PATH + ".zip")
                 if (!file.parentFile.exists()) {
                     file.parentFile.mkdirs()
                 }
@@ -127,10 +127,12 @@ class FfprobeInstallAppController : AppBase() {
                 this.info = "正在解压"
 
                 //解压
-                unzip(file, Constant.FFPROBE_PATH.fileParent + ".temp")
-                File(Constant.FFPROBE_PATH.fileParent + ".temp").renameTo(File(Constant.FFPROBE_PATH.fileParent))
+                unzip(file, Constant.FFPROBE_PATH + ".temp")
+                File(Constant.FFPROBE_PATH + ".temp").renameTo(File(Constant.FFPROBE_PATH))
                 file.delete()
                 this.info = "安装完成"
+            } catch (e: Exception) {
+                this.info = "安装失败：$e"
             } finally {
                 this.isRuning = false
                 http.disconnect()
@@ -189,7 +191,7 @@ class FfprobeInstallAppController : AppBase() {
         form.info = this.info
         if (File(Constant.FFPROBE_PATH).exists()) {//已经安装完成
             try {
-                val version = ShellUtil.exec("${Constant.FFPROBE_PATH} -version")
+                val version = ShellUtil.exec("${Constant.FFPROBE_PATH}/ffprobe -version")
                 form.info = "安装完成:$version"
                 form.hasFinish = true
             } catch (e: Exception) {
@@ -207,7 +209,7 @@ class FfprobeInstallAppController : AppBase() {
                                 )
                             }""""
                         )
-                        val version = ShellUtil.exec("${Constant.FFPROBE_PATH} -version")
+                        val version = ShellUtil.exec("${Constant.FFPROBE_PATH}/ffprobe -version")
                         form.info = "安装完成:$version"
                         form.hasFinish = true
                         return form

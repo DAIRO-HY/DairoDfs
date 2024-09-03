@@ -1,7 +1,7 @@
-package cn.dairo.dfs.controller.app.init
+package cn.dairo.dfs.controller.app.install.create_admin
 
 import cn.dairo.dfs.code.ErrorCode
-import cn.dairo.dfs.controller.app.init.form.InitForm
+import cn.dairo.dfs.controller.app.install.create_admin.form.CreateAdminForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.UserDao
 import cn.dairo.dfs.dao.dto.UserDto
@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody
  * 管理员账号初始化
  */
 @Controller
-@RequestMapping("/app/init")
-class InitAppController : AppBase() {
+@RequestMapping("/app/install/create_admin")
+class CreateAdminAppController : AppBase() {
 
     /**
      * 用户操作Dao
@@ -42,7 +42,7 @@ class InitAppController : AppBase() {
         if (this.userDao.getOne(1) != null) {
             return "redirect:/app/login"
         }
-        return "app/init"
+        return "app/install/create_admin"
     }
 
     /**
@@ -50,7 +50,7 @@ class InitAppController : AppBase() {
      */
     @PostMapping("/add_admin")
     @ResponseBody
-    fun addAdmin(@Validated form: InitForm) {
+    fun addAdmin(@Validated form: CreateAdminForm) {
         if (this.userDao.getOne(1) != null) {//管理员用户只能被创建一次
             throw ErrorCode.NOT_ALLOW
         }

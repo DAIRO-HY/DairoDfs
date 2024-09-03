@@ -131,6 +131,8 @@ class FfmpegInstallAppController : AppBase() {
                 File(Constant.FFMPEG_PATH + ".temp").renameTo(File(Constant.FFMPEG_PATH))
                 file.delete()
                 this.info = "安装完成"
+            } catch (e: Exception) {
+                this.info = "安装失败：$e"
             } finally {
                 this.isRuning = false
                 http.disconnect()

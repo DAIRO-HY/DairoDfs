@@ -69,7 +69,7 @@ object Constant {
     /**
      * ffprobe安装目录
      */
-    val FFPROBE_PATH = "${Boot.service.dataPath}/lib/ffprobe/ffprobe"
+    val FFPROBE_PATH = "${Boot.service.dataPath}/lib/ffprobe"
 
     /**
      * libraw安装目录

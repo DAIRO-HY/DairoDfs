@@ -5,8 +5,8 @@
 </head>
 <body class="bg-login">
 <div class="text-center d-table" style="width: 100vw;height: 100vh;">
-    <div class="d-table-cell align-middle">
-        <div class="d-inline-block border rounded bg-white p-3" style="width: 500px;">
+    <div class="d-table-cell align-middle" style="padding: 0 100px">
+        <div class="d-inline-block border rounded bg-white p-3" style="max-width: 700px;">
             <span class="fs-4">安装FFMPEG</span>
             <div class="text-start">
                 FFmpeg 是一个非常强大的多媒体处理工具，用于处理视频、音频、字幕等多种多媒体文件。<br>
@@ -25,18 +25,15 @@
                     </div>
                 </div>
             </div>
-            <div id="info" class="text-start mt-3 text-info">
-
+            <div id="info" class="text-start p-2" style="background-color: black;color: white;width: 100%;height: 260px;border-radius: 6px;overflow-y: auto;">
             </div>
             <div id="error" class="text-start mt-3 text-danger">
-
             </div>
             <div class="d-flex justify-content-between mt-3">
                 <div>
-                    3/10
+                    1/4
                 </div>
                 <div>
-                    <button id="btnPre" class="btn btn-primary" onclick="onPreClick()">上一步</button>
                     <button id="btnInstall" class="btn btn-primary" onclick="onInstallClick()">安装</button>
                     <button id="btnNext" class="btn btn-primary" onclick="window.location.href='ffprobe'" disabled>
                         下一步

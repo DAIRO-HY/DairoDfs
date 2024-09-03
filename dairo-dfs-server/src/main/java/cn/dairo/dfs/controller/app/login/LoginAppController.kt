@@ -2,7 +2,6 @@ package cn.dairo.dfs.controller.app.login
 
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.app.login.form.LoginAppForm
-import cn.dairo.dfs.controller.app.user.form.UserInfoForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.UserDao
 import cn.dairo.dfs.dao.UserTokenDao
@@ -44,7 +43,6 @@ class LoginAppController : AppBase() {
     @Value("\${user.token.limit}")
     private var userTokenLimit = 0
 
-
     /**
      * 用户操作Dao
      */
@@ -63,7 +61,7 @@ class LoginAppController : AppBase() {
     @GetMapping
     fun init(): String {
         if (!this.userDao.isInit()) {//是否已经初始化
-            return "redirect:/app/init"
+            return "redirect:/app/install/ffmpeg"
         }
         return "app/login"
     }
@@ -129,32 +127,5 @@ class LoginAppController : AppBase() {
     fun forget(session: HttpSession): String {
         val msg = "账户密码保存在"
         return dbPath
-    }
-
-    /**
-     * 忘记密码
-     */
-    @PostMapping("/returnInt")
-    @ResponseBody
-    fun returnInt(session: HttpSession): Int {
-        return 123
-    }
-
-    /**
-     * 忘记密码
-     */
-    @PostMapping("/returnVoid")
-    @ResponseBody
-    fun returnVoid(session: HttpSession) {
-        println("return 123")
-    }
-
-    /**
-     * 忘记密码
-     */
-    @PostMapping("/returnNull")
-    @ResponseBody
-    fun returnNull(): UserInfoForm? {
-        return null
     }
 }

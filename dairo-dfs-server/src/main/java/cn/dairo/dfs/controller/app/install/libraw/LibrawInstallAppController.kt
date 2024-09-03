@@ -18,7 +18,6 @@ import java.util.*
 import java.util.zip.ZipInputStream
 import kotlin.concurrent.thread
 
-
 /**
  * 安装libraw
  */
@@ -108,6 +107,7 @@ class LibrawInstallAppController : AppBase() {
                 return@thread
             }
             val http = URL(this.url).openConnection() as HttpURLConnection
+            var oStream: OutputStream? = null
             try {
                 this.write("正在下载")
                 http.connect()
@@ -123,7 +123,7 @@ class LibrawInstallAppController : AppBase() {
                 if (!file.parentFile.exists()) {
                     file.parentFile.mkdirs()
                 }
-                val oStream = file.outputStream()
+                oStream = file.outputStream()
 
                 //记录最后一次请求下载大小(用来计算网速)
                 var lastDownloadedSize = 0L
@@ -164,6 +164,7 @@ class LibrawInstallAppController : AppBase() {
                 //解压
                 unzip(file, Constant.LIBRAW_PATH + ".temp")
                 File(Constant.LIBRAW_PATH + ".temp").renameTo(File(Constant.LIBRAW_PATH))
+                oStream.close()
                 file.delete()
                 this.write("下载完成")
                 this.check()
@@ -172,6 +173,7 @@ class LibrawInstallAppController : AppBase() {
             } finally {
                 this.isRuning = false
                 http.disconnect()
+                oStream?.close()
             }
         }
     }
@@ -183,28 +185,33 @@ class LibrawInstallAppController : AppBase() {
         val dir = File(destDir)
         // 如果目标目录不存在，则创建它
         if (!dir.exists()) dir.mkdirs()
+        var zis: ZipInputStream? = null
+        try {// 创建ZipInputStream对象来读取ZIP文件
+            zis = ZipInputStream(FileInputStream(zipFile))
+            var zipEntry = zis.nextEntry
 
-        val buffer = ByteArray(8 * 1024)
-        // 创建ZipInputStream对象来读取ZIP文件
-        val zis = ZipInputStream(FileInputStream(zipFile))
-        var zipEntry = zis.nextEntry
-        // 遍历ZIP文件中的每一个条目
-        while (zipEntry != null) {
-            val filePath = destDir + File.separator + zipEntry.name
-            if (!zipEntry.isDirectory) {
-                this.write("正在解压:$filePath")
+            val buffer = ByteArray(64 * 1024)
+            // 遍历ZIP文件中的每一个条目
+            while (zipEntry != null) {
+                val filePath = destDir + File.separator + zipEntry.name
+                if (!zipEntry.isDirectory) {
+                    this.write("正在解压:$filePath")
 
-                // 如果是文件，提取它
-                extractFile(zis, filePath, buffer)
-            } else {
-                // 如果是目录，创建目录
-                val dirFile = File(filePath)
-                dirFile.mkdirs()
+                    // 如果是文件，提取它
+                    extractFile(zis, filePath, buffer)
+                } else {
+                    // 如果是目录，创建目录
+                    val dirFile = File(filePath)
+                    dirFile.mkdirs()
+                }
+                zis.closeEntry()
+                zipEntry = zis.nextEntry
             }
-            zis.closeEntry()
-            zipEntry = zis.nextEntry
+        } catch (e: Exception) {
+            throw e
+        } finally {
+            zis?.close()
         }
-        zis.close()
     }
 
     /**

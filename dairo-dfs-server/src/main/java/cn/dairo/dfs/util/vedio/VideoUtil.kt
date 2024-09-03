@@ -1,5 +1,6 @@
 package cn.dairo.dfs.util.vedio
 
+import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.util.ShellUtil
 import cn.dairo.dfs.util.image.ImageUtil
 import java.text.SimpleDateFormat
@@ -17,7 +18,7 @@ object VideoUtil {
 
         //获取视频第一帧作为缩略图
         val jpgData =
-            ShellUtil.execToByteArray("""ffmpeg -i "$path" -vf select=eq(n\,0) -q:v 1 -f image2pipe -vcodec mjpeg -""")
+            ShellUtil.execToByteArray(""""${Constant.FFMPEG_PATH}/ffmpeg" -i "$path" -vf select=eq(n\,0) -q:v 1 -f image2pipe -vcodec mjpeg -""")
         return ImageUtil.thumb(jpgData.inputStream(), maxWidth, maxHeight)
     }
 
@@ -29,7 +30,7 @@ object VideoUtil {
     fun getInfo(path: String): VedioInfo {
 
         //获取视频第一帧作为缩略图
-        val vedioInfoData = ShellUtil.execToByteArray("""ffprobe $path""", true)
+        val vedioInfoData = ShellUtil.execToByteArray(""""${Constant.FFPROBE_PATH}/ffprobe" "$path"""", true)
         val vedioInfoStr = String(vedioInfoData)
 
         //时长
@@ -151,7 +152,7 @@ object VideoUtil {
      * 视频转码
      */
     fun transfer(path: String, targetW: Int, targetH: Int, targetFps: Float, targetPath: String) {
-        ShellUtil.exec("""ffmpeg -i $path -vf scale=$targetW:$targetH -r $targetFps -f mp4 $targetPath""")
+        ShellUtil.exec(""""${Constant.FFMPEG_PATH}/ffmpeg" -i "$path" -vf scale=$targetW:$targetH -r $targetFps -f mp4 "$targetPath"""")
     }
 
     /**

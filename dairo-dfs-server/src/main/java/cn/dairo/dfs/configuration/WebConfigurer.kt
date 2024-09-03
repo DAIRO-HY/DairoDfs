@@ -56,7 +56,6 @@ class WebConfigurer : WebMvcConfigurer {
             .excludePathPatterns(STATIC_FILES)
             .excludePathPatterns(//不拦截的请求
                 "/app/install/**",
-                "/app/init/**",
                 "/app/login/**",
                 "/app/share/**",
                 "/app/file_upload/**"

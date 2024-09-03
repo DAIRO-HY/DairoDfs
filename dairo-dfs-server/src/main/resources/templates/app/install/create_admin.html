@@ -5,10 +5,10 @@
 </head>
 <body class="bg-login">
 <div class="text-center d-table" style="width: 100vw;height: 100vh;">
-    <div class="d-table-cell align-middle">
-        <div class="d-inline-block border rounded bg-white p-3" style="width: 300px;">
+    <div class="d-table-cell align-middle" style="padding: 0 100px">
+        <div class="d-inline-block border rounded bg-white p-3" style="max-width: 700px;min-width: 300px">
             <span class="fs-4">创建管理员</span>
-            <form action="/app/init/add_admin">
+            <form action="/app/install/create_admin/add_admin">
                 <div>
                     <input name="name" class="form-control mt-3" type="text" placeholder="用户名" autocomplete="off">
                 </div>
@@ -19,7 +19,15 @@
                     <input id="repwd" class="form-control mt-3" type="password" placeholder="确认密码"
                            autocomplete="off">
                 </div>
-                <button type="button" class="btn btn-primary w-100 mt-4" onclick="onInitClick()">创建</button>
+                <div class="d-flex justify-content-between mt-5">
+                    <div>
+                        4/4
+                    </div>
+                    <div>
+                        <button id="btnPre" class="btn btn-primary" onclick="window.location.href='libraw'">上一步</button>
+                        <button id="btnInstall" class="btn btn-primary" onclick="onInitClick()">创建</button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>

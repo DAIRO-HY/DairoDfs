@@ -1,9 +1,9 @@
-package cn.dairo.dfs.controller.app.init.form
+package cn.dairo.dfs.controller.app.install.create_admin.form
 
 import jakarta.validation.constraints.NotBlank
 import org.hibernate.validator.constraints.Length
 
-class InitForm {
+class CreateAdminForm {
 
     /**
      * 用户名
