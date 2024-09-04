@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # 获取当前脚本文件的完整路径
 SCRIPT_PATH=$(realpath "$0")

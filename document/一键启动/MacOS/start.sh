@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # 获取当前脚本所在目录
 SCRIPT_DIR="$(dirname "$0")"
