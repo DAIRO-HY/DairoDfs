@@ -202,7 +202,7 @@ class FfmpegInstallAppController : AppBase() {
 
                         //开启可执行权限
                         ShellUtil.exec(
-                            """chmod -R 777 "${
+                            """chmod -R +x "${
                                 File(Constant.FFMPEG_PATH).absolutePath.replace(
                                     "/./",
                                     "/"
@@ -223,7 +223,7 @@ class FfmpegInstallAppController : AppBase() {
                         val pb = ProcessBuilder(
                             "osascript",
                             "-e",
-                            "tell application \"Terminal\" to do script \"sudo chmod -R 777 ${
+                            "tell application \"Terminal\" to do script \"sudo chmod -R +x ${
                                 File(Constant.FFMPEG_PATH).absolutePath.replace(
                                     "/./",
                                     "/"

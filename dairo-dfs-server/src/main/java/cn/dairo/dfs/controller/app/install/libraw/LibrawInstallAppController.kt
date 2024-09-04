@@ -90,7 +90,9 @@ class LibrawInstallAppController : AppBase() {
                         iStream.transferTo(it)
                     }
                 }
-                ShellUtil.execToInputStream("chmod 777 ${Constant.LIBRAW_PATH}/libraw-install.sh", true) {
+
+                //将sh赋予可执行权限
+                ShellUtil.execToInputStream("chmod +x ${Constant.LIBRAW_PATH}/libraw-install.sh", true) {
                     it.transferTo(this.browerOStream)
                 }
                 this.browerOStream?.flush()
@@ -241,7 +243,7 @@ class LibrawInstallAppController : AppBase() {
 
         // 使用 ProcessBuilder 打开终端并执行指定的命令
         val pb = ProcessBuilder(
-            "osascript", "-e", "tell application \"Terminal\" to do script \"sudo chmod -R 777 ${
+            "osascript", "-e", "tell application \"Terminal\" to do script \"sudo chmod -R +x ${
                 File(Constant.LIBRAW_BIN).absolutePath.replace(
                     "/./", "/"
                 )
