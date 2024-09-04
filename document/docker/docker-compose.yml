@@ -1,10 +1,10 @@
 version: '3.1'
 services:
   dairo-dfs:
-    #build: ./build
+    build: .
     restart: always
     container_name: dairo-dfs
-    image: dairopapa/dairo-dfs:1.0
+#    image: dairopapa/dairo-dfs:1.0
     #network_mode: host
 
     #使用真root权限进入
