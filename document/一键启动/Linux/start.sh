@@ -48,6 +48,9 @@ if [ ! -d "jdk-17.0.1" ]; then
   tar -xzf jdk.tar.gz -C dairo.temp
   mv dairo.temp/* .
   rm -r dairo.temp
+
+  #将JDK压缩包删除
+  rm jdk.tar.gz
   echo "JDK安装完成"
 fi
 
