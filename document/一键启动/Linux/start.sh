@@ -4,8 +4,15 @@
 SCRIPT_DIR="$(dirname "$0")"
 cd $SCRIPT_DIR
 
-JAR_VERSION="1.0.0"
 DATA_FOLDER="./DairoDfs"
+
+#第一个参数作为版本号
+if [ $# -eq 0 ]; then
+  #如果没有传递参数，默认设置为某一个版本
+  JAR_VERSION=1.0.0
+else
+  JAR_VERSION=$1
+fi
 
 #创建DairoDfs文件夹
 if [ ! -d "$DATA_FOLDER" ]; then
@@ -44,9 +51,9 @@ if [ ! -d "jdk-17.0.1" ]; then
   echo "JDK安装完成"
 fi
 
-if [ ! -f "dairo-dfs-server.jar" ]; then
+if [ ! -f "dairo-dfs-server-$JAR_VERSION.jar" ]; then
   echo "正在下载dairo-dfs-server.jar"
-  curl -L -o dairo-dfs-server.jar https://github.com/DAIRO-HY/DairoDfs/releases/download/$JAR_VERSION/dairo-dfs-server.jar
+  curl -L -o dairo-dfs-server-$JAR_VERSION.jar https://github.com/DAIRO-HY/DairoDfs/releases/download/$JAR_VERSION/dairo-dfs-server.jar
   echo "dairo-dfs-server.jar下载完成"
 fi
-jdk-17.0.1/bin/java -jar dairo-dfs-server.jar
+jdk-17.0.1/bin/java -jar dairo-dfs-server-$JAR_VERSION.jar
