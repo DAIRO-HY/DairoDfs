@@ -12,5 +12,8 @@ ADD https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5
 #授权可执行
 RUN chmod +x start.sh
 
+# 定义运行时的环境变量
+ENV VERSION=1.0.0
+
 #启动脚本
-ENTRYPOINT ["./start.sh"]
+ENTRYPOINT "./start.sh" $VERSION
