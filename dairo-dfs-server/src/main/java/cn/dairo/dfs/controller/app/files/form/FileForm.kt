@@ -23,11 +23,6 @@ class FileForm {
     var fileFlag: Boolean = false
 
     /**
-     * 缩略图id
-     */
-    var thumbId: Long? = null
-
-    /**
      * 创建日期
      */
     var date: String = ""

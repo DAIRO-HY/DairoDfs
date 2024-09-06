@@ -77,7 +77,7 @@ class FilesAppController : AppBase() {
                 this.size = it.size!!
                 this.date = it.date!!.format()
                 this.fileFlag = it.isFile
-                this.thumbId = if (it.thumbLocalId == null) null else it.id
+//                this.thumbId = if (it.thumbLocalId == null) null else it.id
             }
         }
         return list
@@ -419,16 +419,16 @@ class FilesAppController : AppBase() {
      * 缩略图下载
      * @param request 客户端请求
      * @param response 往客户端返回内容
-     * @param thumbId 文件md5
+     * @param id 文件ID
      */
-    @GetMapping("/thumb/{thumbId}")
+    @GetMapping("/thumb/{id}")
     fun thumb(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        @PathVariable thumbId: Long
+        @PathVariable id: Long
     ) {
         val userId = super.loginId//验证登录
-        val dfsDto = this.dfsFileDao.getOne(thumbId)
+        val dfsDto = this.dfsFileDao.getOne(id)
         if (dfsDto == null) {//文件不存在
             response.status = HttpStatus.NOT_FOUND.value()
             return
@@ -436,12 +436,9 @@ class FilesAppController : AppBase() {
         if (dfsDto.userId != userId) {//没有权限
             throw ErrorCode.NOT_ALLOW
         }
-        if (dfsDto.thumbLocalId == null) {//如果有缩略图
-            response.status = HttpStatus.NOT_FOUND.value()
-            return
-        }
-        val localDto = this.localFileDao.selectOne(dfsDto.thumbLocalId!!)
-        response.reset() //清除buffer缓存
-        DfsFileUtil.download(localDto, request, response)
+
+        //获取缩率图附属文件
+        val thumb=this.dfsFileDao.selectExtra(dfsDto.id!!,"thumb")
+        DfsFileUtil.download(thumb, request, response)
     }
 }

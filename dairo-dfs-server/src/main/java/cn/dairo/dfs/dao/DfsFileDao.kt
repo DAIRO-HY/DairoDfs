@@ -138,13 +138,13 @@ interface DfsFileDao {
      * 彻底删除文件(适用于删除文件夹下所有的文件)
      * @param id 文件ID
      */
-    fun logicDelete(id: Long)
+    fun deleteByFolder(id: Long)
 
     /**
      * 删除文件及文件所有历史版本(适用于删除单的文件)
      * @param id 文件ID
      */
-    fun logicDeleteFile(id: Long)
+    fun deleteByFile(id: Long)
 
     /**
      * 文件移动
@@ -204,7 +204,21 @@ interface DfsFileDao {
     /**
      * 通过本地存储ID查询文件附属文件
      * @param localId 本地存储id
-     * @return 属性
+     * @return 附属文件列表
      */
     fun selectExtraFileByLocalId(localId: Long): List<DfsFileDto>
+
+    /**
+     * 获取某个文件附属文件
+     * @param id 文件id
+     * @return 附属文件列表
+     */
+    fun selectExtraListById(id: Long): List<DfsFileDto>
+
+    /**
+     * 获取某个文件夹下的所有文件及文件夹，包括历史文件，已删除文件
+     * @param id 文件id
+     * @return 文件夹下的所有文件及文件夹，包括历史文件，已删除文件
+     */
+    fun selectAllChildList(id: Long): List<DfsFileDto>
 }

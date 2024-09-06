@@ -59,6 +59,7 @@ object RawUtil {
             pngOption.compressionLevel = 9//0-9
             val pngStream = ByteArrayOutputStream()
             tiff.save(pngStream, pngOption)
+            tiff.close()
             return pngStream.toByteArray()
         } finally {
             File(renameTo).renameTo(File(path))
@@ -86,6 +87,7 @@ object RawUtil {
             val jpgStream = ByteArrayOutputStream()
             tiff.save(jpgStream, jpgOption)
             println("-->耗时:${System.currentTimeMillis() - now} 数据大小:${jpgStream.size().toDataSize}")
+            tiff.close()
             return jpgStream.toByteArray()
         } finally {
             File(renameTo).renameTo(File(path))

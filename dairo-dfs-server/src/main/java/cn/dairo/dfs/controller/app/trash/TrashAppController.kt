@@ -4,9 +4,9 @@ import cn.dairo.dfs.config.SystemConfig
 import cn.dairo.dfs.controller.app.trash.form.TrashForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.DfsFileDao
-import cn.dairo.dfs.extension.format
 import cn.dairo.dfs.extension.isFile
 import cn.dairo.dfs.extension.toDataSize
+import cn.dairo.dfs.service.DfsFileDeleteService
 import cn.dairo.dfs.service.DfsFileService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
-import java.util.*
 
 /**
  * 垃圾桶文件列表
@@ -30,6 +29,12 @@ class TrashAppController : AppBase() {
      */
     @Autowired
     private lateinit var dfsFileService: DfsFileService
+
+    /**
+     * 文件彻底操作Service
+     */
+    @Autowired
+    private lateinit var dfsFileDeleteService: DfsFileDeleteService
 
     /**
      * 文件操作Dao
@@ -82,7 +87,7 @@ class TrashAppController : AppBase() {
         @Parameter(description = "选中的文件ID列表") @RequestParam("ids", required = true) ids: List<Long>
     ) {
         val userId = super.loginId
-        this.dfsFileService.logicDelete(userId, ids)
+        this.dfsFileDeleteService.delete(userId, ids)
     }
 
     @Operation(summary = "从垃圾箱还原文件")

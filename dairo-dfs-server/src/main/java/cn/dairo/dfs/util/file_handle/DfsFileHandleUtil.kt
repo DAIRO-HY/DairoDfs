@@ -10,6 +10,7 @@ import cn.dairo.dfs.extension.*
 import cn.dairo.dfs.service.DfsFileService
 import cn.dairo.dfs.util.DBID
 import cn.dairo.dfs.util.DfsFileUtil
+import cn.dairo.dfs.util.DfsFileUtil.dfsContentType
 import cn.dairo.dfs.util.image.ImageUtil
 import cn.dairo.dfs.util.image.PSDUtil
 import cn.dairo.dfs.util.image.RawUtil
@@ -154,7 +155,21 @@ object DfsFileHandleUtil {
 
         //添加一个本地文件
         this.localFileDao.add(addLocalDto)
-        this.dfsFileDao.setThumb(dfsFileDto.id!!, addLocalDto.id!!)
+        //this.dfsFileDao.setThumb(dfsFileDto.id!!, addLocalDto.id!!)
+
+        //添加缩率图附属文件
+        val extraDto = DfsFileDto()
+        extraDto.id = DBID.id
+        extraDto.name = "thumb"
+        extraDto.size = data.size.toLong()
+        extraDto.localId = addLocalDto.id
+        extraDto.isExtra = true
+        extraDto.parentId = dfsFileDto.id
+        extraDto.userId = dfsFileDto.userId
+        extraDto.date = dfsFileDto.date
+        extraDto.state = 1
+        extraDto.contentType = ".jpeg".dfsContentType
+        this.dfsFileDao.add(extraDto)
     }
 
     /**
@@ -230,7 +245,7 @@ object DfsFileHandleUtil {
                 extraDto.localId = it.localId
                 extraDto.isExtra = true
                 extraDto.parentId = dfsFileDto.id
-                extraDto.userId = -1
+                extraDto.userId = it.userId
                 extraDto.date = dfsFileDto.date
                 extraDto.state = 1
                 extraDto.contentType = it.contentType
@@ -276,7 +291,7 @@ object DfsFileHandleUtil {
             extraDto.localId = localFileDto.id!!
             extraDto.isExtra = true
             extraDto.parentId = dfsFileDto.id
-            extraDto.userId = -1
+            extraDto.userId = dfsFileDto.userId
             extraDto.date = dfsFileDto.date
             extraDto.state = 1
             extraDto.contentType = "image/png"
@@ -348,7 +363,7 @@ object DfsFileHandleUtil {
                     extraDto.localId = localFileDto.id!!
                     extraDto.isExtra = true
                     extraDto.parentId = dfsFileDto.id
-                    extraDto.userId = -1
+                    extraDto.userId = dfsFileDto.userId
                     extraDto.date = dfsFileDto.date
                     extraDto.contentType = "video/mp4"
                     extraDto.state = 1
@@ -372,7 +387,7 @@ object DfsFileHandleUtil {
             extraDto.localId = localFileDto.id!!
             extraDto.isExtra = true
             extraDto.parentId = dfsFileDto.id
-            extraDto.userId = -1
+            extraDto.userId = dfsFileDto.userId
             extraDto.date = dfsFileDto.date
             extraDto.contentType = "image/jpeg"
             extraDto.state = 1

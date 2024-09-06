@@ -1,8 +1,10 @@
 package cn.dairo.dfs.boot
 
 import cn.dairo.dfs.config.SystemConfig
+import cn.dairo.dfs.service.DfsFileDeleteService
 import cn.dairo.lib.server.dbtool.DBService
 import cn.dairo.lib.server.dbtool.SqliteTool
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -19,6 +21,12 @@ class BootTimer {
      */
     @Value("\${sqlite.path}")
     private lateinit var dbPath: String
+
+    /**
+     * 文件彻底操作Service
+     */
+    @Autowired
+    private lateinit var dfsFileDeleteService: DfsFileDeleteService
 
     /**
      * 每天凌晨3点执行
@@ -48,11 +56,11 @@ class BootTimer {
         while (true) {
 
             //不能边查询边删除数据,所以只能先将要删除的id保存的list
-            val deleteIdsList = ArrayList<Int>()
+            val deleteIdsList = ArrayList<Long>()
 
             //获取被删除的文件,每次获取10000件
             db.selectResult("select id,deleteDate from dfs_file where deleteDate is not null limit 10000") {
-                val id = it.getInt("id")
+                val id = it.getLong("id")
                 val deleteDate = it.getLong("deleteDate")
                 if (nowTime - deleteDate > trashSaveTime) {
                     deleteIdsList.add(id)
@@ -76,7 +84,7 @@ class BootTimer {
         while (true) {
 
             //不能边查询边删除数据,所以只能先将要删除的id保存到Map
-            val deleteIdToPathMap = HashMap<Int, String>()
+            val deleteIdToPathMap = HashMap<Long, String>()
 
             //获取没有被使用的文件
             db.selectResult(
@@ -88,7 +96,7 @@ class BootTimer {
                     ) as groupLf where count is null limit 10000
                 """.trimIndent()
             ) {
-                val id = it.getInt("id")
+                val id = it.getLong("id")
                 val path = it.getString("path")
                 deleteIdToPathMap[id] = path
             }

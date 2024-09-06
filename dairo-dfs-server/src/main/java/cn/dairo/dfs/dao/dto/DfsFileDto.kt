@@ -40,11 +40,6 @@ class DfsFileDto {
     var localId: Long? = null
 
     /**
-     * 缩略图本地文件存储id(文件专用)
-     */
-    var thumbLocalId: Long? = null
-
-    /**
      * 创建日期
      */
     var date: Date? = null

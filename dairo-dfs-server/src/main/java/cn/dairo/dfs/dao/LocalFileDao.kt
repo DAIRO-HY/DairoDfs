@@ -22,4 +22,9 @@ interface LocalFileDao {
      * @param md5 文件MD5
      */
     fun selectByFileMd5(md5: String): LocalFileDto?
+
+    /**
+     * 通过id删除一条数据
+     */
+    fun delete(id: Long)
 }

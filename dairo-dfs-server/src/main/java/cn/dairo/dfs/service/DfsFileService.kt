@@ -236,7 +236,7 @@ class DfsFileService {
             }
         }
         afterDeleteFolderList.forEach {//删除源文件夹,不能在移动的途中删除文件夹,否则导致无法找到要移动的文件
-            this.dfsFileDao.logicDelete(it.id!!)
+            this.dfsFileDao.deleteByFolder(it.id!!)
         }
     }
 
@@ -293,41 +293,6 @@ class DfsFileService {
             ?: throw BusinessException("找不到指定目录:${path}")
         val dsfFileDto = this.dfsFileDao.getOne(dfsFileId)!!
         this.setDelete(dsfFileDto.id!!)
-    }
-
-    /**
-     * 彻底删除文件
-     * @param userId 用户ID
-     * @param ids 要删除的文件ID
-     */
-    fun logicDelete(userId: Long, ids: List<Long>) {
-        ids.forEach {
-            val fileDto = this.dfsFileDao.getOne(it)!!
-            if (fileDto.userId != userId) {
-                throw ErrorCode.NOT_ALLOW
-            }
-            if (fileDto.deleteDate == null) {
-                throw ErrorCode.NOT_ALLOW
-            }
-            if (fileDto.isFolder) {//如果是文件夹
-                recursionLogicDelete(userId, it)
-            } else {
-                this.dfsFileDao.logicDeleteFile(it)
-            }
-        }
-    }
-
-    /**
-     * 递归删除文件夹所有类容
-     * @param fileId 要删除的文件ID
-     */
-    private fun recursionLogicDelete(userId: Long, fileId: Long) {
-        this.dfsFileDao.getSubIdListToLogicDelete(userId, fileId).forEach {
-            this.recursionLogicDelete(userId, it)
-        }
-
-        //彻底删除
-        this.dfsFileDao.logicDelete(fileId)
     }
 
     /**
