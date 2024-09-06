@@ -118,9 +118,7 @@ DairoDFS是一款可分布式部署的文件管理系统。
 
 ### Linux启动
 
-1.
-下载[start.sh](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Linux/start.sh)
-文件，放到你想安装的目录下。
+1. 下载[start.sh](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Linux/start.sh)文件，放到你想安装的目录下。
 
 2. 打开控制台进入1所下载的文件文件夹下。
 3. 输入以下指令授予可执行权限。
