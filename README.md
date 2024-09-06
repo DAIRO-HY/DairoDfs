@@ -6,14 +6,24 @@ DairoDFS是一款可分布式部署的文件管理系统。
 + Windows10及以上
 + MAC OS
 + Linux(Ubuntu)
+
 ### 开发IDEA
 + IntelliJ Idea
+
 ### 开发语言
 + Kotlin
++ Java
++ Html
++ JavaScript
++ Css
+
 ### 使用框架
 + Gradle8.5及以上版本
 + JDK17及以上版本
 + SpringBoot
++ Jquery
++ BootStrap
+
 ### 数据库
 + Sqlite
 ### 依赖软件
