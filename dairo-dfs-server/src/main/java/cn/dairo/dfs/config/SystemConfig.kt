@@ -1,5 +1,7 @@
 package cn.dairo.dfs.config
 
+import cn.dairo.dfs.boot.Boot
+import cn.dairo.dfs.extension.bean
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 
@@ -9,6 +11,18 @@ import java.io.File
 class SystemConfig private constructor() {
 
     /**
+     * 是否开启分布式部署
+     */
+//    @get:JsonProperty("isDistributed")
+//    @set:JsonProperty("isDistributed")
+    var isDistributed = false
+
+    /**
+     * 将当前服务器设置为只读,仅作为备份使用
+     */
+    var isReadOnly = false
+
+    /**
      * 文件上传限制(MB)
      */
     var uploadMaxSize = 10 * 1024L
@@ -16,7 +30,7 @@ class SystemConfig private constructor() {
     /**
      * 文件保存文件夹列表
      */
-    var saveFolderList: List<String> = listOf("./data")
+    var saveFolderList: List<String> = listOf(Boot::class.bean.dataPath)
 
     /**
      * 同步域名
