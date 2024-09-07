@@ -1,9 +1,7 @@
 package cn.dairo.dfs.boot
 
 import cn.dairo.dfs.config.Constant
-import cn.dairo.lib.server.dbtool.DBBase
 import cn.dairo.lib.server.dbtool.DBService
-import cn.dairo.lib.server.dbtool.SqliteTool
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -71,6 +69,12 @@ class UpdateSQL : ApplicationRunner {
         "sql/create/share.sql".execBYFile(db)
         "sql/create/sql_log.sql".execBYFile(db)
         "sql/create/user_token.sql".execBYFile(db)
+
+        //将dfs_file表复制一份,用来保存彻底删除的数据
+        UpdateSQL::class.java.classLoader.getResourceAsStream("sql/create/dfs_file.sql").use {
+            val sql = String(it.readAllBytes(), Charset.forName("UTF-8")).replace("dfs_file", "dfs_file_delete")
+            sql.exec(db)
+        }
     }
 
     private fun String.execBYFile(db: DBService) = UpdateSQL::class.java.classLoader.getResourceAsStream(this).use {

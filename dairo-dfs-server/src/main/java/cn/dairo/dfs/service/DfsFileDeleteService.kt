@@ -2,12 +2,14 @@ package cn.dairo.dfs.service
 
 import cn.dairo.dfs.code.ErrorCode
 import cn.dairo.dfs.dao.DfsFileDao
+import cn.dairo.dfs.dao.DfsFileDeleteDao
 import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.dao.dto.DfsFileDto
-import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.isFolder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Transactional
 import java.io.File
 
 /**
@@ -15,6 +17,12 @@ import java.io.File
  */
 @Service
 class DfsFileDeleteService {
+
+    /**
+     * 文件删除数据操作Dao
+     */
+    @Autowired
+    private lateinit var dfsFileDeleteDao: DfsFileDeleteDao
 
     /**
      * 文件数据操作Dao
@@ -30,18 +38,11 @@ class DfsFileDeleteService {
 
     /**
      * 彻底删除文件
-     * @param userId 用户ID
      * @param ids 要删除的文件ID
      */
-    fun delete(userId: Long, ids: List<Long>) {
+    fun addDelete(ids: List<Long>) {
         ids.forEach {
             val fileDto = this.dfsFileDao.getOne(it)!!
-            if (fileDto.userId != userId) {//非自己的文件，无法删除
-                throw ErrorCode.NOT_ALLOW
-            }
-            if (fileDto.deleteDate == null) {//该文件未标记为删除
-                throw ErrorCode.NOT_ALLOW
-            }
             if (fileDto.isFolder) {//如果是文件夹
                 this.deleteFolder(fileDto)
             } else {
@@ -72,27 +73,45 @@ class DfsFileDeleteService {
      * 删除文件本身和附属文件
      */
     private fun deleteSelfAndExtra(fileDto: DfsFileDto) {
+        if (!fileDto.isExtra) {//如果这不是一个附属文件
 
-        //获取附属文件
-        val extraList = this.dfsFileDao.selectExtraListById(fileDto.id!!)
-        extraList.forEach {//删除文件所有附属文件
-            this.delete(it)
+            //获取附属文件
+            val extraList = this.dfsFileDao.selectExtraListById(fileDto.id!!)
+            extraList.forEach {//删除文件所有附属文件
+                this.addDelete(it)
+            }
         }
-        this.delete(fileDto)
+        this.addDelete(fileDto)
     }
 
     /**
      * 彻底删除文件
-     * @TODO: 这里不应该立即删除文件，应该先用一个字段标记，过一段时间再彻底删除，防止误操作还有挽回的余地
      */
-    private fun delete(fileDto: DfsFileDto) {
-        val localDto = this.localFileDao.selectOne(fileDto.localId!!) ?: return
-        if (!File(localDto.path!!).delete()) {//文件删除失败，可能文件正在被使用
-            throw BusinessException("文件[${localDto.path}]删除失败")
+    private fun addDelete(fileDto: DfsFileDto) {
+        this.dfsFileDeleteDao.insert(fileDto.id!!)
+        this.dfsFileDeleteDao.setDeleteDate(fileDto.id!!, System.currentTimeMillis())
+        this.dfsFileDao.deleteByFile(fileDto.id!!)
+    }
+
+    /**
+     * 彻底删除文件
+     */
+    fun deleteLocalFile(id: Long) {
+        if (this.dfsFileDao.isFileUsing(id)) {//文件还在使用中
+            return
+        }
+        if (this.dfsFileDeleteDao.isFileUsing(id)) {//文件还在使用中
+            return
+        }
+        val localDto = this.localFileDao.selectOne(id) ?: return
+        val file = File(localDto.path!!)
+        if (file.exists()) {
+            if (!file.delete()) {//文件删除不成功的话不做任何处理
+                return
+            }
         }
 
         //删除本地文件表数据
         this.localFileDao.delete(localDto.id!!)
-        this.dfsFileDao.deleteByFile(fileDto.id!!)
     }
 }

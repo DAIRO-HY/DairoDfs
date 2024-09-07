@@ -1,5 +1,6 @@
 package cn.dairo.dfs.controller.app.trash
 
+import cn.dairo.dfs.code.ErrorCode
 import cn.dairo.dfs.config.SystemConfig
 import cn.dairo.dfs.controller.app.trash.form.TrashForm
 import cn.dairo.dfs.controller.base.AppBase
@@ -11,6 +12,7 @@ import cn.dairo.dfs.service.DfsFileService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -23,6 +25,9 @@ import org.springframework.web.bind.annotation.ResponseBody
 @Controller
 @RequestMapping("/app/trash")
 class TrashAppController : AppBase() {
+
+    @Value("\${config.trash-timeout}")
+    private var trashTimeout = 0L
 
     /**
      * 文件夹数据操作Service
@@ -48,7 +53,7 @@ class TrashAppController : AppBase() {
     fun getList(): List<TrashForm> {
         val userId = super.loginId
         val now = System.currentTimeMillis()
-        val trashSaveTime = SystemConfig.instance.trashSaveTime
+        val trashSaveTime = this.trashTimeout * 24 * 60 * 60 * 1000
         val list = this.dfsFileDao.getDeleteList(userId).map {
             val deleteDate = it.deleteDate!!
 
@@ -87,7 +92,16 @@ class TrashAppController : AppBase() {
         @Parameter(description = "选中的文件ID列表") @RequestParam("ids", required = true) ids: List<Long>
     ) {
         val userId = super.loginId
-        this.dfsFileDeleteService.delete(userId, ids)
+        ids.forEach {//验证是否有删除权限
+            val fileDto = this.dfsFileDao.getOne(it)!!
+            if (fileDto.userId != userId) {//非自己的文件，无法删除
+                throw ErrorCode.NOT_ALLOW
+            }
+            if (fileDto.deleteDate == null) {//该文件未标记为删除
+                throw ErrorCode.NOT_ALLOW
+            }
+        }
+        this.dfsFileDeleteService.addDelete(ids)
     }
 
     @Operation(summary = "从垃圾箱还原文件")

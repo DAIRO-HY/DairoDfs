@@ -97,6 +97,12 @@ interface DfsFileDao {
     fun getDeleteList(userId: Long): List<DfsFileDto>
 
     /**
+     * 获取所有回收站超时的数据
+     * @return 已删除的文件
+     */
+    fun getIdsByDeleteAndTimeout(time: Long): List<Long>
+
+    /**
      * 获取文件历史版本
      * @param userId 用户ID
      * @param id 文件id
@@ -153,11 +159,6 @@ interface DfsFileDao {
     fun move(dto: DfsFileDto)
 
     /**
-     * 设置文件缩略图
-     */
-    fun setThumb(@Param("id") id: Long, @Param("thumbLocalId") localId: Long)
-
-    /**
      * 设置文件属性
      */
     fun setProperty(@Param("id") id: Long, @Param("property") property: String)
@@ -188,13 +189,6 @@ interface DfsFileDao {
     fun selectExtraNames(id: Long): List<String>
 
     /**
-     * 通过本地存储ID查询缩略图
-     * @param localId 本地存储id
-     * @return 缩略图
-     */
-    fun selectThumbByLocalId(localId: Long): Long?
-
-    /**
      * 通过本地存储ID查询文件属性
      * @param localId 本地存储id
      * @return 属性
@@ -221,4 +215,10 @@ interface DfsFileDao {
      * @return 文件夹下的所有文件及文件夹，包括历史文件，已删除文件
      */
     fun selectAllChildList(id: Long): List<DfsFileDto>
+
+    /**
+     * 文件是否正在使用中
+     * @param id 本地文件id
+     */
+    fun isFileUsing(id: Long): Boolean
 }

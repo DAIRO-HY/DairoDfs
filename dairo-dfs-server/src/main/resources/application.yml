@@ -7,6 +7,12 @@ sqlite.path: ${data.path}/dairo-dfs.sqlite
 #用一个用户允许登录的客户端数量限制
 user.token.limit: 10
 
+#回收站保存天数
+config.trash-timeout: 30
+
+#彻底删除文件间隔天数
+config.delete-file-timeout: 10
+
 #启动模式,dev:开发模式,prod:生产模式
 active: prod
 server:

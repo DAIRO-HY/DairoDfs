@@ -86,7 +86,7 @@
 
     <!--获取子文件信息,客户端显示用-->
     <select id="getSubFile" resultType="DfsFileDto">
-        select id, name, size, date, localId, thumbLocalId
+        select id, name, size, date, localId
         from dfs_file
         where userId = #{userId}
           and parentId = #{parentId}
@@ -109,6 +109,14 @@
         where userId = #{0}
           and isHistory = 0
           and deleteDate is not null
+    </select>
+
+    <!-- 获取所有回收站超时的数据 -->
+    <select id="getIdsByDeleteAndTimeout" resultType="Long">
+        select id
+        from dfs_file
+        where deleteDate <![CDATA[<]]> #{0}
+        limit 1000
     </select>
 
     <!-- 获取文件历史版本 -->
@@ -201,13 +209,6 @@
         where id = #{id}
     </update>
 
-    <!--设置文件缩略图-->
-    <update id="setThumb">
-        update dfs_file
-        set thumbLocalId = #{thumbLocalId}
-        where id = #{id}
-    </update>
-
     <!--设置文件属性-->
     <update id="setProperty">
         update dfs_file
@@ -248,16 +249,6 @@
           and isExtra = 1
     </select>
 
-    <!--通过本地存储ID查询缩略图-->
-    <select id="selectThumbByLocalId" resultType="Long">
-        select thumbLocalId
-        from dfs_file
-        where localId = #{0}
-          and state = 1
-          and thumbLocalId is not null
-        limit 1
-    </select>
-
     <!--通过本地存储ID查询文件属性-->
     <select id="selectPropertyByLocalId" resultType="String">
         select property
@@ -289,6 +280,12 @@
         select *
         from dfs_file
         where parentId = #{0}
-          and localId = 0
+    </select>
+
+    <!--文件是否正在使用中-->
+    <select id="isFileUsing" resultType="Boolean">
+        select count(*)
+        from dfs_file
+        where localId = #{0}
     </select>
 </mapper>

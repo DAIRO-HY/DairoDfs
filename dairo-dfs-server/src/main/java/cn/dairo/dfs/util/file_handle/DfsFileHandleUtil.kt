@@ -54,9 +54,6 @@ object DfsFileHandleUtil {
                     dfsList.forEach {
                         try {
 
-                            //获取缩略图
-                            this.makeThumb(it)
-
                             //设置文件属性
                             this.makeProperty(it)
 
@@ -79,13 +76,6 @@ object DfsFileHandleUtil {
      * 生成缩略图
      */
     private fun makeThumb(dfsFileDto: DfsFileDto) {
-
-        //先匹配已经存在的缩略图
-        val thumbLocalId = this.dfsFileDao.selectThumbByLocalId(dfsFileDto.localId!!)
-        if (thumbLocalId != null) {
-            this.dfsFileDao.setThumb(dfsFileDto.id!!, thumbLocalId)
-            return
-        }
         val localDto = this.localFileDao.selectOne(dfsFileDto.localId!!) ?: return
         val path = File(localDto.path!!).absolutePath
 
@@ -138,37 +128,22 @@ object DfsFileHandleUtil {
 
         //计算缩略图的md5
         val md5 = data.md5
-        val existsLocalDto = this.localFileDao.selectByFileMd5(md5)
-        if (existsLocalDto != null) {//该缩略图已经存在
-            this.dfsFileDao.setThumb(dfsFileDto.id!!, existsLocalDto.id!!)
-            return
-        }
 
-        //获取本地文件存储路径
-        val localPath = DfsFileUtil.localPath
-        File(localPath).writeBytes(data)
-
-        val addLocalDto = LocalFileDto()
-        addLocalDto.id = DBID.id
-        addLocalDto.md5 = data.md5
-        addLocalDto.path = localPath
-
-        //添加一个本地文件
-        this.localFileDao.add(addLocalDto)
-        //this.dfsFileDao.setThumb(dfsFileDto.id!!, addLocalDto.id!!)
+        //保存文件
+        val localFileDto = this.dfsFileService.saveToLocalFile(md5, data.inputStream())
 
         //添加缩率图附属文件
         val extraDto = DfsFileDto()
         extraDto.id = DBID.id
         extraDto.name = "thumb"
         extraDto.size = data.size.toLong()
-        extraDto.localId = addLocalDto.id
+        extraDto.localId = localFileDto.id
         extraDto.isExtra = true
         extraDto.parentId = dfsFileDto.id
         extraDto.userId = dfsFileDto.userId
         extraDto.date = dfsFileDto.date
         extraDto.state = 1
-        extraDto.contentType = ".jpeg".dfsContentType
+        extraDto.contentType = "jpeg".dfsContentType
         this.dfsFileDao.add(extraDto)
     }
 
@@ -253,6 +228,9 @@ object DfsFileHandleUtil {
             }
             return
         }
+
+        //获取缩略图
+        this.makeThumb(dfsFileDto)
         val localDto = this.localFileDao.selectOne(dfsFileDto.localId!!) ?: return
         val path = localDto.path!!
 
