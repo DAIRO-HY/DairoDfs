@@ -1,6 +1,8 @@
 package cn.dairo.dfs.interceptor
 
 
+import cn.dairo.dfs.config.SystemConfig
+import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.toJson
 import cn.dairo.dfs.sync.SyncLogUtil
 import cn.dairo.dfs.util.DBID
@@ -18,8 +20,7 @@ import java.util.*
 import kotlin.concurrent.thread
 
 /**
- * @author Badboy
- * 后台管理员权限验证拦截器
+ * SQL语句拦截器
  */
 @Component
 @Intercepts(
@@ -42,10 +43,15 @@ class MybatisInterceptor : Interceptor {
     }
 
     override fun intercept(invocation: Invocation): Any? {
+        if (SystemConfig.instance.isReadOnly) {//这是一个只读服务器
+            throw BusinessException("只读服务器,不允许该操作。")
+        }
         val result = invocation.proceed()
+        if (SystemConfig.instance.isDistributed) {//如果有开启分布式部署
 
-        //SQL语句执行完成之后，再保存日志，sql执行出错之后没有必要保存
-        this.saveLog(invocation)
+            //SQL语句执行完成之后，再保存日志，sql执行出错之后没有必要保存
+            this.saveLog(invocation)
+        }
         return result
     }
 
