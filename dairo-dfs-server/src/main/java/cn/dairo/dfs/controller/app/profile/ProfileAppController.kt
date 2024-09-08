@@ -27,8 +27,11 @@ class ProfileAppController : AppBase() {
     fun init(): ProfileForm {
         val form = ProfileForm()
         val systemConfig = SystemConfig.instance
+        form.hasDistributed = systemConfig.isDistributed
+        form.hasReadOnly = systemConfig.isReadOnly
         form.uploadMaxSize = systemConfig.uploadMaxSize.toString()
         form.folders = systemConfig.saveFolderList.joinToString(separator = "\n")
+        form.syncTimer = systemConfig.syncTimer
         form.syncDomains = systemConfig.syncDomains.joinToString(separator = "\n")
         return form
     }
@@ -54,6 +57,9 @@ class ProfileAppController : AppBase() {
         }
         systemConfig.saveFolderList = saveFolderList.distinct()
         systemConfig.uploadMaxSize = form.uploadMaxSize!!.toLong()
+        systemConfig.isDistributed = form.hasDistributed!!
+        systemConfig.isReadOnly = form.hasReadOnly!!
+        systemConfig.syncTimer = form.syncTimer!!
 
         if (form.syncDomains.isNullOrEmpty()) {
             systemConfig.syncDomains = ArrayList()

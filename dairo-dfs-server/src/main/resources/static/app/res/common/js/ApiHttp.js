@@ -207,9 +207,3 @@ class ApiHttp {
         }
     }
 }
-
-$(() => {
-    $.http = function (url) {
-        return new ApiHttp(url)
-    }
-})

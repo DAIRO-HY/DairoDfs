@@ -13,8 +13,6 @@ class SystemConfig private constructor() {
     /**
      * 是否开启分布式部署
      */
-//    @get:JsonProperty("isDistributed")
-//    @set:JsonProperty("isDistributed")
     var isDistributed = false
 
     /**
@@ -31,6 +29,11 @@ class SystemConfig private constructor() {
      * 文件保存文件夹列表
      */
     var saveFolderList: List<String> = listOf(Boot::class.bean.dataPath)
+
+    /**
+     * 主动同步时间间隔(秒)
+     */
+    var syncTimer = 10
 
     /**
      * 同步域名
