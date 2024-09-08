@@ -18,6 +18,11 @@ object SyncAllUtil {
     private var mIsRuning = false
 
     /**
+     * 记录本次同步数据条数
+     */
+    var syncCount = 0L
+
+    /**
      * 获取运行状态
      */
     val isRuning: Boolean
@@ -106,6 +111,9 @@ object SyncAllUtil {
         //得到需要同步的数据
         val data = this.getTableData(info, tbName, needSyncIds)
 
+        //记录当前同步的数据条数
+        this.syncCount += data.length
+
         //插入数据
         this.insertData(info, tbName, data)
 
@@ -115,6 +123,7 @@ object SyncAllUtil {
 
     /**
      * 获取一个断面ID，防止再全量同步的过程中，主机又增加数据，导致全量同步数据不完整
+     * 其实就是服务器端的时间戳
      */
     private fun getAopId(info: SyncInfo): Long {
         val url = info.domain + "/sync/get_aop_id"
@@ -123,7 +132,11 @@ object SyncAllUtil {
     }
 
     /**
-     * 从主机过去数据ID
+     * 从主机获取某表的一批数据id
+     * @param info 主机信息
+     * @param tbName 表名
+     * @param lastId 上次获取到的最后一个id
+     * @param aopId 本次同步的服务器端的最大id
      */
     private fun getTableId(info: SyncInfo, tbName: String, lastId: Long, aopId: Long): String {
         val url = info.domain + "/sync/get_table_id?tbName=$tbName&lastId=$lastId&aopId=$aopId"
