@@ -16,6 +16,7 @@
 <script>
     $(function () {
         getInfoList()
+        initSocket()
     })
 
     function getInfoList() {
@@ -72,6 +73,27 @@
         $.ajaxByData("./sync/sync_all", () => {
             getInfoList()
         })
+    }
+
+    function initSocket() {
+        let socket = new WebSocket("ws://localhost:8031/ws");
+
+        socket.onopen = function (e) {
+            console.log("Connection established");
+            socket.send("Hello Server");
+        };
+
+        socket.onmessage = function (event) {
+            console.log("Received: " + event.data);
+        };
+
+        socket.onclose = function (event) {
+            if (event.wasClean) {
+                console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+            } else {
+                console.log('[close] Connection died');
+            }
+        };
     }
 </script>
 </body>
