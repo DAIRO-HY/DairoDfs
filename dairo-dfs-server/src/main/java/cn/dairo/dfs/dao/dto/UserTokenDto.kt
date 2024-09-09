@@ -5,6 +5,11 @@ import java.util.*
 class UserTokenDto {
 
     /**
+     * 主键
+     */
+    var id: Long? = null
+
+    /**
      * 登录Token
      */
     var token: String? = null

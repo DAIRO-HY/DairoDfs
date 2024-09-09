@@ -64,6 +64,7 @@ class SyncController : AppBase() {
 
     /**
      * 获取一个断面ID，防止再全量同步的过程中，主机又增加数据，导致全量同步数据不完整
+     * 其实就是当前服务器时间戳
      */
     @GetMapping("/get_aop_id")
     @ResponseBody

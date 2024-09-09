@@ -5,8 +5,8 @@
 
     <!--添加-->
     <insert id="add">
-        insert into user_token(token, userId, clientFlag, deviceId, ip, date, version)
-        values (#{token}, #{userId}, #{clientFlag}, #{deviceId}, #{ip}, #{date}, #{version})
+        insert into user_token(id, token, userId, clientFlag, deviceId, ip, date, version)
+        values (#{id}, #{token}, #{userId}, #{clientFlag}, #{deviceId}, #{ip}, #{date}, #{version})
     </insert>
 
     <!--通过登录Token获取会员ID-->

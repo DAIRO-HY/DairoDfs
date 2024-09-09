@@ -8,6 +8,7 @@ import cn.dairo.dfs.dao.UserTokenDao
 import cn.dairo.dfs.dao.dto.UserTokenDto
 import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.md5
+import cn.dairo.dfs.util.DBID
 import cn.dairo.dfs.util.ServletTool
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -84,6 +85,7 @@ class LoginAppController : AppBase() {
 
         val token = System.currentTimeMillis().toString().md5
         val userTokenDto = UserTokenDto()
+        userTokenDto.id = DBID.id
         userTokenDto.userId = userDto.id
         userTokenDto.date = Date()
         userTokenDto.ip = ServletTool.getClientIp()
