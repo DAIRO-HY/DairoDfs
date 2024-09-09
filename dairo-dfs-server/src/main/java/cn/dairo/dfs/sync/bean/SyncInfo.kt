@@ -16,4 +16,9 @@ class SyncInfo {
      * 同步消息
      */
     var msg: String? = null
+
+    /**
+     * 本次同步数量
+     */
+    var syncCount = 0
 }

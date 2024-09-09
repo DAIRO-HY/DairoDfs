@@ -7,7 +7,9 @@
 <th:block th:include="app/icd/top-bar :: top-bar"/>
 <th:block th:insert="app/icd/uc::content">
     <common-content>
-        <div id="table"></div>
+        <div class="text-start">
+            <div id="table" style="width: 100%"></div>
+        </div>
         <button class="btn btn-primary" type="button" onclick="onSyncClick()">日志同步</button>
         <button class="btn btn-primary" type="button" onclick="onSyncAllClick()">全量同步</button>
     </common-content>
@@ -48,6 +50,15 @@
                 }
             ]
         })
+        setTimeout(function () {
+            data[0].msg = "234dsfssddsf"
+            console.log(data)
+
+            // 修改第一行第二列的单元格内容
+            $("#table").DataTable().cell(0, 1).data('新内容').draw();
+            $("#table").DataTable().draw()
+            console.log($("#table").DataTable().data())
+        }, 1000)
     }
 
     function onSubmitClick() {

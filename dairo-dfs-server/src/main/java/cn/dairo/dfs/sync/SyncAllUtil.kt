@@ -2,6 +2,9 @@ package cn.dairo.dfs.sync
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import cn.dairo.dfs.config.Constant
+import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
+import cn.dairo.dfs.extension.bean
+import cn.dairo.dfs.extension.toJson
 import cn.dairo.dfs.sync.bean.SyncInfo
 import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
 import cn.dairo.dfs.sync.sync_handle.LocalFileSyncHandle
@@ -21,6 +24,8 @@ object SyncAllUtil {
      * 记录本次同步数据条数
      */
     var syncCount = 0L
+
+    val socket = SyncWebSocketHandler::class.bean
 
     /**
      * 获取运行状态
@@ -78,6 +83,7 @@ object SyncAllUtil {
             } catch (e: Exception) {
                 info.state = 2
                 info.msg = e.toString()
+                this.socket.send(info)
             }
         }
     }
@@ -111,14 +117,15 @@ object SyncAllUtil {
         //得到需要同步的数据
         val data = this.getTableData(info, tbName, needSyncIds)
 
-        //记录当前同步的数据条数
-        this.syncCount += data.length
-
         //插入数据
         this.insertData(info, tbName, data)
 
         //再次同步
         this.loopSync(info, tbName, currentLastId, aopId)
+
+        //记录当前同步的数据条数
+        info.syncCount += data.length
+        this.socket.send(info)
     }
 
     /**
