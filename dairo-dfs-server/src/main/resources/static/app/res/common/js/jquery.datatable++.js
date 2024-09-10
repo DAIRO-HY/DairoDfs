@@ -60,9 +60,24 @@
             //const $table = this.find(".dataTables_scrollBody > table")
             const $table = this.find("table")
             const datatable = $table.DataTable()
+            debugger
 
             //セルを更新
             datatable.cell(row, col + 1).data(value).draw()
+        }
+
+        /**
+         * 设置整行数据
+         * @param index 行番号
+         * @param data 行数据
+         */
+        $.fn.setRow = function (index, data) {
+            //const $table = this.find(".dataTables_scrollBody > table")
+            const $table = this.find("table")
+            const datatable = $table.DataTable()
+
+            //セルを更新
+            datatable.row(index).data(data).draw(false)
         }
 
         /**

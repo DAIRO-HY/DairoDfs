@@ -6,6 +6,7 @@ import cn.dairo.dfs.dao.SqlLogDao
 import cn.dairo.dfs.dao.dto.SqlLogDto
 import cn.dairo.dfs.sync.SyncAllUtil
 import cn.dairo.dfs.sync.SyncLogUtil
+import cn.dairo.dfs.sync.bean.SyncInfo
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -29,20 +30,21 @@ class SyncAppController : AppBase() {
      */
     @PostMapping("/info_list")
     @ResponseBody
-    fun infoList(): List<SyncForm> {
-        val infoList = SyncLogUtil.syncInfoList.map {
-            val form = SyncForm()
-            form.domain = it.domain
-            form.state = when (it.state) {
-                0 -> "待机中"
-                1 -> "同步中"
-                2 -> "同步错误"
-                else -> ""
-            }
-            form.msg = it.msg
-            form
-        }
-        return infoList
+    fun infoList(): List<SyncInfo> {
+//        val infoList = SyncLogUtil.syncInfoList.map {
+//            val form = SyncForm()
+//            form.domain = it.domain
+//            form.state = when (it.state) {
+//                0 -> "待机中"
+//                1 -> "同步中"
+//                2 -> "同步错误"
+//                else -> ""
+//            }
+//            form.msg = it.msg
+//            form
+//        }
+//        return infoList
+        return SyncLogUtil.syncInfoList
     }
 
     /**

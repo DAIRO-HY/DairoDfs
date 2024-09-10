@@ -49,9 +49,10 @@ object SyncLogUtil {
      * 获取配置同步主机
      */
     fun init() {
-        this.syncInfoList = SystemConfig.instance.syncDomains.map {
+        this.syncInfoList = SystemConfig.instance.syncDomains.mapIndexed { index, it ->
             val info = SyncInfo()
             info.domain = it
+            info.no = index + 1
             info
         }
 //        this.syncInfoList = arrayListOf(SyncInfo().apply {

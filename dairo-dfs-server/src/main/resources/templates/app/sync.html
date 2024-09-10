@@ -8,7 +8,7 @@
 <th:block th:insert="app/icd/uc::content">
     <common-content>
         <div class="text-start">
-            <div id="table" style="width: 100%"></div>
+            <div id="table"></div>
         </div>
         <button class="btn btn-primary" type="button" onclick="onSyncClick()">日志同步</button>
         <button class="btn btn-primary" type="button" onclick="onSyncAllClick()">全量同步</button>
@@ -27,7 +27,6 @@
         })
     }
 
-
     /**
      * 填充表格数据
      * @param data 要填充的数据
@@ -37,6 +36,10 @@
             data: data,
             columns: [
                 {
+                    data: "no",
+                    title: "NO"
+                },
+                {
                     data: "domain",
                     title: "域名"
                 },
@@ -45,20 +48,15 @@
                     title: "状态"
                 },
                 {
+                    data: "syncCount",
+                    title: "数据量"
+                },
+                {
                     data: "msg",
-                    title: "错误消息"
+                    title: "消息"
                 }
             ]
         })
-        setTimeout(function () {
-            data[0].msg = "234dsfssddsf"
-            console.log(data)
-
-            // 修改第一行第二列的单元格内容
-            $("#table").DataTable().cell(0, 1).data('新内容').draw();
-            $("#table").DataTable().draw()
-            console.log($("#table").DataTable().data())
-        }, 1000)
     }
 
     function onSubmitClick() {
@@ -87,7 +85,7 @@
     }
 
     function initSocket() {
-        let socket = new WebSocket("ws://localhost:8031/ws");
+        let socket = new WebSocket("ws://localhost:8030/ws");
 
         socket.onopen = function (e) {
             console.log("Connection established");
@@ -95,7 +93,8 @@
         };
 
         socket.onmessage = function (event) {
-            console.log("Received: " + event.data);
+            const data = JSON.parse(event.data)
+            $("#table").setRow(data.no - 1, data)
         };
 
         socket.onclose = function (event) {

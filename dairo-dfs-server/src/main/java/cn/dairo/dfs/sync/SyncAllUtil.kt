@@ -9,6 +9,9 @@ import cn.dairo.dfs.sync.bean.SyncInfo
 import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
 import cn.dairo.dfs.sync.sync_handle.LocalFileSyncHandle
 import cn.dairo.lib.Json
+import com.fasterxml.jackson.databind.JsonNode
+import org.sqlite.SQLiteException
+import java.lang.Thread.sleep
 
 /**
  * 全量同步工具
@@ -62,6 +65,9 @@ object SyncAllUtil {
     private fun doSync() {
         SyncLogUtil.syncInfoList.forEach { info ->
             try {
+                info.state = 1
+                info.msg = ""
+                this.socket.send(info)
 
                 //断面ID,从主机端获取的数据ID不得大于该值
                 val aopId = this.getAopId(info)
@@ -80,9 +86,12 @@ object SyncAllUtil {
 
                 //设置日志同步最后的ID
                 SyncLogUtil.saveLastId(info, aopId)
+                info.state = 0
+                info.msg = "完成"
             } catch (e: Exception) {
                 info.state = 2
-                info.msg = e.toString()
+                info.msg = e.message?:e.toString()
+            }finally {
                 this.socket.send(info)
             }
         }
@@ -116,16 +125,19 @@ object SyncAllUtil {
 
         //得到需要同步的数据
         val data = this.getTableData(info, tbName, needSyncIds)
+        sleep(1000)
+
+        val jsonData = Json.readValue(data)
 
         //插入数据
-        this.insertData(info, tbName, data)
+        this.insertData(info, tbName, jsonData)
+
+        //记录当前同步的数据条数
+        info.syncCount += jsonData.size()
+        this.socket.send(info)
 
         //再次同步
         this.loopSync(info, tbName, currentLastId, aopId)
-
-        //记录当前同步的数据条数
-        info.syncCount += data.length
-        this.socket.send(info)
     }
 
     /**
@@ -179,9 +191,8 @@ object SyncAllUtil {
     /**
      * 同步主机数据
      */
-    private fun insertData(info: SyncInfo, tbName: String, data: String) {
-        val jsonData = Json.readValue(data)
-        jsonData.forEach { item ->
+    private fun insertData(info: SyncInfo, tbName: String, data: JsonNode) {
+        data.forEach { item ->
             item as ObjectNode
             when (tbName) {
 
@@ -205,10 +216,17 @@ object SyncAllUtil {
                     values.add(it.value.asText())
                 }
             }
-            Constant.dbService.exec(
-                "insert into $tbName(${fields.joinToString()}) values (${fields.joinToString { "?" }})",
-                *values.toArray()
-            )
+            try {
+                Constant.dbService.exec(
+                    "insert into $tbName(${fields.joinToString()}) values (${fields.joinToString { "?" }})",
+                    *values.toArray()
+                )
+            } catch (e: Exception) {
+                if (e is SQLiteException && e.message!!.contains("UNIQUE constraint failed: user.name")) {
+                    throw Exception("同步失败，原因： 用户名“${values[2]}”已存在。请先修改用户名为“${values[2]}”的用户后再重试")
+                }
+                throw e
+            }
         }
     }
 }

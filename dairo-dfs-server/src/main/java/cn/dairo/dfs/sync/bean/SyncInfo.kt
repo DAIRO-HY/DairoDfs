@@ -3,9 +3,14 @@ package cn.dairo.dfs.sync.bean
 class SyncInfo {
 
     /**
+     * 编号
+     */
+    var no = 0
+
+    /**
      * 主机域名
      */
-    var domain: String? = null
+    var domain = ""
 
     /**
      * 同步状态 0：待机中   1：同步中  2：同步错误
@@ -15,7 +20,7 @@ class SyncInfo {
     /**
      * 同步消息
      */
-    var msg: String? = null
+    var msg = ""
 
     /**
      * 本次同步数量
