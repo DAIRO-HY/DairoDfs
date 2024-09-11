@@ -74,7 +74,8 @@
                 const file = fileList[index]
                 const currentFolder = getCurrentFolderByUrl()
                 if (file.fileFlag) {//如果是一个文件
-                    window.open(location.pathname + "/download/" + file.name + "?folder=" + currentFolder)
+                    const token = sessionStorage.getItem("token")
+                    window.open(location.pathname + "/download/" + file.name + "?_token=" + token + "&folder=" + currentFolder)
                 } else {
                     const folder = currentFolder + "/" + file.name
                     loadFileData(folder)

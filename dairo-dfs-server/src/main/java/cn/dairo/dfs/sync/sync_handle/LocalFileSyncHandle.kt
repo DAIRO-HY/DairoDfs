@@ -2,6 +2,9 @@ package cn.dairo.dfs.sync.sync_handle
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import cn.dairo.dfs.boot.Boot
+import cn.dairo.dfs.config.Constant
+import cn.dairo.dfs.dao.LocalFileDao
+import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.md5
 import cn.dairo.dfs.sync.SyncFileUtil
 import cn.dairo.dfs.sync.bean.SyncInfo
@@ -20,7 +23,7 @@ object LocalFileSyncHandle {
         val md5 = item.path("md5").textValue()
 
         //从本地数据库查找该文件
-        val existsLocalFile = Boot.service.localFileDao.selectByFileMd5(md5)
+        val existsLocalFile = LocalFileDao::class.bean.selectByFileMd5(md5)
         if (existsLocalFile == null) {
             val tmpFilePath = SyncFileUtil.download(info, md5)
             val tempFileMd5 = File(tmpFilePath).md5
@@ -33,7 +36,14 @@ object LocalFileSyncHandle {
             //移动文件
             File(tmpFilePath).renameTo(saveLocalFile)
             item.put("path", saveLocalPath)
-        } else {//本机存在同样的文件,直接使用
+        } else {//本机存在同样的文件,将本地记录删除，然后改用主机端同步过来的id
+            val id = item.path("id").longValue()
+
+            //删除本地的数据
+            Constant.dbService.exec("delete from local_file where id = ?", existsLocalFile.id)
+
+            //更换ID
+            Constant.dbService.exec("update dfs_file set localId = ? where localId = ?", id, existsLocalFile.id)
             item.put("path", existsLocalFile.path)
         }
     }

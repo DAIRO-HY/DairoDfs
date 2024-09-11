@@ -90,8 +90,8 @@ object SyncAllUtil {
                 info.msg = "完成"
             } catch (e: Exception) {
                 info.state = 2
-                info.msg = e.message?:e.toString()
-            }finally {
+                info.msg = e.message ?: e.toString()
+            } finally {
                 this.socket.send(info)
             }
         }
@@ -200,7 +200,7 @@ object SyncAllUtil {
                 "local_file" -> LocalFileSyncHandle.bySyncAll(info, item)
 
                 //如果是用户文件表
-                "dfs_file" -> DfsFileSyncHandle.handle(item)
+                "dfs_file" -> DfsFileSyncHandle.handle(info, item)
             }
 
             //要插入的字段

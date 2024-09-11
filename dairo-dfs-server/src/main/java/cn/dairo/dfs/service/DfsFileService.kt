@@ -367,12 +367,14 @@ class DfsFileService {
      */
     fun getPathById(id: Long): String {
         val pathSB = StringBuilder()
+        var tempId = id
         while (true) {
-            val fileDto = this.dfsFileDao.getOne(id) ?: throw ErrorCode.NO_EXISTS
-            pathSB.insert(0, "/" + fileDto.name)
+            val fileDto = this.dfsFileDao.getOne(tempId) ?: throw ErrorCode.NO_EXISTS
             if (fileDto.parentId == 0L) {
                 break
             }
+            pathSB.insert(0, "/" + fileDto.name)
+            tempId = fileDto.parentId!!
         }
         return pathSB.toString()
     }

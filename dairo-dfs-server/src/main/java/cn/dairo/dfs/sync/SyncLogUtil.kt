@@ -93,7 +93,7 @@ object SyncLogUtil {
     }
 
     /**
-     * 循环去sql日志
+     * 循环取sql日志
      * @return 是否处理完成
      */
     private fun requestSqlLog(info: SyncInfo) {
