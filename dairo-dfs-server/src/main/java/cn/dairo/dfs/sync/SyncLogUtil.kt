@@ -1,20 +1,37 @@
 package cn.dairo.dfs.sync
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 import cn.dairo.dfs.boot.Boot
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.config.SystemConfig
+import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
+import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.md5
 import cn.dairo.dfs.sync.bean.SyncInfo
+import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
 import cn.dairo.dfs.sync.sync_handle.LocalFileSyncHandle
 import cn.dairo.lib.Json
+import org.springframework.boot.ApplicationArguments
+import org.springframework.boot.ApplicationRunner
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 import java.io.File
+import java.lang.Thread.sleep
 import java.util.*
+import kotlin.concurrent.thread
 
 /**
  * 应用启动执行
  */
+@Order(Int.MAX_VALUE)//值越小越先执行
+@Component
+class SyncLogBoot : ApplicationRunner {
+    override fun run(args: ApplicationArguments) {
+        SyncLogUtil.init()
+        SyncLogUtil.loopStart()
+    }
+}
+
 object SyncLogUtil {
 
     /**
@@ -27,6 +44,13 @@ object SyncLogUtil {
      */
     private var mIsRuning = false
 
+    private val socket = SyncWebSocketHandler::class.bean
+
+    /**
+     * 记录等待了的时间
+     */
+    private var waitTimes = 0L
+
     /**
      * 获取运行状态
      */
@@ -35,6 +59,17 @@ object SyncLogUtil {
             synchronized(this) {
                 return this.mIsRuning
             }
+        }
+
+    /**
+     * 获取循环执行间隔时间
+     */
+    val loopTimer: Long
+        get() {
+            if (SystemConfig.instance.syncTimer <= 0) {
+                return Long.MAX_VALUE
+            }
+            return SystemConfig.instance.syncTimer.toLong()
         }
 
     /**
@@ -61,16 +96,24 @@ object SyncLogUtil {
     }
 
     /**
-     * 管理员强制重新执行
+     * 定时轮询
      */
-    fun reDoSync() {
-        this.start()
+    fun loopStart() = thread {
+        this.waitTimes = this.loopTimer
+        while (true) {
+            sleep(1000)
+            this.waitTimes++
+            if (this.waitTimes > this.loopTimer) {
+                this.start()
+            }
+        }
     }
 
     /**
-     * 执行同步
+     * 启动执行
+     * @param isForce 是否强制执行
      */
-    fun start() {
+    fun start(isForce: Boolean = false) {
         synchronized(this) {
             if (SyncAllUtil.isRuning) {//全量同步正在进行中
                 return
@@ -81,14 +124,25 @@ object SyncLogUtil {
             this.mIsRuning = true
         }
         try {
+            if(isForce){//强行执行
+                SyncLogUtil.syncInfoList.forEach {
+                    it.state = 0
+                }
+            }
             this.syncInfoList.forEach {
+                if(it.state != 0){//只允许待机中的同步
+                    return@forEach
+                }
                 it.state = 1//标记为同步中
+                it.msg = ""
+                this.socket.send(it)
                 this.requestSqlLog(it)
             }
         } finally {
             synchronized(this) {
                 this.mIsRuning = false
             }
+            this.waitTimes = 0
         }
     }
 
@@ -100,11 +154,18 @@ object SyncLogUtil {
 
         //得到最后请求的id
         val lastId = this.getLastId(info)
-        val url = "${info.domain}/sync/get_log?lastId=$lastId"
+        val url = "${info.domain}/get_log?lastId=$lastId"
         try {
             val data = SyncHttp.request(url)
             if (data == "[]") {//已经没有sql日志
+
+                //执行日志sql
+                excuteSqlLog(info)
+
                 info.state = 0//同步完成，标记为待机中
+                info.msg = ""
+                info.lastTime = System.currentTimeMillis()//最后一次同步完成时间
+                this.socket.send(info)
                 return
             }
             val jsonData = Json.readValue(data)
@@ -121,7 +182,8 @@ object SyncLogUtil {
             this.requestSqlLog(info)
         } catch (e: Exception) {
             info.state = 2//标记为同步失败
-            info.msg = e.toString()
+            info.msg = e.message ?: e.toString()
+            this.socket.send(info)
         }
     }
 
@@ -162,7 +224,7 @@ object SyncLogUtil {
      */
     private fun excuteSqlLog(info: SyncInfo) {
         val list =
-            Constant.dbService.selectList("select * from sql_log where state in (0,2) order by id asc limit 10000")
+            Constant.dbService.selectList("select * from sql_log where state in (0,2) order by id asc limit 1000")
         if (list.isEmpty()) {
             return
         }
@@ -174,9 +236,14 @@ object SyncLogUtil {
             //sql语句的参数列表
             val params = Json.readList(paramJsonStr, Any::class.java) as ArrayList
 
-            //如果当前sql语句是往本地文件表里添加一条数据
-            if (sql.replace(" ", "").replace("\n", "").startsWith("insertintolocal_file")) {
+            //日志执行结束后执行sql
+            var afterSql: String? = null
+            val handleSql = sql.replace(" ", "").replace("\n", "").lowercase()
+            if (handleSql.startsWith("insertintolocal_file")) {//如果当前sql语句是往本地文件表里添加一条数据
                 LocalFileSyncHandle.bySyncLog(info, params)
+            } else if (handleSql.startsWith("insertintodfs_file")) {//如果该sql语句是添加文件
+                afterSql = DfsFileSyncHandle.handleBySyncLog(info, params)
+            } else {
             }
 
             val ps = Constant.dbService.getStatement(sql)
@@ -188,6 +255,9 @@ object SyncLogUtil {
 //            }
             try {
                 ps.executeUpdate()
+                if (afterSql != null) {
+                    Constant.dbService.exec(afterSql)
+                }
                 Constant.dbService.exec("update sql_log set state = 1 where id = ?", id)
             } catch (e: Exception) {
                 Constant.dbService.exec("update sql_log set state = 2, err = ? where id = ?", e.toString(), id)
@@ -196,6 +266,10 @@ object SyncLogUtil {
                 ps.close()
             }
         }
+
+        //记录当前同步的数据条数
+        info.syncCount += list.size
+        this.socket.send(info)
         excuteSqlLog(info)
     }
 
@@ -205,7 +279,7 @@ object SyncLogUtil {
     fun saveLastId(info: SyncInfo, lastId: Long) {
 
         //记录最后一次请求到的日志ID文件
-        val lastLogIdFile = File(this.syncLastIdFilePath + "." + info.domain!!.md5)
+        val lastLogIdFile = File(this.syncLastIdFilePath + "." + info.domain.md5)
 
         //执行成功之后立即将当前日志的日期保存到本地,降低sql被重复执行的BUG
         lastLogIdFile.writeText(lastId.toString())
@@ -232,7 +306,7 @@ object SyncLogUtil {
      */
     fun sendNotify() {
         this.syncInfoList.forEach { info ->
-            val url = "${info.domain}/sync/push_notify"
+            val url = "${info.domain}/push_notify"
             try {
                 SyncHttp.request(url)
             } catch (e: Exception) {

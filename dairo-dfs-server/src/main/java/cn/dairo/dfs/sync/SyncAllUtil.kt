@@ -42,8 +42,9 @@ object SyncAllUtil {
 
     /**
      * 开始同步
+     * @param isForce 是否强制执行
      */
-    fun start() {
+    fun start(isForce: Boolean = false) {
         synchronized(this) {
             if (SyncLogUtil.isRuning) {//日志同步正在进行中
                 return
@@ -54,6 +55,11 @@ object SyncAllUtil {
             this.mIsRuning = true
         }
         try {
+            if(isForce){//强行执行
+                SyncLogUtil.syncInfoList.forEach {
+                    it.state = 0
+                }
+            }
             this.doSync()
         } finally {
             synchronized(this) {
@@ -64,6 +70,9 @@ object SyncAllUtil {
 
     private fun doSync() {
         SyncLogUtil.syncInfoList.forEach { info ->
+            if(info.state != 0){//只允许待机中的同步
+                return@forEach
+            }
             try {
                 info.state = 1
                 info.msg = ""
@@ -125,7 +134,7 @@ object SyncAllUtil {
 
         //得到需要同步的数据
         val data = this.getTableData(info, tbName, needSyncIds)
-        sleep(1000)
+        //sleep(1000)
 
         val jsonData = Json.readValue(data)
 
@@ -145,7 +154,7 @@ object SyncAllUtil {
      * 其实就是服务器端的时间戳
      */
     private fun getAopId(info: SyncInfo): Long {
-        val url = info.domain + "/sync/get_aop_id"
+        val url = info.domain + "/get_aop_id"
         val aopId = SyncHttp.request(url)
         return aopId.toLong()
     }
@@ -158,7 +167,7 @@ object SyncAllUtil {
      * @param aopId 本次同步的服务器端的最大id
      */
     private fun getTableId(info: SyncInfo, tbName: String, lastId: Long, aopId: Long): String {
-        val url = info.domain + "/sync/get_table_id?tbName=$tbName&lastId=$lastId&aopId=$aopId"
+        val url = info.domain + "/get_table_id?tbName=$tbName&lastId=$lastId&aopId=$aopId"
         val ids = SyncHttp.request(url)
         return ids
     }
@@ -183,7 +192,7 @@ object SyncAllUtil {
      * 从同步主机端取数据
      */
     private fun getTableData(info: SyncInfo, tbName: String, ids: String): String {
-        val url = info.domain + "/sync/get_table_data?tbName=$tbName&ids=$ids"
+        val url = info.domain + "/get_table_data?tbName=$tbName&ids=$ids"
         val data = SyncHttp.request(url)
         return data
     }

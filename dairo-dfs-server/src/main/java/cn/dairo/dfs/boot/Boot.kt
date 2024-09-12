@@ -76,7 +76,6 @@ class Boot : ApplicationRunner {
 
         //创建临时目录
         File(this.dataPath + "/temp").mkdirs()
-        SyncLogUtil.init()
     }
 
     companion object {

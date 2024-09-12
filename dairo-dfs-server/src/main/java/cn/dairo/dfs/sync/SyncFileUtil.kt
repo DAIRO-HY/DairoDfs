@@ -1,6 +1,10 @@
 package cn.dairo.dfs.sync
 
+import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
+import cn.dairo.dfs.extension.bean
+import cn.dairo.dfs.extension.toDataSize
 import cn.dairo.dfs.sync.bean.SyncInfo
+import com.gl.lib.psd.system.Threading.Thread.sleep
 import org.springframework.http.HttpStatus
 import java.io.File
 import java.io.FileOutputStream
@@ -11,6 +15,11 @@ import java.net.URL
  * 文件同步工具
  */
 object SyncFileUtil {
+
+    /**
+     * 实时同步消息的Socket
+     */
+    private val socket = SyncWebSocketHandler::class.bean
 
     /**
      * 开始同步
@@ -30,9 +39,12 @@ object SyncFileUtil {
         if (saveFile.exists()) {//若文件已经存在
             downloadStart = saveFile.length()
         }
-        val httpUrl = URL(info.domain + "/sync/download/$md5")
+        val httpUrl = URL(info.domain + "/download/$md5")
         val conn = httpUrl.openConnection() as HttpURLConnection
         try {
+
+            //已经下载文件大小
+            var downloadedSize = downloadStart
             conn.setRequestProperty("Range", "bytes=${downloadStart}-")
             conn.requestMethod = "GET"
 
@@ -54,17 +66,23 @@ object SyncFileUtil {
                 }
             }
 
+            //文件总大小
+            val total = conn.contentLengthLong + downloadedSize
+
             //以追加的方式写入文件
             FileOutputStream(saveFile, true).use { oStream ->
                 conn.inputStream.use { iStream ->
-                    val cache = ByteArray(8 * 1024)
+                    val cache = ByteArray(128 * 1024)
                     var len: Int
                     while (iStream.read(cache, 0, cache.size).also { len = it } != -1) {
                         oStream.write(cache, 0, len)
+                        downloadedSize += len.toLong()
+                        info.msg = "正在同步文件：${downloadedSize.toDataSize}/${total.toDataSize}"
+                        this.socket.send(info)
                     }
                 }
-                oStream.flush()
             }
+            info.msg = ""
             return savePath
         } finally {
             conn.disconnect()

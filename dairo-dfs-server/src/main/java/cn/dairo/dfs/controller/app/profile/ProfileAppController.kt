@@ -4,6 +4,7 @@ import cn.dairo.dfs.config.SystemConfig
 import cn.dairo.dfs.controller.app.profile.form.ProfileForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.exception.BusinessException
+import cn.dairo.dfs.extension.md5
 import cn.dairo.dfs.sync.SyncLogUtil
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
@@ -27,12 +28,13 @@ class ProfileAppController : AppBase() {
     fun init(): ProfileForm {
         val form = ProfileForm()
         val systemConfig = SystemConfig.instance
-        form.hasDistributed = systemConfig.isDistributed
+        form.openSqlLog = systemConfig.openSqlLog
         form.hasReadOnly = systemConfig.isReadOnly
         form.uploadMaxSize = systemConfig.uploadMaxSize.toString()
         form.folders = systemConfig.saveFolderList.joinToString(separator = "\n")
         form.syncTimer = systemConfig.syncTimer
         form.syncDomains = systemConfig.syncDomains.joinToString(separator = "\n")
+        form.token = systemConfig.token
         return form
     }
 
@@ -57,7 +59,7 @@ class ProfileAppController : AppBase() {
         }
         systemConfig.saveFolderList = saveFolderList.distinct()
         systemConfig.uploadMaxSize = form.uploadMaxSize!!.toLong()
-        systemConfig.isDistributed = form.hasDistributed!!
+        systemConfig.openSqlLog = form.openSqlLog!!
         systemConfig.isReadOnly = form.hasReadOnly!!
         systemConfig.syncTimer = form.syncTimer!!
 
@@ -70,6 +72,17 @@ class ProfileAppController : AppBase() {
             systemConfig.syncDomains = syncDomains
         }
         SyncLogUtil.init()
+        SystemConfig.save()
+    }
+
+    /**
+     * 切换token
+     */
+    @PostMapping("/make_token")
+    @ResponseBody
+    fun makeToken() {
+        val systemConfig = SystemConfig.instance
+        systemConfig.token = System.currentTimeMillis().toString().md5
         SystemConfig.save()
     }
 }

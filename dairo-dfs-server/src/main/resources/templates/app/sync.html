@@ -2,6 +2,22 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:include="app/icd/css :: header('同步状态')"/>
+    <style>
+        /* 定义旋转动画 */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 应用动画到图标 */
+        .rotate-icon {
+            animation: spin 2s linear infinite;
+        }
+    </style>
 </head>
 <body>
 <th:block th:include="app/icd/top-bar :: top-bar"/>
@@ -45,11 +61,33 @@
                 },
                 {
                     data: "state",
-                    title: "状态"
+                    title: "状态",
+                    render:function(value){
+                        if(value === 0){
+                            return `<i class="bi bi-clock-fill text-secondary"></i> 空闲`
+                        }else if(value === 1){
+                            return `<div class="d-inline-block rotate-icon"><i class="bi bi-fan text-success"></i></div>`
+                        }else if(value === 2){
+                            return `<i class="bi bi-emoji-angry-fill text-danger"></i>`
+                        }else{
+                            return value
+                        }
+                    }
+                },
+                {
+                    data: "lastTime",
+                    title: "最后同步时间",
+                    render:function(value){
+                        if(value === 0){
+                            return "未同步"
+                        }
+                        const date = dateFormat(new Date(value))
+                        return "<div>" + date + "</div>"
+                    }
                 },
                 {
                     data: "syncCount",
-                    title: "数据量"
+                    title: "日志数"
                 },
                 {
                     data: "msg",

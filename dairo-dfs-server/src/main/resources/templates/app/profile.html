@@ -39,9 +39,9 @@
         <div class="row row-cols-1 row-cols-sm-2">
             <div class="col mt-2">
                 <div class="row">
-                    <label class="col-4 col-form-label text-end">分布式部署</label>
+                    <label class="col-4 col-form-label text-end">记录同步日志</label>
                     <div class="col-8">
-                        <select class="form-select w-auto" name="hasDistributed">
+                        <select class="form-select w-auto" name="openSqlLog">
                             <option value="false">关闭</option>
                             <option value="true">开启</option>
                         </select>
@@ -78,9 +78,32 @@
         <div class="row row-cols-1 row-cols-sm-2">
             <div class="col mt-2">
                 <div class="row">
-                    <label class="col-4 col-form-label text-end">同步服务器</label>
+                    <label class="col-4 col-form-label text-end">同步服务器URL</label>
                     <div class="col-8">
                         <textarea class="form-control" name="syncDomains"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-sm-2">
+            <div class="col mt-2">
+                <div class="row">
+                    <label class="col-4 col-form-label text-end">同步票据</label>
+                    <div class="col-8">
+                        <div class="input-group">
+                            <input class="form-control" name="token" disabled>
+                            <button class="btn btn-primary" onclick="onMakeTokenClick()">生成</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-sm-2">
+            <div class="col mt-2">
+                <div class="row">
+                    <label class="col-4 col-form-label text-end">本机同步URL</label>
+                    <div class="col-8">
+                        <input class="form-control" id="url" disabled>
                     </div>
                 </div>
             </div>
@@ -117,12 +140,27 @@
     function initData() {
         $.http("/app/profile").success(data => {
             $("form").bindValue(data)
+            const token = data.token
+            let syncUrl = location.origin + "/sync/" + token
+            $("#url").val(syncUrl)
         }).post()
     }
 
     function onSubmitClick() {
         $("form").ajaxByForm123().success(() => {
             alert("修改成功")
+        }).post()
+    }
+
+    function onMakeTokenClick(){
+        const rs = confirm("重置票据之后旧票据将无法使用，确定要重置票据？")
+        if(!rs){
+            return
+        }
+        $.http("/app/profile/make_token").success(()=>{
+
+            //页面刷新
+            history.go(0)
         }).post()
     }
 </script>

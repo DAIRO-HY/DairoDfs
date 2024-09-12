@@ -2,6 +2,7 @@ package cn.dairo.dfs.config
 
 import cn.dairo.dfs.boot.Boot
 import cn.dairo.dfs.extension.bean
+import cn.dairo.dfs.extension.md5
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 
@@ -11,9 +12,9 @@ import java.io.File
 class SystemConfig private constructor() {
 
     /**
-     * 是否开启分布式部署
+     * 记录同步日志
      */
-    var isDistributed = false
+    var openSqlLog = false
 
     /**
      * 将当前服务器设置为只读,仅作为备份使用
@@ -40,6 +41,11 @@ class SystemConfig private constructor() {
      */
     var syncDomains: List<String> = ArrayList()
 
+    /**
+     * 分机与主机同步连接票据
+     */
+    var token = ""
+
     companion object {
 
         /**
@@ -59,7 +65,10 @@ class SystemConfig private constructor() {
                             mInstance = SystemConfig()
                         }
                     } else {
-                        mInstance = SystemConfig()
+                        mInstance = SystemConfig().apply {
+                            this.token = System.currentTimeMillis().toString().md5
+                        }
+                        this.save()
                     }
                 }
                 return mInstance!!

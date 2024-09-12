@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody
 import kotlin.concurrent.thread
 
 /**
- * 同步
+ * 数据同步处理Controller
  */
 @Controller
-@RequestMapping("/sync")
+@RequestMapping("/sync/{token}")
 class SyncController : AppBase() {
 
     /**

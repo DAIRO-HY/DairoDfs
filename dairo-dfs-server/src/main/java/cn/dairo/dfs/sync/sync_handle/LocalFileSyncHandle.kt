@@ -71,6 +71,13 @@ object LocalFileSyncHandle {
             File(tmpFilePath).renameTo(saveLocalFile)
             params[1] = saveLocalPath
         } else {//本机存在同样的文件,直接使用
+            val id = params[0] as Long
+
+            //删除本地的数据
+            Constant.dbService.exec("delete from local_file where id = ?", existsLocalFile.id)
+
+            //更换ID
+            Constant.dbService.exec("update dfs_file set localId = ? where localId = ?", id, existsLocalFile.id)
             params[1] = existsLocalFile.path!!
         }
     }

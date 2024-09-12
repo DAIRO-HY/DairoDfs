@@ -1,6 +1,5 @@
 package cn.dairo.dfs.controller.app.sync
 
-import cn.dairo.dfs.controller.app.sync.form.SyncForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.SqlLogDao
 import cn.dairo.dfs.dao.dto.SqlLogDto
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import kotlin.concurrent.thread
 
 /**
- * 系统配置
+ * 数据同步状态
  */
 @Controller
 @RequestMapping("/app/sync")
@@ -54,7 +53,7 @@ class SyncAppController : AppBase() {
     @ResponseBody
     fun sync() {
         thread {
-            SyncLogUtil.start()
+            SyncLogUtil.start(true)
         }
     }
 
@@ -65,7 +64,7 @@ class SyncAppController : AppBase() {
     @ResponseBody
     fun syncAll() {
         thread {
-            SyncAllUtil.start()
+            SyncAllUtil.start(true)
         }
     }
 

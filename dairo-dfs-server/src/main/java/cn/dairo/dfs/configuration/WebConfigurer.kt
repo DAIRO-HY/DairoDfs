@@ -1,9 +1,6 @@
 package cn.dairo.dfs.configuration
 
-import cn.dairo.dfs.interceptor.AdminInterceptor
-import cn.dairo.dfs.interceptor.DefaultInterceptor
-import cn.dairo.dfs.interceptor.LoginInterceptor
-import cn.dairo.dfs.interceptor.DownloadInterceptor
+import cn.dairo.dfs.interceptor.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.multipart.MultipartResolver
@@ -42,6 +39,11 @@ class WebConfigurer : WebMvcConfigurer {
         return DownloadInterceptor()
     }
 
+    @Bean
+    fun syncInterceptor(): SyncInterceptor {
+        return SyncInterceptor()
+    }
+
     override fun addInterceptors(registry: InterceptorRegistry) {
 
         //全局拦截器
@@ -72,5 +74,9 @@ class WebConfigurer : WebMvcConfigurer {
         //文件下载拦截器
         registry.addInterceptor(downloadInterceptor())
             .addPathPatterns("/d/**")
+
+        //数据同步处理
+        registry.addInterceptor(syncInterceptor())
+            .addPathPatterns("/sync/**")
     }
 }

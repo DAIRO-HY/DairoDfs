@@ -7,9 +7,9 @@ import jakarta.validation.constraints.NotBlank
 class ProfileForm {
 
     /**
-     * 是否开启分布式部署
+     * 记录同步日志
      */
-    var hasDistributed: Boolean? = null
+    var openSqlLog: Boolean? = null
 
     /**
      * 将当前服务器设置为只读,仅作为备份使用
@@ -39,4 +39,9 @@ class ProfileForm {
      * 同步域名
      */
     var syncDomains: String? = null
+
+    /**
+     * 分机与主机同步连接票据
+     */
+    var token: String? = null
 }

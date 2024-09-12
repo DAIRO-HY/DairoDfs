@@ -23,7 +23,12 @@ class SyncInfo {
     var msg = ""
 
     /**
-     * 本次同步数量
+     * 同步日志数
      */
     var syncCount = 0
+
+    /**
+     * 最后一次同步完成时间
+     */
+    var lastTime = 0L
 }
