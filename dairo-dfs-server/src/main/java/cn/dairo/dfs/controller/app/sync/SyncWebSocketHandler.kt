@@ -21,7 +21,7 @@ class SyncWebSocketHandler : TextWebSocketHandler(), WebSocketConfigurer {
     private var session: WebSocketSession? = null
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        registry.addHandler(this, "/ws").setAllowedOrigins("*")
+        registry.addHandler(this, "/ws/app/sync")//.setAllowedOrigins("*")
     }
 
     /**
