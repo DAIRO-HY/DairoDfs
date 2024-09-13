@@ -1,8 +1,10 @@
 package cn.dairo.dfs.controller.app.sync
 
 import cn.dairo.dfs.controller.base.AppBase
+import cn.dairo.dfs.controller.sync.SyncController
 import cn.dairo.dfs.dao.SqlLogDao
 import cn.dairo.dfs.dao.dto.SqlLogDto
+import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.sync.SyncAllUtil
 import cn.dairo.dfs.sync.SyncLogUtil
 import cn.dairo.dfs.sync.bean.SyncInfo
@@ -52,9 +54,10 @@ class SyncAppController : AppBase() {
     @PostMapping("/sync")
     @ResponseBody
     fun sync() {
-        thread {
-            SyncLogUtil.start(true)
-        }
+        SyncController::class.bean.push()
+//        thread {
+//            SyncLogUtil.start(true)
+//        }
     }
 
     /**

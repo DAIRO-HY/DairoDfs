@@ -17,7 +17,10 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import java.io.File
 import java.lang.Thread.sleep
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.thread
 
 /**
@@ -96,15 +99,62 @@ object SyncLogUtil {
     }
 
     /**
+     * 等待中的请求
+     */
+    private val waitingHttpList = ConcurrentHashMap<HttpURLConnection, Boolean>()
+
+    /**
      * 定时轮询
      */
     fun loopStart() = thread {
-        this.waitTimes = this.loopTimer
-        while (true) {
-            sleep(1000)
-            this.waitTimes++
-            if (this.waitTimes > this.loopTimer) {
-                this.start()
+
+        //先停止掉之前所有的轮询
+        this.waitingHttpList.keys.forEach {
+            try {
+                it.disconnect()
+            } catch (e: Exception) {
+            }
+
+            //停止执行
+            this.waitingHttpList[it] = true
+        }
+        while (true){//直到上次打开的轮询全部结束之后才继续
+            if(this.waitingHttpList.isEmpty()){
+                break
+            }
+            sleep(500)
+        }
+        this.syncInfoList.forEach {
+            wait(it)
+        }
+    }
+
+    private fun wait(info: SyncInfo) {
+        thread {
+            while (true) {
+                sleep(1000)
+                val http =
+                    URL(info.domain + "/${SystemConfig.instance.token}/wait").openConnection() as HttpURLConnection
+                this.waitingHttpList[http] = false
+                try {
+                    http.connect()
+                    http.inputStream.use {
+                        var tag: Int
+                        while (it.read().also { tag = it } != -1) {
+                            println(tag)
+                            if (tag == 1) {//接收到的标记为1时，代表服务器端有新的日志
+                                this.start()
+                                break
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                if (!this.waitingHttpList.containsKey(http) || this.waitingHttpList[http] == true) {//如果已经被移除，则终止轮询
+                    break
+                }
+                this.waitingHttpList.remove(http)
             }
         }
     }
@@ -124,13 +174,13 @@ object SyncLogUtil {
             this.mIsRuning = true
         }
         try {
-            if(isForce){//强行执行
+            if (isForce) {//强行执行
                 SyncLogUtil.syncInfoList.forEach {
                     it.state = 0
                 }
             }
             this.syncInfoList.forEach {
-                if(it.state != 0){//只允许待机中的同步
+                if (it.state != 0) {//只允许待机中的同步
                     return@forEach
                 }
                 it.state = 1//标记为同步中

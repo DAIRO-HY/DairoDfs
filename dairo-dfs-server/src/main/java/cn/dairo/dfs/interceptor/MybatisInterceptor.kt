@@ -2,7 +2,9 @@ package cn.dairo.dfs.interceptor
 
 
 import cn.dairo.dfs.config.SystemConfig
+import cn.dairo.dfs.controller.sync.SyncController
 import cn.dairo.dfs.exception.BusinessException
+import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.toJson
 import cn.dairo.dfs.sync.SyncLogUtil
 import cn.dairo.dfs.util.DBID
@@ -14,6 +16,7 @@ import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.plugin.Intercepts
 import org.apache.ibatis.plugin.Invocation
 import org.apache.ibatis.plugin.Signature
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.*
@@ -34,6 +37,12 @@ class MybatisInterceptor : Interceptor {
      */
     @Value("\${sqlite.path}")
     private lateinit var dbPath: String
+
+    /**
+     * sqlite数据库连接
+     */
+//    @Autowired
+//    private lateinit var syncController: SyncController
 
     /**
      * sqlite数据库连接
@@ -100,9 +109,10 @@ class MybatisInterceptor : Interceptor {
             1,
             "0.0.0.0"
         )
-        //SyncSlave.instant.doSync()
         thread {
-            SyncLogUtil.sendNotify()
+            //SyncLogUtil.sendNotify()
+//            this.syncController.push()
+            SyncController::class.bean.push()
         }
     }
 }

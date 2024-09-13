@@ -26,6 +26,9 @@ import kotlin.concurrent.thread
 @Controller
 @RequestMapping("/sync/{token}")
 class SyncController : AppBase() {
+    companion object {
+        const val KEEP_ALIVE_TIME = 1L * 1000
+    }
 
     /**
      * 文件数据操作Dao
@@ -38,6 +41,65 @@ class SyncController : AppBase() {
      */
     @Autowired
     private lateinit var localFileDao: LocalFileDao
+
+    /**
+     * 记录分机端的请求
+     */
+    private val waitResponse = HashMap<String, HttpServletResponse>()
+
+    /**
+     * 通知
+     */
+    fun push() {
+        this.waitResponse.values.forEach { res ->
+            try {
+                res.outputStream.use {
+                    it.write(1)
+                    it.flush()
+                }
+            } finally {
+                synchronized(res) {
+                    (res as Object).notifyAll()
+                }
+            }
+        }
+    }
+
+    /**
+     * 分机端同步等待请求
+     * 这是一个长连接，直到主机端有数据变更之后才返回
+     */
+    @GetMapping("/{clientToken}/wait")
+    @ResponseBody
+    fun wait(response: HttpServletResponse, @PathVariable clientToken: String) {
+        synchronized(response) {
+            val oldResponse = this.waitResponse[clientToken]
+            if (oldResponse != null) {
+                try {
+                    oldResponse.outputStream.close()
+                } finally {
+                    synchronized(oldResponse) {
+                        (oldResponse as Object).notifyAll()
+                    }
+                }
+                this.waitResponse.remove(clientToken)
+            }
+
+            //添加新的等待
+            this.waitResponse[clientToken] = response
+            try {
+                while (true) {
+                    (response as Object).wait(KEEP_ALIVE_TIME)
+
+                    //间隔一段时间往客户端发送0，以保持长连接
+                    response.outputStream.write(0)
+                    response.outputStream.flush()
+                }
+            } finally {
+                this.waitResponse.remove(clientToken)
+            }
+        }
+    }
 
     /**
      * 获取sql日志
