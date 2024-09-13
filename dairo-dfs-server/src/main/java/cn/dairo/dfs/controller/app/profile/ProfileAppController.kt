@@ -73,6 +73,7 @@ class ProfileAppController : AppBase() {
         }
         SyncLogUtil.init()
         SystemConfig.save()
+        SyncLogUtil.loopStart()
     }
 
     /**

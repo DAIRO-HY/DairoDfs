@@ -31,4 +31,9 @@ class SyncInfo {
      * 最后一次同步完成时间
      */
     var lastTime = 0L
+
+    /**
+     * 最后一次心跳时间
+     */
+    var lastHeartTime = 0L
 }

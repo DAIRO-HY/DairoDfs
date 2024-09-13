@@ -86,6 +86,17 @@
                     }
                 },
                 {
+                    data: "lastHeartTime",
+                    title: "心跳时间",
+                    render: function (value) {
+                        if (value === 0) {
+                            return ""
+                        }
+                        const date = dateFormat(new Date(value))
+                        return "<div>" + date + "</div>"
+                    }
+                },
+                {
                     data: "syncCount",
                     title: "日志数"
                 },

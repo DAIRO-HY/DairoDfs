@@ -93,9 +93,6 @@ object SyncLogUtil {
             info.no = index + 1
             info
         }
-//        this.syncInfoList = arrayListOf(SyncInfo().apply {
-//            this.domain = "http://localhost:8030"
-//        })
     }
 
     /**
@@ -118,8 +115,8 @@ object SyncLogUtil {
             //停止执行
             this.waitingHttpList[it] = true
         }
-        while (true){//直到上次打开的轮询全部结束之后才继续
-            if(this.waitingHttpList.isEmpty()){
+        while (true) {//直到上次打开的轮询全部结束之后才继续
+            if (this.waitingHttpList.isEmpty()) {
                 break
             }
             sleep(500)
@@ -138,10 +135,15 @@ object SyncLogUtil {
                 this.waitingHttpList[http] = false
                 try {
                     http.connect()
-                    http.inputStream.use {
+                    val iStream = http.inputStream
+                    iStream.use {
                         var tag: Int
                         while (it.read().also { tag = it } != -1) {
-                            println(tag)
+
+                            //记录最有一次心跳时间
+                            info.lastHeartTime = System.currentTimeMillis()
+                            info.msg = "心跳检测中。"
+                            this.socket.send(info)
                             if (tag == 1) {//接收到的标记为1时，代表服务器端有新的日志
                                 this.start()
                                 break
@@ -149,7 +151,14 @@ object SyncLogUtil {
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    //e.printStackTrace()
+                    info.msg = "服务端心跳检查失败。"
+                    this.socket.send(info)
+
+                    //如果网络连接报错，则等待一段时间之后在恢复
+                    sleep(10000)
+                } finally {
+                    http.disconnect()
                 }
                 if (!this.waitingHttpList.containsKey(http) || this.waitingHttpList[http] == true) {//如果已经被移除，则终止轮询
                     break
