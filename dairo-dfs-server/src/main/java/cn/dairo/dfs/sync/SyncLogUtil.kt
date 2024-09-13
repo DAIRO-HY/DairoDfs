@@ -163,7 +163,12 @@ object SyncLogUtil {
                 if (!this.waitingHttpList.containsKey(http) || this.waitingHttpList[http] == true) {//如果已经被移除，则终止轮询
                     break
                 }
+
+                //每次同步完成之后都重新开启新的请求
                 this.waitingHttpList.remove(http)
+                if (info.state == 2) {//如果同步发生了错误
+                    break
+                }
             }
         }
     }

@@ -54,10 +54,10 @@ class SyncAppController : AppBase() {
     @PostMapping("/sync")
     @ResponseBody
     fun sync() {
-        SyncController::class.bean.push()
-//        thread {
-//            SyncLogUtil.start(true)
-//        }
+//        SyncController::class.bean.push()
+        thread {
+            SyncLogUtil.start(true)
+        }
     }
 
     /**
