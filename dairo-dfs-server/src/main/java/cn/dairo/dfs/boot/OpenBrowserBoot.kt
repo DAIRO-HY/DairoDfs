@@ -21,9 +21,6 @@ class OpenBrowserBoot : ApplicationRunner {
     @Value("\${server.port}")
     private var port = 0
 
-    @Autowired
-    private lateinit var boot: BootTimer
     override fun run(args: ApplicationArguments) {
-        //this.boot.clearData()
     }
 }
