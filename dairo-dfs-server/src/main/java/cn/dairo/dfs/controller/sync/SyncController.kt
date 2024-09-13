@@ -2,7 +2,6 @@ package cn.dairo.dfs.controller.sync
 
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.base.AppBase
-import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.sync.SyncAllUtil
@@ -31,12 +30,6 @@ class SyncController : AppBase() {
     }
 
     /**
-     * 文件数据操作Dao
-     */
-    @Autowired
-    private lateinit var dfsFileDao: DfsFileDao
-
-    /**
      * 本地存储文件数据操作Dao
      */
     @Autowired
@@ -45,22 +38,26 @@ class SyncController : AppBase() {
     /**
      * 记录分机端的请求
      */
-    private val waitResponse = HashMap<String, HttpServletResponse>()
+    private val distributedClientResponseList = HashSet<DistributedClientResponseBean>()
 
     /**
-     * 通知
+     * 通知分机端同步
      */
     fun push() {
-        this.waitResponse.values.forEach { res ->
-            try {
-                res.outputStream.use {
-                    it.write(1)
-                    it.flush()
-                }
-            } finally {
-                synchronized(res) {
-                    (res as Object).notifyAll()
-                }
+        this.distributedClientResponseList.forEach { res ->
+            res.response.outputStream.use {
+                it.write(1)
+                it.flush()
+            }
+        }
+
+        //一定要将同步客户端response信息列表复制一份在进行通知，因为调用notifyAll()时，其他线程有可能移除对象，而HashSet不能边遍历边移除对象，这回导致报错
+        this.distributedClientResponseList.map { it }.forEach {
+            synchronized(it) {
+
+                //标记为已经结束
+                it.isCancel = true
+                (it as Object).notifyAll()
             }
         }
     }
@@ -72,31 +69,41 @@ class SyncController : AppBase() {
     @GetMapping("/{clientToken}/wait")
     @ResponseBody
     fun wait(response: HttpServletResponse, @PathVariable clientToken: String) {
-        synchronized(response) {
-            val oldResponse = this.waitResponse[clientToken]
-            if (oldResponse != null) {
-                try {
-                    oldResponse.outputStream.close()
-                } finally {
-                    synchronized(oldResponse) {
-                        (oldResponse as Object).notifyAll()
-                    }
+        println("--------------------------------------->${this.distributedClientResponseList.size}<-----------------------------------")
+
+        //检查客户端token是否已经存在，保证同一个token的客户端只能有一个等待
+        this.distributedClientResponseList.find { it.clientToken == clientToken }?.also {
+            try {
+
+                //将上一个标记为已经结束
+                it.isCancel = true
+                it.response.outputStream.close()
+            } finally {
+                synchronized(it) {
+                    (it as Object).notifyAll()
                 }
-                this.waitResponse.remove(clientToken)
             }
+        }
+
+        //构建分机端同步response信息
+        val responseBean = DistributedClientResponseBean(clientToken,response)
+        synchronized(responseBean) {
 
             //添加新的等待
-            this.waitResponse[clientToken] = response
+            this.distributedClientResponseList.add(responseBean)
             try {
                 while (true) {
-                    (response as Object).wait(KEEP_ALIVE_TIME)
+                    (responseBean as Object).wait(KEEP_ALIVE_TIME)
 
                     //间隔一段时间往客户端发送0，以保持长连接
                     response.outputStream.write(0)
                     response.outputStream.flush()
+                    if (responseBean.isCancel) {
+                        break
+                    }
                 }
             } finally {
-                this.waitResponse.remove(clientToken)
+                this.distributedClientResponseList.remove(responseBean)
             }
         }
     }
