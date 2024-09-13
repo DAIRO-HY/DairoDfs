@@ -28,7 +28,11 @@ import kotlin.concurrent.thread
 @RequestMapping("/sync/{token}")
 class SyncController : AppBase() {
     companion object {
-        const val KEEP_ALIVE_TIME = 1L * 1000
+
+        /**
+         * 长连接心跳间隔时间
+         */
+        const val KEEP_ALIVE_TIME = 120L * 1000
     }
 
     /**
