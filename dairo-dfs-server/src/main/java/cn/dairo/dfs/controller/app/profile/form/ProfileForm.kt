@@ -30,12 +30,6 @@ class ProfileForm {
     var folders: String? = null
 
     /**
-     * 主动同步时间间隔
-     */
-    @Min(1)
-    var syncTimer: Int? = null
-
-    /**
      * 同步域名
      */
     var syncDomains: String? = null

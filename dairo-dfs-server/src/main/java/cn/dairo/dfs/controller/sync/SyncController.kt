@@ -65,15 +65,14 @@ class SyncController : AppBase() {
     }
 
     /**
-     * 分机端同步等待请求
+     * 分机端同步监听请求
      * 这是一个长连接，直到主机端有数据变更之后才返回
      * @param clientToken 分机端的票据
      * @param lastId 分机端同步到日志最大ID,用来解决分机端在判断是否最新日志的过程中,又有新的日志增加,虽然是小概率事件,但还是有发生的可能
      */
-    @GetMapping("/{clientToken}/wait")
+    @GetMapping("/{clientToken}/listen")
     @ResponseBody
-    fun wait(response: HttpServletResponse, @PathVariable clientToken: String, lastId: Long) {
-        println("--------------------------------------->${this.distributedClientResponseList.size}<-----------------------------------")
+    fun listen(response: HttpServletResponse, @PathVariable clientToken: String, lastId: Long) {
 
         //检查客户端token是否已经存在，保证同一个token的客户端只能有一个等待
         this.distributedClientResponseList.find { it.clientToken == clientToken }?.also {
@@ -156,7 +155,7 @@ class SyncController : AppBase() {
     @GetMapping("/get_table_id")
     @ResponseBody
     fun getTableId(tbName: String, lastId: Long, aopId: Long): String {
-        if (SyncAllUtil.isRuning || SyncLogUtil.isRuning) {
+        if (SyncAllUtil.isRuning || SyncLogUtil.isRunning) {
             throw BusinessException("主机正在同步数据中，请等待完成后继续。")
         }
         return Constant.dbService.selectList(
@@ -172,7 +171,7 @@ class SyncController : AppBase() {
     @GetMapping("/get_table_data")
     @ResponseBody
     fun getTableData(tbName: String, ids: String): List<*> {
-        if (SyncAllUtil.isRuning || SyncLogUtil.isRuning) {
+        if (SyncAllUtil.isRuning || SyncLogUtil.isRunning) {
             throw BusinessException("主机正在同步数据中，请等待完成后继续。")
         }
         return Constant.dbService.selectList(
@@ -193,7 +192,7 @@ class SyncController : AppBase() {
         response: HttpServletResponse,
         @PathVariable md5: String
     ) {
-        if (SyncAllUtil.isRuning || SyncLogUtil.isRuning) {
+        if (SyncAllUtil.isRuning || SyncLogUtil.isRunning) {
             throw BusinessException("主机正在同步数据中，请等待完成后继续。")
         }
         val localFileDto = this.localFileDao.selectByFileMd5(md5)

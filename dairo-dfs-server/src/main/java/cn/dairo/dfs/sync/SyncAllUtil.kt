@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
 import cn.dairo.dfs.extension.bean
-import cn.dairo.dfs.extension.toJson
 import cn.dairo.dfs.sync.bean.SyncInfo
 import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
 import cn.dairo.dfs.sync.sync_handle.LocalFileSyncHandle
 import cn.dairo.lib.Json
 import com.fasterxml.jackson.databind.JsonNode
 import org.sqlite.SQLiteException
-import java.lang.Thread.sleep
 
 /**
  * 全量同步工具
@@ -24,11 +22,10 @@ object SyncAllUtil {
     private var mIsRuning = false
 
     /**
-     * 记录本次同步数据条数
+     * 同步信息Socket
+     * 页面实时查看同步信息用
      */
-    var syncCount = 0L
-
-    val socket = SyncWebSocketHandler::class.bean
+    private val syncSocket = SyncWebSocketHandler::class.bean
 
     /**
      * 获取运行状态
@@ -46,7 +43,7 @@ object SyncAllUtil {
      */
     fun start(isForce: Boolean = false) {
         synchronized(this) {
-            if (SyncLogUtil.isRuning) {//日志同步正在进行中
+            if (SyncLogUtil.isRunning) {//日志同步正在进行中
                 return
             }
             if (this.mIsRuning) {//并发防止
@@ -55,7 +52,7 @@ object SyncAllUtil {
             this.mIsRuning = true
         }
         try {
-            if(isForce){//强行执行
+            if (isForce) {//强行执行
                 SyncLogUtil.syncInfoList.forEach {
                     it.state = 0
                 }
@@ -70,13 +67,13 @@ object SyncAllUtil {
 
     private fun doSync() {
         SyncLogUtil.syncInfoList.forEach { info ->
-            if(info.state != 0){//只允许待机中的同步
+            if (info.state != 0) {//只允许待机中的同步
                 return@forEach
             }
             try {
                 info.state = 1
                 info.msg = ""
-                this.socket.send(info)
+                this.syncSocket.send(info)
 
                 //断面ID,从主机端获取的数据ID不得大于该值
                 val aopId = this.getAopId(info)
@@ -101,7 +98,7 @@ object SyncAllUtil {
                 info.state = 2
                 info.msg = e.message ?: e.toString()
             } finally {
-                this.socket.send(info)
+                this.syncSocket.send(info)
             }
         }
     }
@@ -143,7 +140,7 @@ object SyncAllUtil {
 
         //记录当前同步的数据条数
         info.syncCount += jsonData.size()
-        this.socket.send(info)
+        this.syncSocket.send(info)
 
         //再次同步
         this.loopSync(info, tbName, currentLastId, aopId)

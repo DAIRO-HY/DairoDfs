@@ -31,7 +31,7 @@ import kotlin.concurrent.thread
 class SyncLogBoot : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
         SyncLogUtil.init()
-        SyncLogUtil.loopStart()
+        SyncLogUtil.listenAll()
     }
 }
 
@@ -45,9 +45,13 @@ object SyncLogUtil {
     /**
      * 是否正在同步中
      */
-    private var mIsRuning = false
+    private var mIsRunning = false
 
-    private val socket = SyncWebSocketHandler::class.bean
+    /**
+     * 同步信息Socket
+     * 页面实时查看同步信息用
+     */
+    private val syncSocket = SyncWebSocketHandler::class.bean
 
     /**
      * 记录等待了的时间
@@ -57,23 +61,13 @@ object SyncLogUtil {
     /**
      * 获取运行状态
      */
-    val isRuning: Boolean
+    val isRunning: Boolean
         get() {
             synchronized(this) {
-                return this.mIsRuning
+                return this.mIsRunning
             }
         }
 
-    /**
-     * 获取循环执行间隔时间
-     */
-    val loopTimer: Long
-        get() {
-            if (SystemConfig.instance.syncTimer <= 0) {
-                return Long.MAX_VALUE
-            }
-            return SystemConfig.instance.syncTimer.toLong()
-        }
 
     /**
      * 最后同步的ID存放目录
@@ -101,15 +95,15 @@ object SyncLogUtil {
     private val waitingHttpList = ConcurrentHashMap<HttpURLConnection, Boolean>()
 
     /**
-     * 定时轮询
+     * 监听所有配置的主机
      */
-    fun loopStart() = thread {
+    fun listenAll() = thread {
 
         //先停止掉之前所有的轮询
         this.waitingHttpList.keys.forEach {
             try {
                 it.disconnect()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             }
 
             //停止执行
@@ -122,16 +116,19 @@ object SyncLogUtil {
             sleep(500)
         }
         this.syncInfoList.forEach {
-            wait(it)
+            listen(it)
         }
     }
 
-    private fun wait(info: SyncInfo) {
+    /**
+     * 监听服务端日志变化
+     */
+    private fun listen(info: SyncInfo) {
         thread {
             while (true) {
                 sleep(1000)
                 val http =
-                    URL(info.domain + "/${SystemConfig.instance.token}/wait?lastId=" + this.getLastId(info)).openConnection() as HttpURLConnection
+                    URL(info.domain + "/${SystemConfig.instance.token}/listen?lastId=" + this.getLastId(info)).openConnection() as HttpURLConnection
                 this.waitingHttpList[http] = false
                 try {
                     http.connect()
@@ -143,7 +140,7 @@ object SyncLogUtil {
                             //记录最有一次心跳时间
                             info.lastHeartTime = System.currentTimeMillis()
                             info.msg = "心跳检测中。"
-                            this.socket.send(info)
+                            this.syncSocket.send(info)
                             if (tag == 1) {//接收到的标记为1时，代表服务器端有新的日志
                                 this.start()
                                 break
@@ -153,7 +150,7 @@ object SyncLogUtil {
                 } catch (e: Exception) {
                     //e.printStackTrace()
                     info.msg = "服务端心跳检查失败。"
-                    this.socket.send(info)
+                    this.syncSocket.send(info)
 
                     //如果网络连接报错，则等待一段时间之后在恢复
                     sleep(10000)
@@ -182,10 +179,10 @@ object SyncLogUtil {
             if (SyncAllUtil.isRuning) {//全量同步正在进行中
                 return
             }
-            if (this.mIsRuning) {//并发防止
+            if (this.mIsRunning) {//并发防止
                 return
             }
-            this.mIsRuning = true
+            this.mIsRunning = true
         }
         try {
             if (isForce) {//强行执行
@@ -199,12 +196,12 @@ object SyncLogUtil {
                 }
                 it.state = 1//标记为同步中
                 it.msg = ""
-                this.socket.send(it)
+                this.syncSocket.send(it)
                 this.requestSqlLog(it)
             }
         } finally {
             synchronized(this) {
-                this.mIsRuning = false
+                this.mIsRunning = false
             }
             this.waitTimes = 0
         }
@@ -229,7 +226,7 @@ object SyncLogUtil {
                 info.state = 0//同步完成，标记为待机中
                 info.msg = ""
                 info.lastTime = System.currentTimeMillis()//最后一次同步完成时间
-                this.socket.send(info)
+                this.syncSocket.send(info)
                 return
             }
             val jsonData = Json.readValue(data)
@@ -247,7 +244,7 @@ object SyncLogUtil {
         } catch (e: Exception) {
             info.state = 2//标记为同步失败
             info.msg = e.message ?: e.toString()
-            this.socket.send(info)
+            this.syncSocket.send(info)
         }
     }
 
@@ -333,7 +330,7 @@ object SyncLogUtil {
 
         //记录当前同步的数据条数
         info.syncCount += list.size
-        this.socket.send(info)
+        this.syncSocket.send(info)
         excuteSqlLog(info)
     }
 

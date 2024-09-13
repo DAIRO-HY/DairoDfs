@@ -11,6 +11,9 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.handler.TextWebSocketHandler
 
+/**
+ * 同步信息Socket
+ */
 @Configuration
 @EnableWebSocket
 class SyncWebSocketHandler : TextWebSocketHandler(), WebSocketConfigurer {
@@ -28,18 +31,10 @@ class SyncWebSocketHandler : TextWebSocketHandler(), WebSocketConfigurer {
      * 客户端建立链接时
      */
     override fun afterConnectionEstablished(session: WebSocketSession) {
-        println("连接已建立: " + session.getId());
         this.session = session
     }
 
-//    override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
-//        val payload = message.payload;
-//        println("收到消息: $payload");
-//        session.sendMessage(TextMessage("服务器返回: $payload"));
-//    }
-
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        System.out.println("连接已关闭: " + session.getId())
         this.session = null
     }
 

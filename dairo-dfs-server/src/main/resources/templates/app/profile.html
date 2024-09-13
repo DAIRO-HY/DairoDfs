@@ -65,19 +65,6 @@
         <div class="row row-cols-1 row-cols-sm-2">
             <div class="col mt-2">
                 <div class="row">
-                    <label class="col-4 col-form-label text-end">主动同步时间间隔</label>
-                    <div class="col-8">
-                        <div class="input-group" style="width: 160px;">
-                            <input class="form-control" name="syncTimer" autocomplete="off">
-                            <span class="input-group-text">秒</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row row-cols-1 row-cols-sm-2">
-            <div class="col mt-2">
-                <div class="row">
                     <label class="col-4 col-form-label text-end">同步服务器URL</label>
                     <div class="col-8">
                         <textarea class="form-control" name="syncDomains"></textarea>
@@ -152,12 +139,12 @@
         }).post()
     }
 
-    function onMakeTokenClick(){
+    function onMakeTokenClick() {
         const rs = confirm("重置票据之后旧票据将无法使用，确定要重置票据？")
-        if(!rs){
+        if (!rs) {
             return
         }
-        $.http("/app/profile/make_token").success(()=>{
+        $.http("/app/profile/make_token").success(() => {
 
             //页面刷新
             history.go(0)

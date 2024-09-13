@@ -32,7 +32,6 @@ class ProfileAppController : AppBase() {
         form.hasReadOnly = systemConfig.isReadOnly
         form.uploadMaxSize = systemConfig.uploadMaxSize.toString()
         form.folders = systemConfig.saveFolderList.joinToString(separator = "\n")
-        form.syncTimer = systemConfig.syncTimer
         form.syncDomains = systemConfig.syncDomains.joinToString(separator = "\n")
         form.token = systemConfig.token
         return form
@@ -61,7 +60,6 @@ class ProfileAppController : AppBase() {
         systemConfig.uploadMaxSize = form.uploadMaxSize!!.toLong()
         systemConfig.openSqlLog = form.openSqlLog!!
         systemConfig.isReadOnly = form.hasReadOnly!!
-        systemConfig.syncTimer = form.syncTimer!!
 
         if (form.syncDomains.isNullOrEmpty()) {
             systemConfig.syncDomains = ArrayList()
@@ -73,7 +71,7 @@ class ProfileAppController : AppBase() {
         }
         SyncLogUtil.init()
         SystemConfig.save()
-        SyncLogUtil.loopStart()
+        SyncLogUtil.listenAll()
     }
 
     /**

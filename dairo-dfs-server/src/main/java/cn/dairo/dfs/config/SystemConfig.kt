@@ -3,6 +3,7 @@ package cn.dairo.dfs.config
 import cn.dairo.dfs.boot.Boot
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.md5
+import cn.dairo.lib.Json
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 
@@ -32,11 +33,6 @@ class SystemConfig private constructor() {
     var saveFolderList: List<String> = listOf(Boot::class.bean.dataPath)
 
     /**
-     * 主动同步时间间隔(秒)
-     */
-    var syncTimer = 10
-
-    /**
      * 同步域名
      */
     var syncDomains: List<String> = ArrayList()
@@ -59,7 +55,7 @@ class SystemConfig private constructor() {
                     val systemJsonFile = File(Constant.SYSTEM_JSON_PATH)
                     if (systemJsonFile.exists()) {//若配置文件存在
                         try {
-                            mInstance = ObjectMapper().readValue(systemJsonFile, SystemConfig::class.java)
+                            mInstance = Json.readValue(systemJsonFile.readText(), SystemConfig::class.java)
                         } catch (e: Exception) {
                             e.printStackTrace()
                             mInstance = SystemConfig()
