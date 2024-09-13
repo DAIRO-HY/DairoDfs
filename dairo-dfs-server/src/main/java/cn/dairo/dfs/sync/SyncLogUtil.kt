@@ -131,7 +131,7 @@ object SyncLogUtil {
             while (true) {
                 sleep(1000)
                 val http =
-                    URL(info.domain + "/${SystemConfig.instance.token}/wait").openConnection() as HttpURLConnection
+                    URL(info.domain + "/${SystemConfig.instance.token}/wait?lastId=" + this.getLastId(info)).openConnection() as HttpURLConnection
                 this.waitingHttpList[http] = false
                 try {
                     http.connect()
@@ -350,7 +350,7 @@ object SyncLogUtil {
     fun getLastId(info: SyncInfo): Long {
 
         //记录最后一次请求到的日志ID文件
-        val lastLogIdFile = File(this.syncLastIdFilePath + "." + info.domain!!.md5)
+        val lastLogIdFile = File(this.syncLastIdFilePath + "." + info.domain.md5)
 
         //从文件获取最后一次请求到的日志ID
         return try {

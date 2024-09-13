@@ -4,6 +4,8 @@ import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.exception.BusinessException
+import cn.dairo.dfs.extension.bean
+import cn.dairo.dfs.interceptor.MybatisInterceptor
 import cn.dairo.dfs.sync.SyncAllUtil
 import cn.dairo.dfs.sync.SyncLogUtil
 import cn.dairo.dfs.util.DBID
@@ -65,10 +67,12 @@ class SyncController : AppBase() {
     /**
      * 分机端同步等待请求
      * 这是一个长连接，直到主机端有数据变更之后才返回
+     * @param clientToken 分机端的票据
+     * @param lastId 分机端同步到日志最大ID,用来解决分机端在判断是否最新日志的过程中,又有新的日志增加,虽然是小概率事件,但还是有发生的可能
      */
     @GetMapping("/{clientToken}/wait")
     @ResponseBody
-    fun wait(response: HttpServletResponse, @PathVariable clientToken: String) {
+    fun wait(response: HttpServletResponse, @PathVariable clientToken: String, lastId: Long) {
         println("--------------------------------------->${this.distributedClientResponseList.size}<-----------------------------------")
 
         //检查客户端token是否已经存在，保证同一个token的客户端只能有一个等待
@@ -86,13 +90,17 @@ class SyncController : AppBase() {
         }
 
         //构建分机端同步response信息
-        val responseBean = DistributedClientResponseBean(clientToken,response)
+        val responseBean = DistributedClientResponseBean(clientToken, response)
         synchronized(responseBean) {
 
             //添加新的等待
             this.distributedClientResponseList.add(responseBean)
             try {
                 while (true) {
+                    if (MybatisInterceptor::class.bean.lastID > lastId) {//分机端数据并不是最新的
+                        response.outputStream.write(1)
+                        break
+                    }
                     (responseBean as Object).wait(KEEP_ALIVE_TIME)
 
                     //间隔一段时间往客户端发送0，以保持长连接

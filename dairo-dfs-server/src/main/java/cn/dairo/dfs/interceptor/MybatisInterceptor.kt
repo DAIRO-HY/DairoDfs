@@ -45,6 +45,11 @@ class MybatisInterceptor : Interceptor {
 //    private lateinit var syncController: SyncController
 
     /**
+     * 记录最后一次添加的日志ID
+     */
+    var lastID = 0L
+
+    /**
      * sqlite数据库连接
      */
     private val db: DBBase by lazy {
@@ -53,7 +58,7 @@ class MybatisInterceptor : Interceptor {
 
     override fun intercept(invocation: Invocation): Any? {
         if (SystemConfig.instance.isReadOnly) {//这是一个只读服务器
-            throw BusinessException("只读服务器,不允许该操作。")
+            throw BusinessException("只读服务,不允许该操作。")
         }
         val result = invocation.proceed()
         if (SystemConfig.instance.openSqlLog) {//如果有开启分布式部署
@@ -100,9 +105,12 @@ class MybatisInterceptor : Interceptor {
 
         //得到执行的sql文
         val sqlLog = boundSql.sql
+
+        val id = DBID.id
+        this.lastID = id
         this.db.exec(
             "insert into sql_log(id,date,sql,param,state,source) values(?,?,?,?,?,?)",
-            DBID.id,
+            id,
             System.currentTimeMillis(),
             sqlLog,
             paramJson,
