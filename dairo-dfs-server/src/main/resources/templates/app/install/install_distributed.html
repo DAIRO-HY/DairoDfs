@@ -66,7 +66,10 @@
      * 初始化按钮点击事件
      */
     function onSetClick() {
-        $("form").ajaxByForm123().post()
+        $("form").ajaxByForm123().success(() => {
+            $("#syncUrlDiv").hide()
+            $("#syncLogDiv").show()
+        }).post()
     }
 
     function initSocket() {

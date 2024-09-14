@@ -8,6 +8,7 @@ import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.md5
 import cn.dairo.dfs.sync.bean.SyncInfo
+import cn.dairo.dfs.sync.bean.SyncLogListenHttpBean
 import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
 import cn.dairo.dfs.sync.sync_handle.LocalFileSyncHandle
 import cn.dairo.lib.Json
@@ -20,7 +21,6 @@ import java.lang.Thread.sleep
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.thread
 
 /**
@@ -92,7 +92,7 @@ object SyncByLog {
     /**
      * 等待中的请求
      */
-    private val waitingHttpList = ConcurrentHashMap<HttpURLConnection, Boolean>()
+    private val waitingHttpList = HashSet<SyncLogListenHttpBean>()
 
     /**
      * 监听所有配置的主机
@@ -100,21 +100,15 @@ object SyncByLog {
     fun listenAll() = thread {
 
         //先停止掉之前所有的轮询
-        this.waitingHttpList.keys.forEach {
+        this.waitingHttpList.forEach {
             try {
-                it.disconnect()
+                it.cancle()
             } catch (_: Exception) {
             }
+        }
 
-            //停止执行
-            this.waitingHttpList[it] = true
-        }
-        while (true) {//直到上次打开的轮询全部结束之后才继续
-            if (this.waitingHttpList.isEmpty()) {
-                break
-            }
-            sleep(500)
-        }
+        //清空监听等待
+        this.waitingHttpList.clear()
         this.syncInfoList.forEach {
             listen(it)
         }
@@ -129,7 +123,8 @@ object SyncByLog {
                 sleep(1000)
                 val http =
                     URL(info.domain + "/${SystemConfig.instance.token}/listen?lastId=" + this.getLastId(info)).openConnection() as HttpURLConnection
-                this.waitingHttpList[http] = false
+                val listenHttp = SyncLogListenHttpBean(http)
+                this.waitingHttpList.add(listenHttp)
                 try {
                     http.connect()
                     val iStream = http.inputStream
@@ -148,21 +143,23 @@ object SyncByLog {
                         }
                     }
                 } catch (e: Exception) {
-                    //e.printStackTrace()
-                    info.msg = "服务端心跳检查失败。"
-                    this.syncSocket.send(info)
+                    if (!listenHttp.isCanceled) {
+                        //e.printStackTrace()
+                        info.msg = "服务端心跳检查失败。"
+                        this.syncSocket.send(info)
 
-                    //如果网络连接报错，则等待一段时间之后在恢复
-                    sleep(10000)
+                        //如果网络连接报错，则等待一段时间之后在恢复
+                        sleep(10000)
+                    }
                 } finally {
                     http.disconnect()
                 }
-                if (!this.waitingHttpList.containsKey(http) || this.waitingHttpList[http] == true) {//如果已经被移除，则终止轮询
-                    break
-                }
 
                 //每次同步完成之后都重新开启新的请求
-                this.waitingHttpList.remove(http)
+                this.waitingHttpList.remove(listenHttp)
+                if (listenHttp.isCanceled) {//如果已经被取消
+                    break
+                }
                 if (info.state == 2) {//如果同步发生了错误
                     break
                 }
@@ -221,7 +218,7 @@ object SyncByLog {
             if (data == "[]") {//已经没有sql日志
 
                 //执行日志sql
-                excuteSqlLog(info)
+                executeSqlLog(info)
 
                 info.state = 0//同步完成，标记为待机中
                 info.msg = ""
@@ -237,7 +234,7 @@ object SyncByLog {
             this.saveLastId(info, lastLog["id"].asText().toLong())
 
             //执行日志sql
-            excuteSqlLog(info)
+            executeSqlLog(info)
 
             //递归调用，直到服务端日志同步完成
             this.requestSqlLog(info)
@@ -283,7 +280,7 @@ object SyncByLog {
     /**
      * 执行日志里的sql语句
      */
-    private fun excuteSqlLog(info: SyncInfo) {
+    private fun executeSqlLog(info: SyncInfo) {
         val list =
             Constant.dbService.selectList("select * from sql_log where state in (0,2) order by id asc limit 1000")
         if (list.isEmpty()) {
@@ -311,9 +308,6 @@ object SyncByLog {
             params.forEachIndexed { i, v ->
                 ps.setObject(i + 1, v)
             }
-//            paramIndexToValue.forEach { (index, value) ->
-//                ps.setObject(index.toInt(), value)
-//            }
             try {
                 ps.executeUpdate()
                 if (afterSql != null) {
@@ -331,7 +325,7 @@ object SyncByLog {
         //记录当前同步的数据条数
         info.syncCount += list.size
         this.syncSocket.send(info)
-        excuteSqlLog(info)
+        executeSqlLog(info)
     }
 
     /**
