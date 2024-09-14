@@ -1,6 +1,5 @@
 package cn.dairo.dfs.controller.app.login
 
-import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.app.login.form.LoginAppForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.UserDao
