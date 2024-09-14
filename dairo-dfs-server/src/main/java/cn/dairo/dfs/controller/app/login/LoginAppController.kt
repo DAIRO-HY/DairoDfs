@@ -75,7 +75,7 @@ class LoginAppController : AppBase() {
         @Parameter(name = "客户端标志") @RequestParam("_clientFlag") clientFlag: Int,
         @Parameter(name = "客户端版本") @RequestParam("_version") version: Int
     ): String {
-        val userDto = this.userDao.getByName(loginForm.name!!) ?: throw BusinessException("用户名或密码错误")
+        val userDto = this.userDao.selectByName(loginForm.name!!) ?: throw BusinessException("用户名或密码错误")
         if (loginForm.pwd != userDto.pwd) {
             throw BusinessException("用户名或密码错误")
         }
@@ -103,11 +103,6 @@ class LoginAppController : AppBase() {
             //删除登录记录
             this.userTokenDao.deleteByToken(userTokenList[0].token!!)
             userTokenList.removeAt(0)
-        }
-
-        if (clientFlag == 0) {//如果是网页端登录,将token放到session
-            ServletTool.session.setAttribute(Constant.SESSION_IS_ADMIN, true)
-            ServletTool.session.setAttribute(Constant.SESSION_TOKEN, token)
         }
         return token
     }

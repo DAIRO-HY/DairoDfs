@@ -1,10 +1,9 @@
 package cn.dairo.dfs.interceptor
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import cn.dairo.dfs.code.ErrorCode
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.dao.UserDao
-import cn.dairo.dfs.util.ServletTool
+import cn.dairo.dfs.dao.UserTokenDao
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,22 +17,36 @@ import org.springframework.web.servlet.HandlerInterceptor
  */
 class LoginInterceptor : HandlerInterceptor {
 
-    private val mapper = ObjectMapper()
+    /**
+     * 用户登录票据
+     */
+    @Autowired
+    private lateinit var userTokenDao: UserTokenDao
+
+    /**
+     * 用户Dao
+     */
+    @Autowired
+    private lateinit var userDao: UserDao
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler !is HandlerMethod) {//不是mapping内容,没必要继续执行
             return false
         }
         var token = request.getParameter("_token")
-        if (token == null) {
-            //TODO:该代码应该被删除,Token已经存在了客户端,无需保存到session
-            token = request.session.getAttribute(Constant.SESSION_TOKEN) as String?
-            token = "38c55cab3a64dd3e52dad3100878c631"
-            ServletTool.session.setAttribute(Constant.SESSION_IS_ADMIN, true)
+        if (token == null) {//判断cookie中是否有值
+            token = request.cookies.find { it.name == "token" }?.value
         }
         if (token != null) {
-            request.setAttribute(Constant.REQUEST_TOKEN, token)
-            return true
+            val userId = this.userTokenDao.getByUserIdByToken(token)
+            if (userId != null) {
+                request.setAttribute(Constant.REQUEST_USER_ID, userId)
+
+                //验证是否管理员
+                val isAdmin = userId == this.userDao.selectAdminId()
+                request.setAttribute(Constant.REQUEST_IS_ADMIN, isAdmin)
+                return true
+            }
         }
         if (request.method == HttpMethod.POST.name()) {//Post请求时
             response.status = 500
@@ -42,8 +55,7 @@ class LoginInterceptor : HandlerInterceptor {
             response.contentType = "text/json;charset=utf-8"
 
             val bizError = ErrorCode.NO_LOGIN
-            val result = mapOf("code" to bizError.code, "msg" to bizError.message)
-            this.mapper.writeValue(response.outputStream, result)
+            response.outputStream.write("""{"code":${bizError.code},"msg":"${bizError.message}"}""".toByteArray())
         } else {
             if (request.getHeader("range") != null) {//可能来自客户端下载
                 response.status = 500

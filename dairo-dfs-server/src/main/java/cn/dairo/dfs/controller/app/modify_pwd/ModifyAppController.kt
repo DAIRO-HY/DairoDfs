@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
@@ -38,7 +37,7 @@ class ModifyAppController : AppBase() {
     @ResponseBody
     fun modify(@Valid form: ModifyPwdAppForm) {
         val userId = super.loginId
-        val user = this.userDao.getOne(userId)!!
+        val user = this.userDao.selectOne(userId)!!
         if (user.pwd != form.oldPwd) {
             throw BusinessException("旧密码不正确")
         }

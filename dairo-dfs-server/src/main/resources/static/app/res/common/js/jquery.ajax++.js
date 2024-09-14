@@ -88,10 +88,6 @@ $(() => {
     function ajax(option, success, fail, final) {
         addMask()
         let urlParam = "_clientFlag=0&_version=0&"
-        const token = sessionStorage.getItem("token")
-        if (token !== "") {
-            urlParam += "_token=" + token + "&"
-        }
         if (option.data) {
             for (let key in option.data) {
                 const value = option.data[key]

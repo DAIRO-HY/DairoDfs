@@ -17,61 +17,54 @@ interface UserDao {
      * @param id 用户ID
      * @return 用户信息
      */
-    fun getOne(id: Long): UserDto?
+    fun selectOne(id: Long): UserDto?
 
     /**
      * 获取管理员账户
      * @return 用户信息
      */
-    fun getAdmin(): UserDto?
+    fun selectAdminId(): Long
 
     /**
      * 通过邮箱获取用户信息
      * @param email 邮箱
      * @return 用户信息
      */
-    fun getByEmail(email: String): UserDto?
+    fun selectByEmail(email: String): UserDto?
 
     /**
      * 通过用户名获取用户信息
      * @param name 用户名
      * @return 用户信息
      */
-    fun getByName(name: String): UserDto?
-
-    /**
-     * 通过ApiToken获取用户信息
-     * @param apiToken 用户ApiToken
-     * @return 用户信息
-     */
-    fun getByApiToken(apiToken: String): UserDto?
+    fun selectByName(name: String): UserDto?
 
     /**
      * 通过ApiToken获取用户ID
      * @param apiToken 用户ApiToken
      * @return 用户ID
      */
-    fun getIdByApiToken(apiToken: String): Long?
+    fun selectIdByApiToken(apiToken: String): Long?
 
     /**
      * 通过Token获取用户信息
      * @param token 用户登录token
      * @return 用户信息
      */
-    fun getByToken(token: String): UserDto?
+    fun selectByToken(token: String): UserDto?
 
     /**
      * 通过urlPath获取用户ID
      * @param urlPath 文件访问前缀
      * @return 用户ID
      */
-    fun getIdByUrlPath(urlPath: String): Long?
+    fun selectIdByUrlPath(urlPath: String): Long?
 
     /**
      * 获取所有用户
      * @return 所有用户列表
      */
-    fun getAll(): List<UserDto>
+    fun selectAll(): List<UserDto>
 
     /**
      * 判断是否已经初始化

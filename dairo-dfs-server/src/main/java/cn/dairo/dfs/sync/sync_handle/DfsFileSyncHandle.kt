@@ -56,7 +56,7 @@ object DfsFileSyncHandle {
         } else {
 
             //得到用户信息
-            val user = UserDao::class.bean.getOne(userId)
+            val user = UserDao::class.bean.selectOne(userId)
 
             //得到发生错误的文件路径
             val path = DfsFileService::class.bean.getPathById(dfsFile.id!!)
@@ -102,7 +102,7 @@ object DfsFileSyncHandle {
         } else {
 
             //得到用户信息
-            val user = UserDao::class.bean.getOne(userId)
+            val user = UserDao::class.bean.selectOne(userId)
 
             //得到发生错误的文件路径
             val path = DfsFileService::class.bean.getPathById(dfsFile.id!!)

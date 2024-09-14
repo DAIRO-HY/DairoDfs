@@ -41,7 +41,8 @@
         $("form").ajaxByFormAndOption({
             data: {pwd: hexMD5($("input[name='pwd']").val())}
         }, token => {
-            sessionStorage.setItem("token", token)
+            //sessionStorage.setItem("token", token)
+            document.cookie = "token=" + token + "; max-age=3153600000; path=/";
             window.location.href = "/app/files"
         })
     }

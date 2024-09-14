@@ -33,24 +33,14 @@ object Constant {
     const val NO_SET_PWD_PRE = "@@-"
 
     /**
-     * 用户登录票据
+     * 登录用户ID
      */
-    const val REQUEST_TOKEN = "TOKEN"
-
-    /**
-     * 用户登录票据
-     */
-    const val SESSION_TOKEN = "SESSION_TOKEN"
-
-    /**
-     * 登录名
-     */
-    const val SESSION_LOGIN_NAME = "LOGIN_NAME"
+    const val REQUEST_USER_ID = "USER_ID"
 
     /**
      * 是否管理员
      */
-    const val SESSION_IS_ADMIN = "IS_ADMIN"
+    const val REQUEST_IS_ADMIN = "IS_ADMIN"
 
     /**
      *  获取数据库服务

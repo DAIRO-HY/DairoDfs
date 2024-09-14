@@ -10,43 +10,36 @@
     </insert>
 
     <!--通过id获取一条数据-->
-    <select id="getOne" resultType="UserDto">
+    <select id="selectOne" resultType="UserDto">
         select *
         from user
         where id = #{0}
     </select>
 
-    <!-- 获取管理员账户 -->
-    <select id="getAdmin" resultType="UserDto">
-        select *
+    <!-- 获取管理员ID -->
+    <select id="selectAdminId" resultType="Long">
+        select id
         from user
         order by id asc
         limit 1
     </select>
 
     <!--通过邮箱获取用户信息-->
-    <select id="getByEmail" resultType="UserDto">
+    <select id="selectByEmail" resultType="UserDto">
         select *
         from user
         where email = #{0}
     </select>
 
     <!--通过用户名获取用户信息-->
-    <select id="getByName" resultType="UserDto">
+    <select id="selectByName" resultType="UserDto">
         select *
         from user
         where name = #{0}
     </select>
 
-    <!--通过ApiToken获取用户信息-->
-    <select id="getByApiToken" resultType="UserDto">
-        select *
-        from user
-        where apiToken = #{0}
-    </select>
-
     <!--通过ApiToken获取用户ID-->
-    <select id="getIdByApiToken" resultType="Long">
+    <select id="selectIdByApiToken" resultType="Long">
         select id
         from user
         where apiToken = #{0}
@@ -54,7 +47,7 @@
     </select>
 
     <!--通过Token获取用户信息-->
-    <select id="getByToken" resultType="UserDto">
+    <select id="selectByToken" resultType="UserDto">
         select *
         from user
         where id = (select userId
@@ -63,7 +56,7 @@
     </select>
 
     <!--通过urlPath获取用户ID-->
-    <select id="getIdByUrlPath" resultType="Long">
+    <select id="selectIdByUrlPath" resultType="Long">
         select id
         from user
         where urlPath = #{0}
@@ -71,7 +64,7 @@
     </select>
 
     <!--获取所有用户-->
-    <select id="getAll" resultType="UserDto">
+    <select id="selectAll" resultType="UserDto">
         select *
         from user
     </select>

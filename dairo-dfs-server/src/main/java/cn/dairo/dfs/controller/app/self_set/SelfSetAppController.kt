@@ -33,7 +33,7 @@ class SelfSetAppController : AppBase() {
     @PostMapping
     @ResponseBody
     fun init(): SelfSetForm {
-        val dto = this.userDao.getOne(super.loginId)!!
+        val dto = this.userDao.selectOne(super.loginId)!!
         val form = SelfSetForm()
         form.id = dto.id
         form.name = dto.name

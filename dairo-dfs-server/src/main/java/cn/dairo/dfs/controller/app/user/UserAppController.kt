@@ -27,11 +27,11 @@ class UserAppController : AppBase() {
     @PostMapping("/get_user_info")
     @ResponseBody
     fun getUserInfo(): UserInfoForm {
-        val dto = this.userDao.getOne(super.loginId)!!
+        val dto = this.userDao.selectOne(super.loginId)!!
         val form = UserInfoForm()
         form.id = dto.id
         form.name = dto.name
-        form.adminFlag = super.isAdmin
+//        form.adminFlag = super.isAdmin
         return form
     }
 }

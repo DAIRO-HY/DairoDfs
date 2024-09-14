@@ -101,10 +101,6 @@ class ApiHttp {
     request(method) {
         this.addMask()
         let urlParam = "_clientFlag=0&_version=0&"
-        const token = sessionStorage.getItem("token")
-        if (token !== "") {
-            urlParam += "_token=" + token + "&"
-        }
         for (let key in this.param) {
             const value = this.param[key]
             if (value == null || value === "") {

@@ -39,7 +39,7 @@ class UserEditAppController : AppBase() {
     fun init(id: Long?): UserEditForm {
         val form = UserEditForm()
         if (id != null) {
-            val dto = this.userDao.getOne(id)!!
+            val dto = this.userDao.selectOne(id)!!
             form.id = dto.id
             form.name = dto.name
             form.email = dto.email

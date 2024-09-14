@@ -29,7 +29,7 @@ class UserListAppController : AppBase() {
     @PostMapping
     @ResponseBody
     fun init(): List<UserListForm> {
-        val dtoList = this.userDao.getAll()
+        val dtoList = this.userDao.selectAll()
         val userList = dtoList.map {
             UserListForm().apply {
                 this.id = it.id

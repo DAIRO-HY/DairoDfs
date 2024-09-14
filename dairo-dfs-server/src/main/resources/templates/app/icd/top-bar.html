@@ -12,13 +12,13 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/app/files">文件</a>
                 </li>
-                <li class="nav-item" th:if="${session.IS_ADMIN}">
+                <li class="nav-item" th:if="${IS_ADMIN}">
                     <a class="nav-link" href="/app/user_list">用户</a>
                 </li>
-                <li class="nav-item" th:if="${session.IS_ADMIN}">
+                <li class="nav-item" th:if="${IS_ADMIN}">
                     <a class="nav-link" href="/app/profile">配置</a>
                 </li>
-                <li class="nav-item" th:if="${session.IS_ADMIN}">
+                <li class="nav-item" th:if="${IS_ADMIN}">
                     <a class="nav-link" href="/app/sync">同步</a>
                 </li>
                 <li class="nav-item">

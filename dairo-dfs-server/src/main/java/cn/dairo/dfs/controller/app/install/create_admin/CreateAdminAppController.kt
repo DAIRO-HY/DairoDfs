@@ -39,7 +39,7 @@ class CreateAdminAppController : AppBase() {
      */
     @GetMapping
     fun init(): String {
-        if (this.userDao.getOne(1) != null) {
+        if (this.userDao.selectOne(1) != null) {
             return "redirect:/app/login"
         }
         return "app/install/create_admin"
@@ -51,7 +51,7 @@ class CreateAdminAppController : AppBase() {
     @PostMapping("/add_admin")
     @ResponseBody
     fun addAdmin(@Validated form: CreateAdminForm) {
-        if (this.userDao.getOne(1) != null) {//管理员用户只能被创建一次
+        if (this.userDao.selectOne(1) != null) {//管理员用户只能被创建一次
             throw ErrorCode.NOT_ALLOW
         }
         val userDto = UserDto()

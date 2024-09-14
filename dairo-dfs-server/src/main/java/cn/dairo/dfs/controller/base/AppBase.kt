@@ -12,21 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired
 open class AppBase : AjaxBase() {
 
     /**
-     * 用户登录票据
-     */
-    @Autowired
-    private lateinit var userTokenDao: UserTokenDao
-
-    /**
      * 当前登录用户ID
      */
     val loginId: Long
-        get() {
-            val token = ServletTool.request.getAttribute(Constant.REQUEST_TOKEN) as String
-            val userId = this.userTokenDao.getByUserIdByToken(token)
-                ?: throw ErrorCode.NO_LOGIN
-            return userId
-        }
+        get() = ServletTool.request.getAttribute(Constant.REQUEST_USER_ID) as Long
+
 //
 //    /**
 //     * 是否管理员
@@ -40,10 +30,10 @@ open class AppBase : AjaxBase() {
 //     */
 //    val loginId: Long
 //        get() = UserDao::class.bean.getAdmin()!!.id!!
-
-    /**
-     * 是否管理员(测试用)
-     */
-    val isAdmin: Boolean
-        get() = true
+//
+//    /**
+//     * 是否管理员(测试用)
+//     */
+//    val isAdmin: Boolean
+//        get() = true
 }

@@ -48,7 +48,7 @@ class DownloadInterceptor : HandlerInterceptor {
         val userPath = path.substring(0, firstPathIndex)
 
         //得到用户信息
-        val userId = this.userDao.getIdByUrlPath(userPath)
+        val userId = this.userDao.selectIdByUrlPath(userPath)
         if (userId == null) {
             response.status = HttpStatus.NOT_FOUND.value()
             return false
