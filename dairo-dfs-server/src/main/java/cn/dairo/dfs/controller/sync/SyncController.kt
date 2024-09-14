@@ -104,11 +104,11 @@ class SyncController : AppBase() {
                         response.outputStream.write(1)
                         break
                     }
-                    (responseBean as Object).wait(KEEP_ALIVE_TIME.toLong())
 
                     //间隔一段时间往客户端发送0，以保持长连接
                     response.outputStream.write(0)
                     response.outputStream.flush()
+                    (responseBean as Object).wait(KEEP_ALIVE_TIME.toLong())
                     if (responseBean.isCancel) {
                         break
                     }
