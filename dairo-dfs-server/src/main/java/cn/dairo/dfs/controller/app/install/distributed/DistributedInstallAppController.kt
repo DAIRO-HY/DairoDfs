@@ -29,9 +29,10 @@ class DistributedInstallAppController : AppBase() {
      */
     @PostMapping("/set")
     @ResponseBody
-    fun set(syncUrl: List<String>) {
-        SystemConfig.instance.syncDomains = syncUrl
+    fun set(syncUrl: Array<String>) {
+        SystemConfig.instance.syncDomains = syncUrl.map { it }
         SystemConfig.save()
+        SyncByLog.init()
         thread {
 
             //全量同步

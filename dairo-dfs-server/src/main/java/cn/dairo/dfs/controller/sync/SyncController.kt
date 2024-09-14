@@ -32,7 +32,7 @@ class SyncController : AppBase() {
         /**
          * 长连接心跳间隔时间
          */
-        const val KEEP_ALIVE_TIME = 120L * 1000
+        const val KEEP_ALIVE_TIME = 2L * 1000
     }
 
     /**
