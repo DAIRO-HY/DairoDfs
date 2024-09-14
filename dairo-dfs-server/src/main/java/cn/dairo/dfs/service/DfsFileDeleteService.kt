@@ -92,26 +92,4 @@ class DfsFileDeleteService {
         this.dfsFileDeleteDao.setDeleteDate(fileDto.id!!, System.currentTimeMillis())
         this.dfsFileDao.deleteByFile(fileDto.id!!)
     }
-
-    /**
-     * 彻底删除文件
-     */
-    fun deleteLocalFile(id: Long) {
-        if (this.dfsFileDao.isFileUsing(id)) {//文件还在使用中
-            return
-        }
-        if (this.dfsFileDeleteDao.isFileUsing(id)) {//文件还在使用中
-            return
-        }
-        val localDto = this.localFileDao.selectOne(id) ?: return
-        val file = File(localDto.path!!)
-        if (file.exists()) {
-            if (!file.delete()) {//文件删除不成功的话不做任何处理
-                return
-            }
-        }
-
-        //删除本地文件表数据
-        this.localFileDao.delete(localDto.id!!)
-    }
 }

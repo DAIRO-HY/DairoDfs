@@ -32,7 +32,7 @@ class SyncController : AppBase() {
         /**
          * 长连接心跳间隔时间
          */
-        const val KEEP_ALIVE_TIME = 120L * 1000
+        const val KEEP_ALIVE_TIME = 120 * 1000
     }
 
     /**
@@ -104,7 +104,7 @@ class SyncController : AppBase() {
                         response.outputStream.write(1)
                         break
                     }
-                    (responseBean as Object).wait(KEEP_ALIVE_TIME)
+                    (responseBean as Object).wait(KEEP_ALIVE_TIME.toLong())
 
                     //间隔一段时间往客户端发送0，以保持长连接
                     response.outputStream.write(0)

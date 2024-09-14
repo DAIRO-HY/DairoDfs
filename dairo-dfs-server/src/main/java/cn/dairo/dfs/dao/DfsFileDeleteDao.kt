@@ -26,11 +26,6 @@ interface DfsFileDeleteDao {
     fun selectIdsByTimeout(time: Long): List<DfsFileDto>
 
     /**
-     * 获取所有超时的数据
-     */
-    fun delete(ids: String)
-
-    /**
      * 文件是否正在使用中
      * @param id 本地文件id
      */

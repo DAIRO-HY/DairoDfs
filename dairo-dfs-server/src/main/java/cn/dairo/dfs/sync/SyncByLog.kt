@@ -5,8 +5,10 @@ import cn.dairo.dfs.boot.Boot
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.config.SystemConfig
 import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
+import cn.dairo.dfs.controller.sync.SyncController
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.md5
+import cn.dairo.dfs.service.DfsFileDeleteService
 import cn.dairo.dfs.sync.bean.SyncInfo
 import cn.dairo.dfs.sync.bean.SyncLogListenHttpBean
 import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
@@ -123,6 +125,9 @@ object SyncByLog {
                 sleep(1000)
                 val http =
                     URL(info.domain + "/${SystemConfig.instance.token}/listen?lastId=" + this.getLastId(info)).openConnection() as HttpURLConnection
+                http.readTimeout = SyncController.KEEP_ALIVE_TIME + 10
+                http.connectTimeout = 10000
+
                 val listenHttp = SyncLogListenHttpBean(http)
                 this.waitingHttpList.add(listenHttp)
                 try {
@@ -299,10 +304,11 @@ object SyncByLog {
             val handleSql = sql.replace(" ", "").replace("\n", "").lowercase()
             if (handleSql.startsWith("insertintolocal_file")) {//如果当前sql语句是往本地文件表里添加一条数据
                 LocalFileSyncHandle.bySyncLog(info, params)
-            } else if (handleSql.startsWith("insertintodfs_file")) {//如果该sql语句是添加文件
+            } else if (handleSql.startsWith("insertintodfs_file(")) {//如果该sql语句是添加文件
                 afterSql = DfsFileSyncHandle.handleBySyncLog(info, params)
             } else {
             }
+
 
             val ps = Constant.dbService.getStatement(sql)
             params.forEachIndexed { i, v ->

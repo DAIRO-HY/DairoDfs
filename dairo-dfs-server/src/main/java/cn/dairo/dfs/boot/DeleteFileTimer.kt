@@ -1,13 +1,16 @@
 package cn.dairo.dfs.boot
 
+import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.config.SystemConfig
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.DfsFileDeleteDao
+import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.service.DfsFileDeleteService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.io.File
 
 /**
  * 彻底删除文件计时器
@@ -25,10 +28,16 @@ class DeleteFileTimer {
     private lateinit var dfsFileDeleteDao: DfsFileDeleteDao
 
     /**
+     * 文件操作Dao
+     */
+    @Autowired
+    private lateinit var dfsFileDao: DfsFileDao
+
+    /**
      * 文件彻底操作Service
      */
     @Autowired
-    private lateinit var dfsFileDeleteService: DfsFileDeleteService
+    private lateinit var localFileDao: LocalFileDao
 
     /**
      * 删除文件
@@ -55,9 +64,27 @@ class DeleteFileTimer {
             }
 
             //彻底删除文件表数据
-            this.dfsFileDeleteDao.delete(deleteIds.joinToString(separator = ","))
+            //删除文件不需要同步日志,所以不使用mybatis提交,让每个分机端走各自的删除逻辑,防止文件误删
+            Constant.dbService.exec("delete from dfs_file_delete where id in (${deleteIds.joinToString(separator = ",")})")
             localIds.forEach {
-                this.dfsFileDeleteService.deleteLocalFile(it)
+                if (this.dfsFileDao.isFileUsing(it)) {//文件还在使用中
+                    return
+                }
+                if (this.dfsFileDeleteDao.isFileUsing(it)) {//文件还在使用中
+                    return
+                }
+                val localDto = this.localFileDao.selectOne(it) ?: return
+                val file = File(localDto.path!!)
+                if (file.exists()) {
+                    if (!file.delete()) {//文件删除不成功的话不做任何处理
+                        return
+                    }
+                }
+
+                //删除本地文件表数据
+                //删除文件不需要同步日志,所以不使用mybatis提交,让每个分机端走各自的删除逻辑,防止文件误删
+                Constant.dbService.exec("delete from local_file where id = ${localDto.id}")
+
             }
         }
     }

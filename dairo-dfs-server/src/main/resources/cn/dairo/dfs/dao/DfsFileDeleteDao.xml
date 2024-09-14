@@ -26,13 +26,6 @@
         limit 1000
     </select>
 
-    <!-- 删除 -->
-    <delete id="delete">
-        delete
-        from dfs_file_delete
-        where id in (${param1})
-    </delete>
-
     <!--文件是否正在使用中-->
     <select id="isFileUsing" resultType="Boolean">
         select count(*)

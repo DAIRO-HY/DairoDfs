@@ -22,9 +22,4 @@
         from local_file
         where md5 = #{0}
     </select>
-
-    <!--删除本地文件表数据-->
-    <delete id="delete">
-        delete from local_file where id = #{0}
-    </delete>
 </mapper>
