@@ -10,11 +10,12 @@ import cn.dairo.dfs.sync.sync_handle.LocalFileSyncHandle
 import cn.dairo.lib.Json
 import com.fasterxml.jackson.databind.JsonNode
 import org.sqlite.SQLiteException
+import java.lang.Thread.sleep
 
 /**
  * 全量同步工具
  */
-object SyncAllUtil {
+object SyncByTable {
 
     /**
      * 标记全量同步是否正在进行中
@@ -43,7 +44,7 @@ object SyncAllUtil {
      */
     fun start(isForce: Boolean = false) {
         synchronized(this) {
-            if (SyncLogUtil.isRunning) {//日志同步正在进行中
+            if (SyncByLog.isRunning) {//日志同步正在进行中
                 return
             }
             if (this.mIsRuning) {//并发防止
@@ -53,7 +54,7 @@ object SyncAllUtil {
         }
         try {
             if (isForce) {//强行执行
-                SyncLogUtil.syncInfoList.forEach {
+                SyncByLog.syncInfoList.forEach {
                     it.state = 0
                 }
             }
@@ -66,7 +67,7 @@ object SyncAllUtil {
     }
 
     private fun doSync() {
-        SyncLogUtil.syncInfoList.forEach { info ->
+        SyncByLog.syncInfoList.forEach { info ->
             if (info.state != 0) {//只允许待机中的同步
                 return@forEach
             }
@@ -91,7 +92,7 @@ object SyncAllUtil {
                 Constant.dbService.exec("delete from sql_log where source = ? and id < ?", info.domain, aopId)
 
                 //设置日志同步最后的ID
-                SyncLogUtil.saveLastId(info, aopId)
+                SyncByLog.saveLastId(info, aopId)
                 info.state = 0
                 info.msg = "完成"
             } catch (e: Exception) {
@@ -131,7 +132,7 @@ object SyncAllUtil {
 
         //得到需要同步的数据
         val data = this.getTableData(info, tbName, needSyncIds)
-        //sleep(1000)
+        sleep(1000)
 
         val jsonData = Json.readValue(data)
 

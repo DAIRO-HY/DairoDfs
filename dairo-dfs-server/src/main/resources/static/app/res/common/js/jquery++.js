@@ -53,7 +53,6 @@
         return http
     }
 
-
     /**
      * 获取表单数据
      */
@@ -69,7 +68,16 @@
             if (obj.disabled) {
                 return true
             }
-            data[obj.name] = obj.value
+            if (data.hasOwnProperty(obj.name)) {//如果该key已经存在
+                let value = data[obj.name]
+                if (!Array.isArray(value)) {//把值转换成一个数组
+                    value = [value]
+                    data[obj.name] = value
+                }
+                value.push(obj.value)
+            } else {
+                data[obj.name] = obj.value
+            }
         })
         return data
     }

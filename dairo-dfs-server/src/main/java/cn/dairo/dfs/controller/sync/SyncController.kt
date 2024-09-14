@@ -6,8 +6,8 @@ import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.interceptor.MybatisInterceptor
-import cn.dairo.dfs.sync.SyncAllUtil
-import cn.dairo.dfs.sync.SyncLogUtil
+import cn.dairo.dfs.sync.SyncByTable
+import cn.dairo.dfs.sync.SyncByLog
 import cn.dairo.dfs.util.DBID
 import cn.dairo.dfs.util.DfsFileUtil
 import jakarta.servlet.http.HttpServletRequest
@@ -126,7 +126,7 @@ class SyncController : AppBase() {
     @ResponseBody
     fun getLog(lastId: Long): List<Map<String, Any?>> {
         val logList = Constant.dbService.selectList(
-            "select id,date,sql,param from sql_log where id > ? order by id limit 10000", lastId
+            "select id,date,sql,param from sql_log where id > ? order by id limit 1", lastId
         )
         return logList
     }
@@ -138,7 +138,7 @@ class SyncController : AppBase() {
     @ResponseBody
     fun pushNotify() {
         thread {
-            SyncLogUtil.start()
+            SyncByLog.start()
         }
     }
 
@@ -159,7 +159,7 @@ class SyncController : AppBase() {
     @GetMapping("/get_table_id")
     @ResponseBody
     fun getTableId(tbName: String, lastId: Long, aopId: Long): String {
-        if (SyncAllUtil.isRuning || SyncLogUtil.isRunning) {
+        if (SyncByTable.isRuning || SyncByLog.isRunning) {
             throw BusinessException("主机正在同步数据中，请等待完成后继续。")
         }
         return Constant.dbService.selectList(
@@ -175,7 +175,7 @@ class SyncController : AppBase() {
     @GetMapping("/get_table_data")
     @ResponseBody
     fun getTableData(tbName: String, ids: String): List<*> {
-        if (SyncAllUtil.isRuning || SyncLogUtil.isRunning) {
+        if (SyncByTable.isRuning || SyncByLog.isRunning) {
             throw BusinessException("主机正在同步数据中，请等待完成后继续。")
         }
         return Constant.dbService.selectList(
@@ -196,7 +196,7 @@ class SyncController : AppBase() {
         response: HttpServletResponse,
         @PathVariable md5: String
     ) {
-        if (SyncAllUtil.isRuning || SyncLogUtil.isRunning) {
+        if (SyncByTable.isRuning || SyncByLog.isRunning) {
             throw BusinessException("主机正在同步数据中，请等待完成后继续。")
         }
         val localFileDto = this.localFileDao.selectByFileMd5(md5)

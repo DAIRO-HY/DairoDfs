@@ -5,7 +5,7 @@ import cn.dairo.dfs.controller.app.profile.form.ProfileForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.md5
-import cn.dairo.dfs.sync.SyncLogUtil
+import cn.dairo.dfs.sync.SyncByLog
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
@@ -69,9 +69,9 @@ class ProfileAppController : AppBase() {
             val syncDomains = form.syncDomains!!.split("\n").map { it }
             systemConfig.syncDomains = syncDomains
         }
-        SyncLogUtil.init()
+        SyncByLog.init()
         SystemConfig.save()
-        SyncLogUtil.listenAll()
+        SyncByLog.listenAll()
     }
 
     /**

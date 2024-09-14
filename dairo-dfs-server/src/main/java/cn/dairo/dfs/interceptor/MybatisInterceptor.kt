@@ -6,7 +6,6 @@ import cn.dairo.dfs.controller.sync.SyncController
 import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.toJson
-import cn.dairo.dfs.sync.SyncLogUtil
 import cn.dairo.dfs.util.DBID
 import cn.dairo.lib.server.dbtool.DBBase
 import cn.dairo.lib.server.dbtool.SqliteTool
@@ -16,7 +15,6 @@ import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.plugin.Intercepts
 import org.apache.ibatis.plugin.Invocation
 import org.apache.ibatis.plugin.Signature
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.*

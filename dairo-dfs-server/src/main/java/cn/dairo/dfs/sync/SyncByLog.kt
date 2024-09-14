@@ -28,14 +28,14 @@ import kotlin.concurrent.thread
  */
 @Order(Int.MAX_VALUE)//值越小越先执行
 @Component
-class SyncLogBoot : ApplicationRunner {
+class SyncByLogBoot : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
-        SyncLogUtil.init()
-        SyncLogUtil.listenAll()
+        SyncByLog.init()
+        SyncByLog.listenAll()
     }
 }
 
-object SyncLogUtil {
+object SyncByLog {
 
     /**
      * 当前同步主机信息
@@ -176,7 +176,7 @@ object SyncLogUtil {
      */
     fun start(isForce: Boolean = false) {
         synchronized(this) {
-            if (SyncAllUtil.isRuning) {//全量同步正在进行中
+            if (SyncByTable.isRuning) {//全量同步正在进行中
                 return
             }
             if (this.mIsRunning) {//并发防止
@@ -186,7 +186,7 @@ object SyncLogUtil {
         }
         try {
             if (isForce) {//强行执行
-                SyncLogUtil.syncInfoList.forEach {
+                SyncByLog.syncInfoList.forEach {
                     it.state = 0
                 }
             }

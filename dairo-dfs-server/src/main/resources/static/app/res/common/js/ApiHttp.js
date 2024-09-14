@@ -110,7 +110,7 @@ class ApiHttp {
             if (value == null || value === "") {
                 continue
             }
-            if (typeof value === "object") {
+            if (Array.isArray(value)) {//如果这是一个数组
                 value.forEach(item => {
                     urlParam += key + "=" + encodeURIComponent(item) + "&"
                 })

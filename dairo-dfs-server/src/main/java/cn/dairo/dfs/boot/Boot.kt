@@ -3,7 +3,6 @@ package cn.dairo.dfs.boot
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.service.DfsFileService
-import cn.dairo.dfs.sync.SyncLogUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationArguments

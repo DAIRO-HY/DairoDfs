@@ -1,12 +1,10 @@
 package cn.dairo.dfs.controller.app.sync
 
 import cn.dairo.dfs.controller.base.AppBase
-import cn.dairo.dfs.controller.sync.SyncController
 import cn.dairo.dfs.dao.SqlLogDao
 import cn.dairo.dfs.dao.dto.SqlLogDto
-import cn.dairo.dfs.extension.bean
-import cn.dairo.dfs.sync.SyncAllUtil
-import cn.dairo.dfs.sync.SyncLogUtil
+import cn.dairo.dfs.sync.SyncByTable
+import cn.dairo.dfs.sync.SyncByLog
 import cn.dairo.dfs.sync.bean.SyncInfo
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
@@ -45,7 +43,7 @@ class SyncAppController : AppBase() {
 //            form
 //        }
 //        return infoList
-        return SyncLogUtil.syncInfoList
+        return SyncByLog.syncInfoList
     }
 
     /**
@@ -56,7 +54,7 @@ class SyncAppController : AppBase() {
     fun sync() {
 //        SyncController::class.bean.push()
         thread {
-            SyncLogUtil.start(true)
+            SyncByLog.start(true)
         }
     }
 
@@ -67,7 +65,7 @@ class SyncAppController : AppBase() {
     @ResponseBody
     fun syncAll() {
         thread {
-            SyncAllUtil.start(true)
+            SyncByTable.start(true)
         }
     }
 
