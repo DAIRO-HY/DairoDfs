@@ -132,7 +132,6 @@ object SyncByTable {
 
         //得到需要同步的数据
         val data = this.getTableData(info, tbName, needSyncIds)
-        sleep(1000)
 
         val jsonData = Json.readValue(data)
 

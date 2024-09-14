@@ -126,7 +126,7 @@ class SyncController : AppBase() {
     @ResponseBody
     fun getLog(lastId: Long): List<Map<String, Any?>> {
         val logList = Constant.dbService.selectList(
-            "select id,date,sql,param from sql_log where id > ? order by id limit 1", lastId
+            "select id,date,sql,param from sql_log where id > ? order by id limit 100", lastId
         )
         return logList
     }
@@ -163,7 +163,7 @@ class SyncController : AppBase() {
             throw BusinessException("主机正在同步数据中，请等待完成后继续。")
         }
         return Constant.dbService.selectList(
-            String::class, "select id from $tbName where id > ? and id < ? order by id asc limit 1", lastId, aopId
+            String::class, "select id from $tbName where id > ? and id < ? order by id asc limit 1000", lastId, aopId
         ).joinToString(separator = ",") { it }
     }
 
