@@ -83,13 +83,10 @@ DairoDFS是一款可分布式部署的文件管理系统。
 
 ### Windows一键启动
 
-1.
-
-下载[一键启动.bat](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Windows/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8.bat)
+1. 下载[一键启动.bat](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Windows/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8.bat)
 文件，放到你想安装的目录下。
 
->
-若浏览器没有自动下载，点击[一键启动.bat](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Windows/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8.bat)
+> 若浏览器没有自动下载，点击[一键启动.bat](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Windows/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8.bat)
 打开网页，然后使用按下 `Ctrl + S` 将文件保存为bat文件。
 
 2. 双击“一键启动.bat”文件即可运行
@@ -102,8 +99,7 @@ DairoDFS是一款可分布式部署的文件管理系统。
 
 ### MAC OS一键启动
 
-1.
-下载[一键启动.zip](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/MacOS/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8.zip)
+1. 下载[一键启动.zip](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/MacOS/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8.zip)
 文件，放到你想安装的目录下。
 
 2. 双击“一键启动.zip”文件即可解压该文件。
@@ -117,9 +113,7 @@ DairoDFS是一款可分布式部署的文件管理系统。
 
 ### Linux启动
 
-1.
-
-下载[start.sh](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Linux/start.sh)
+1. 下载[start.sh](https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Linux/start.sh)
 文件，放到你想安装的目录下。
 
 ```bash
