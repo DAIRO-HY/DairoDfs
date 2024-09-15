@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*
 @Controller
 @RequestMapping("/app/user_edit")
 class UserEditAppController : AppBase() {
+    companion object {
+        const val PWD_PLACEHOLDER = "********************************"
+    }
 
     /**
      * 用户操作Dao
@@ -32,6 +35,12 @@ class UserEditAppController : AppBase() {
     private lateinit var userService: UserService
 
     /**
+     * 初始化
+     */
+    @GetMapping
+    fun init() = "app/user_edit"
+
+    /**
      * 页面初始化
      */
     @PostMapping
@@ -42,9 +51,10 @@ class UserEditAppController : AppBase() {
             val dto = this.userDao.selectOne(id)!!
             form.id = dto.id
             form.name = dto.name
+            form.pwd = PWD_PLACEHOLDER
             form.email = dto.email
             form.date = dto.date?.format()
-            form.state = dto.state
+            form.state = dto.state!!
         }
         return form
     }
@@ -65,6 +75,9 @@ class UserEditAppController : AppBase() {
                 this.userService.add(dto)
             } else {
                 this.userDao.update(dto)
+            }
+            if (form.pwd != PWD_PLACEHOLDER) {//更新密码
+                this.userDao.setPwd(dto.id!!, form.pwd!!)
             }
         } catch (e: Exception) {
             val message = e.message ?: throw e

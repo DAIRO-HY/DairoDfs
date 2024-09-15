@@ -46,15 +46,6 @@
           and state = 1
     </select>
 
-    <!--通过Token获取用户信息-->
-    <select id="selectByToken" resultType="UserDto">
-        select *
-        from user
-        where id = (select userId
-                    from user_token
-                    where token = #{0})
-    </select>
-
     <!--通过urlPath获取用户ID-->
     <select id="selectIdByUrlPath" resultType="Long">
         select id

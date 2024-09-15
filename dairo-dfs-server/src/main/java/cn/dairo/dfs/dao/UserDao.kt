@@ -47,13 +47,6 @@ interface UserDao {
     fun selectIdByApiToken(apiToken: String): Long?
 
     /**
-     * 通过Token获取用户信息
-     * @param token 用户登录token
-     * @return 用户信息
-     */
-    fun selectByToken(token: String): UserDto?
-
-    /**
      * 通过urlPath获取用户ID
      * @param urlPath 文件访问前缀
      * @return 用户ID
