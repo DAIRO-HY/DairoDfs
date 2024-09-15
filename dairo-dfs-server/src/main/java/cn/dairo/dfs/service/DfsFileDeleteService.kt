@@ -1,16 +1,11 @@
 package cn.dairo.dfs.service
 
-import cn.dairo.dfs.code.ErrorCode
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.DfsFileDeleteDao
-import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.dao.dto.DfsFileDto
 import cn.dairo.dfs.extension.isFolder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Isolation
-import org.springframework.transaction.annotation.Transactional
-import java.io.File
 
 /**
  * 文件操作Service
@@ -31,18 +26,12 @@ class DfsFileDeleteService {
     private lateinit var dfsFileDao: DfsFileDao
 
     /**
-     * 本地文件数据操作Dao
-     */
-    @Autowired
-    private lateinit var localFileDao: LocalFileDao
-
-    /**
      * 彻底删除文件
      * @param ids 要删除的文件ID
      */
     fun addDelete(ids: List<Long>) {
         ids.forEach {
-            val fileDto = this.dfsFileDao.getOne(it)!!
+            val fileDto = this.dfsFileDao.selectOne(it)!!
             if (fileDto.isFolder) {//如果是文件夹
                 this.deleteFolder(fileDto)
             } else {
@@ -66,7 +55,7 @@ class DfsFileDeleteService {
         }
 
         //彻底删除文件夹
-        this.dfsFileDao.deleteByFolder(fileDto.id!!)
+        this.dfsFileDao.delete(fileDto.id!!)
     }
 
     /**
@@ -90,6 +79,6 @@ class DfsFileDeleteService {
     private fun addDelete(fileDto: DfsFileDto) {
         this.dfsFileDeleteDao.insert(fileDto.id!!)
         this.dfsFileDeleteDao.setDeleteDate(fileDto.id!!, System.currentTimeMillis())
-        this.dfsFileDao.deleteByFile(fileDto.id!!)
+        this.dfsFileDao.delete(fileDto.id!!)
     }
 }

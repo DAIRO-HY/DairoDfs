@@ -5,7 +5,6 @@ import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.app.files.form.*
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.DfsFileDao
-import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.dao.ShareDao
 import cn.dairo.dfs.dao.dto.ShareDto
 import cn.dairo.dfs.exception.BusinessException
@@ -45,12 +44,6 @@ class FilesAppController : AppBase() {
     private lateinit var dfsFileDao: DfsFileDao
 
     /**
-     * 本地存储文件数据操作Dao
-     */
-    @Autowired
-    private lateinit var localFileDao: LocalFileDao
-
-    /**
      * 分享操作Dao
      */
     @Autowired
@@ -70,14 +63,14 @@ class FilesAppController : AppBase() {
             }
             throw ErrorCode.NO_FOLDER
         }
-        val list = this.dfsFileDao.getSubFile(userId, folderId).map {
+        val list = this.dfsFileDao.selectSubFile(userId, folderId).map {
             FileForm().apply {
                 this.id = it.id!!
                 this.name = it.name!!
                 this.size = it.size!!
                 this.date = it.date!!.format()
                 this.fileFlag = it.isFile
-//                this.thumbId = if (it.thumbLocalId == null) null else it.id
+                this.thumb = if (it.hasThumb) "/app/files/thumb/${it.id}" else null
             }
         }
         return list
@@ -103,7 +96,7 @@ class FilesAppController : AppBase() {
         ) folder: String
     ) {
         val userId = super.loginId
-        val existsFileId = this.dfsFileDao.getIdByPath(userId, folder.toDfsFileNameList)
+        val existsFileId = this.dfsFileDao.selectIdByPath(userId, folder.toDfsFileNameList)
         if (existsFileId != null) {
             throw ErrorCode.EXISTS
         }
@@ -211,8 +204,8 @@ class FilesAppController : AppBase() {
         if (paths.size > 1) {//多个文件时
             val totalForm = ComputeSubTotalForm()
             paths.forEach {
-                val fileId = this.dfsFileDao.getIdByPath(userId, it.toDfsFileNameList) ?: throw ErrorCode.NO_EXISTS
-                val dfsFile = this.dfsFileDao.getOne(fileId)!!
+                val fileId = this.dfsFileDao.selectIdByPath(userId, it.toDfsFileNameList) ?: throw ErrorCode.NO_EXISTS
+                val dfsFile = this.dfsFileDao.selectOne(fileId)!!
                 if (dfsFile.isFolder) {
                     totalForm.folderCount += 1
                     computeSubTotal(totalForm, userId, dfsFile.id!!)
@@ -230,8 +223,8 @@ class FilesAppController : AppBase() {
             } else {
                 paths[0]
             }
-            val fileId = this.dfsFileDao.getIdByPath(userId, path.toDfsFileNameList) ?: throw ErrorCode.NO_EXISTS
-            val dfsFile = this.dfsFileDao.getOne(fileId)!!
+            val fileId = this.dfsFileDao.selectIdByPath(userId, path.toDfsFileNameList) ?: throw ErrorCode.NO_EXISTS
+            val dfsFile = this.dfsFileDao.selectOne(fileId)!!
             form.name = dfsFile.name
             form.date = dfsFile.date!!.format()
             form.path = path
@@ -239,7 +232,7 @@ class FilesAppController : AppBase() {
             if (dfsFile.isFile) {//文件时
                 form.size = dfsFile.size.toDataSize
                 form.contentType = dfsFile.contentType
-                val historyList = this.dfsFileDao.getHistory(userId, fileId).map {
+                val historyList = this.dfsFileDao.selectHistory(userId, fileId).map {
                     FilePropertyHistoryForm().apply {
                         this.id = it.id
                         this.size = it.size.toDataSize
@@ -262,7 +255,7 @@ class FilesAppController : AppBase() {
      * 计算文件大小
      */
     private fun computeSubTotal(form: ComputeSubTotalForm, userId: Long, folderId: Long) {
-        this.dfsFileDao.getSubFile(userId, folderId).forEach {
+        this.dfsFileDao.selectSubFile(userId, folderId).forEach {
             if (it.isFolder) {
                 form.folderCount += 1
                 computeSubTotal(form, userId, it.id!!)
@@ -281,7 +274,7 @@ class FilesAppController : AppBase() {
         @Parameter(description = "文件类型") @RequestParam("contentType", required = true) contentType: String
     ) {
         val userId = super.loginId
-        val fileId = this.dfsFileDao.getIdByPath(userId, path.toDfsFileNameList) ?: throw ErrorCode.NO_EXISTS
+        val fileId = this.dfsFileDao.selectIdByPath(userId, path.toDfsFileNameList) ?: throw ErrorCode.NO_EXISTS
         this.dfsFileDao.setContentType(fileId, contentType)
     }
 
@@ -296,7 +289,7 @@ class FilesAppController : AppBase() {
         request: HttpServletRequest, response: HttpServletResponse, @PathVariable id: Long, @PathVariable name: String
     ) {
         val userId = super.loginId
-        val dfsFile = this.dfsFileDao.getOne(id)
+        val dfsFile = this.dfsFileDao.selectOne(id)
         if (dfsFile == null) {
             response.status = HttpStatus.NOT_FOUND.value()
             return
@@ -326,7 +319,7 @@ class FilesAppController : AppBase() {
         @Parameter(description = "要下载的附属文件名") @RequestParam("extra", required = false) extra: String?,
     ) {
         val userId = super.loginId
-        val dfsDto = this.dfsFileDao.getOne(dfsId)
+        val dfsDto = this.dfsFileDao.selectOne(dfsId)
         if (dfsDto == null) {//文件不存在
             response.status = HttpStatus.NOT_FOUND.value()
             return
@@ -382,7 +375,7 @@ class FilesAppController : AppBase() {
     ) {
         val userId = super.loginId
         val path = folder + "/" + name
-        val fileId = this.dfsFileDao.getIdByPath(userId, path.toDfsFileNameList)
+        val fileId = this.dfsFileDao.selectIdByPath(userId, path.toDfsFileNameList)
         if (fileId == null) {//文件不存在
             response.status = HttpStatus.NOT_FOUND.value()
             return
@@ -427,18 +420,17 @@ class FilesAppController : AppBase() {
         response: HttpServletResponse,
         @PathVariable id: Long
     ) {
-        val userId = super.loginId//验证登录
-        val dfsDto = this.dfsFileDao.getOne(id)
+        val dfsDto = this.dfsFileDao.selectOne(id)
         if (dfsDto == null) {//文件不存在
             response.status = HttpStatus.NOT_FOUND.value()
             return
         }
-        if (dfsDto.userId != userId) {//没有权限
+        if (dfsDto.userId != super.loginId) {//没有权限
             throw ErrorCode.NOT_ALLOW
         }
 
         //获取缩率图附属文件
-        val thumb=this.dfsFileDao.selectExtra(dfsDto.id!!,"thumb")
+        val thumb = this.dfsFileDao.selectExtra(dfsDto.id!!, "thumb")
         DfsFileUtil.download(thumb, request, response)
     }
 }

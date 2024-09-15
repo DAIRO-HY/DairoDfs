@@ -2,7 +2,7 @@ package cn.dairo.dfs.dao.dto
 
 import java.util.*
 
-class DfsFileDto {
+open class DfsFileDto {
 
     /**
      * id

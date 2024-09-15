@@ -122,15 +122,13 @@
             const names = fileList.filter(item => item.checked)
                 .map(item => item.name)
             console.log(folder)
-            $("#shareForm").ajaxByFormAndOption({
-                data: {
-                    folder: folder,
-                    names: names
-                }
-            }, data => {
+            $("#shareForm").ajaxByForm().addAll({
+                folder: folder,
+                names: names
+            }).success(data => {
                 modalShare.hide()
                 showShareDetailDialog(data)
-            })
+            }).post()
         }
     </script>
 </th:block>

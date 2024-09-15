@@ -70,12 +70,7 @@
             if (paths.length === 0) {
                 paths = [getCurrentFolderByUrl()]
             }
-            $.ajaxByData({
-                url: "/app/files/get_property",
-                data: {
-                    paths: paths
-                }
-            }, data => {
+            $.ajaxByData("/app/files/get_property").add("paths", paths).success(data => {
                 filePropertyData = data
                 for (let key in data) {
                     const $obj = $(`[field=${key}]`)
@@ -90,7 +85,7 @@
                 fillHistory()
                 const modalShare = new bootstrap.Modal('#modalFileProperty')
                 modalShare.show()
-            })
+            }).post()
         }
 
         /**
@@ -133,16 +128,13 @@
             if (contentType === filePropertyData.contentType) {
                 return
             }
-            $.ajaxByData({
-                url: "/app/files/set_content_type",
-                data: {
-                    contentType: contentType,
-                    path: filePropertyData.path
-                }
-            }, () => {
+            $.ajaxByData("/app/files/set_content_type").addAll({
+                contentType: contentType,
+                path: filePropertyData.path
+            }).success(() => {
                 filePropertyData.contentType = contentType
                 $(`[field="contentType"]`).text(contentType)
-            })
+            }).post()
         }
 
     </script>

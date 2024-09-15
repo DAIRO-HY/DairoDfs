@@ -44,7 +44,7 @@
                 </div>
             </div>`
     $(function () {
-        $.ajaxByData("my_share/get_list", data => fillData(data))
+        $.ajaxByData("my_share/get_list").success(data => fillData(data)).post()
     })
 
 
@@ -155,14 +155,9 @@
         if (!isOk) {
             return
         }
-        $.ajaxByData({
-            url: "my_share/delete",
-            data: {
-                ids: ids
-            }
-        }, () => {
+        $.ajaxByData("my_share/delete").add("ids", ids).success(() => {
             history.go(0)
-        })
+        }).post()
     }
 </script>
 </body>

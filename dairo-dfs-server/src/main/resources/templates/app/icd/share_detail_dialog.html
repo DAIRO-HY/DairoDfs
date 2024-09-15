@@ -62,7 +62,7 @@
             if (location.pathname !== "/app/my_share") {
                 $("#cancelBtn").hide()
             }
-            $.ajaxByData("my_share/get_detail?id=" + id, data => {
+            $.ajaxByData("my_share/get_detail?id=" + id).success(data => {
                 shareDetailData = data
                 $("#copyBtn>i").remove()
                 for (let key in data) {
@@ -71,7 +71,7 @@
                 $("#openFolderLink").attr("href", "/app/files#" + $("[field='folder']").text().substring(1))
                 const modalShare = new bootstrap.Modal('#modalFolderSelector')
                 modalShare.show()
-            })
+            }).post()
         }
 
         /**
@@ -82,14 +82,9 @@
             if (!isOk) {
                 return
             }
-            $.ajaxByData({
-                url: "my_share/delete",
-                data: {
-                    ids: shareDetailData.id
-                }
-            }, () => {
+            $.ajaxByData("my_share/delete").add("ids", shareDetailData.id).success(() => {
                 history.go(0)
-            })
+            }).post()
         }
 
         /**

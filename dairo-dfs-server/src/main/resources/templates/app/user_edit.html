@@ -32,9 +32,9 @@
     })
 
     function onSubmitClick() {
-        $("form").ajaxByForm(() => {
+        $("form").ajaxByForm().success(() => {
             location.href = "/app/user_list"
-        })
+        }).post()
     }
 </script>
 </body>

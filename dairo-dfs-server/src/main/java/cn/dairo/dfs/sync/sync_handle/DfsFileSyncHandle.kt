@@ -33,7 +33,7 @@ object DfsFileSyncHandle {
 
         //文件（夹）名
         val name = item.path("name").asText()
-        val dfsFile = DfsFileDao::class.bean.getByParentIdAndName(userId, parentId, name)
+        val dfsFile = DfsFileDao::class.bean.selectByParentIdAndName(userId, parentId, name)
         if (dfsFile == null) {//文件不存在时，不做任何处理
             return
         }
@@ -77,7 +77,7 @@ object DfsFileSyncHandle {
 
         //文件（夹）名
         val name = params[3] as String
-        val dfsFile = DfsFileDao::class.bean.getByParentIdAndName(userId, parentId, name)
+        val dfsFile = DfsFileDao::class.bean.selectByParentIdAndName(userId, parentId, name)
         if (dfsFile == null) {//文件不存在时，不做任何处理
             return null
         }

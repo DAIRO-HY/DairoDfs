@@ -2,7 +2,7 @@ package cn.dairo.dfs.interceptor
 
 
 import cn.dairo.dfs.config.SystemConfig
-import cn.dairo.dfs.controller.sync.SyncController
+import cn.dairo.dfs.controller.distributed.DistributedController
 import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.toJson
@@ -118,7 +118,7 @@ class MybatisInterceptor : Interceptor {
         thread {
             //SyncLogUtil.sendNotify()
 //            this.syncController.push()
-            SyncController::class.bean.push()
+            DistributedController::class.bean.push()
         }
     }
 }

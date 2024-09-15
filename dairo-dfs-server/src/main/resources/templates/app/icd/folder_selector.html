@@ -98,7 +98,7 @@
             }
 
             const currentFolder = $parentDiv.data("folder")
-            $.ajaxByData({url: "/app/folder_selector/get_list?folder=" + currentFolder}, data => {
+            $.ajaxByData("/app/folder_selector/get_list?folder=" + currentFolder).success(data => {
                 $childDiv.empty()
                 if (data.length === 0) {//这是一个空文件夹
                     $childIcon.removeClass("bi-plus")
@@ -113,7 +113,7 @@
                         .replace("{name}", item.name)
                     $childDiv.append(html)
                 })
-            })
+            }).post()
         }
     </script>
 </th:block>

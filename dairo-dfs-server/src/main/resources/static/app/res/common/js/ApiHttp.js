@@ -159,9 +159,9 @@ class ApiHttp {
                     window.location.href = "/app/login"
                     return
                 }
-                if (data.code === 2) {
+                if (data.code === 2) {//单项目检查错误
                     const fieldError = data.data
-                    addFiledError(fieldError)
+                    this.addFiledError(fieldError)
                     return
                 }
                 if (this.failFunc) {
@@ -176,6 +176,22 @@ class ApiHttp {
                 }
             }
         })
+    }
+
+    /**
+     * 添加验证失败消息
+     * @param fieldError
+     */
+    addFiledError(fieldError) {
+        for (let key in fieldError) {
+            const messages = fieldError[key]
+            const error = messages.join(";")
+            const $input = $(`[name="${key}"]`)
+            $input.addClass("is-invalid")
+            const $parent = $input.parent()
+            $parent.append(`<span class="text-danger" error-valid>${error}</span>`)
+        }
+        $(".is-invalid").first().focus()
     }
 
     addMask() {

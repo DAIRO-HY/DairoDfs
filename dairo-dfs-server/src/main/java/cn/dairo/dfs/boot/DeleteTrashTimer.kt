@@ -40,7 +40,7 @@ class DeleteTrashTimer {
         val nowTime = System.currentTimeMillis()
         while (true) {
             val time = nowTime - this.trashTimeout * 24 * 60 * 60 * 1000
-            val deleteIdsList = this.dfsFileDao.getIdsByDeleteAndTimeout(time)
+            val deleteIdsList = this.dfsFileDao.selectIdsByDeleteAndTimeout(time)
             if (deleteIdsList.isEmpty()) {
                 break
             }

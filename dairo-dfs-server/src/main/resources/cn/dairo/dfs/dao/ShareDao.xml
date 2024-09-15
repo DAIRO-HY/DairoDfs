@@ -25,9 +25,9 @@
 
     <!--删除分享-->
     <delete id="delete">
-        delete from share where userId = #{userId} and id in
-        <foreach collection="ids" item="id" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
+        delete
+        from share
+        where userId = #{userId}
+          and id in (${ids})
     </delete>
 </mapper>

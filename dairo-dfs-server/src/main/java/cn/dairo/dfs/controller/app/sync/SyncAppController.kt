@@ -1,8 +1,6 @@
 package cn.dairo.dfs.controller.app.sync
 
 import cn.dairo.dfs.controller.base.AppBase
-import cn.dairo.dfs.dao.SqlLogDao
-import cn.dairo.dfs.dao.dto.SqlLogDto
 import cn.dairo.dfs.sync.SyncByTable
 import cn.dairo.dfs.sync.SyncByLog
 import cn.dairo.dfs.sync.bean.SyncInfo
@@ -18,11 +16,6 @@ import kotlin.concurrent.thread
 @Controller
 @RequestMapping("/app/sync")
 class SyncAppController : AppBase() {
-
-    /**
-     * sql日志操作
-     */
-    private lateinit var sqlLogDao: SqlLogDao
 
     /**
      * 页面数据初始化
@@ -49,10 +42,9 @@ class SyncAppController : AppBase() {
     /**
      * 日志同步
      */
-    @PostMapping("/sync")
+    @PostMapping("/by_log")
     @ResponseBody
     fun sync() {
-//        SyncController::class.bean.push()
         thread {
             SyncByLog.start(true)
         }
@@ -61,18 +53,11 @@ class SyncAppController : AppBase() {
     /**
      * 全量同步
      */
-    @PostMapping("/sync_all")
+    @PostMapping("/by_table")
     @ResponseBody
     fun syncAll() {
         thread {
             SyncByTable.start(true)
         }
-    }
-
-    /**
-     * 获取错误的日志记录
-     */
-    fun getErrorLog(): SqlLogDto? {
-        return this.sqlLogDao.getErrorLog()
     }
 }

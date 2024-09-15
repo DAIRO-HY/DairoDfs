@@ -38,10 +38,10 @@
             alert("两次输入密码不一致")
             return
         }
-        $("form").ajaxByForm(() => {
+        $("form").ajaxByForm().success(() => {
             alert("修改成功")
             history.back()
-        })
+        }).post()
     }
 </script>
 </body>

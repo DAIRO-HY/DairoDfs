@@ -2,6 +2,7 @@ package cn.dairo.dfs.controller.app.file_upload
 
 import cn.dairo.dfs.code.ErrorCode
 import cn.dairo.dfs.controller.base.AjaxBase
+import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.dao.UserTokenDao
@@ -29,25 +30,13 @@ import java.io.FileOutputStream
  */
 @Controller
 @RequestMapping("/app/file_upload")
-class FileUploadAppController : AjaxBase() {
-
-    /**
-     * 用户登录票据
-     */
-    @Autowired
-    private lateinit var userTokenDao: UserTokenDao
+class FileUploadAppController : AppBase() {
 
     /**
      * 文件夹数据操作Service
      */
     @Autowired
     private lateinit var dfsFileService: DfsFileService
-
-    /**
-     * 文件数据操作Dao
-     */
-    @Autowired
-    private lateinit var dfsFileDao: DfsFileDao
 
     /**
      * 本地存储文件数据操作Dao
@@ -75,9 +64,6 @@ class FileUploadAppController : AjaxBase() {
         contentType: String?
     ) {
 
-        //得到用户ID
-        val userId = this.userTokenDao.getByUserIdByToken(token)!!
-
         //得到文件实际路径
         val file = mulFile.getField("part")?.getField("fileItem")?.getField("tempFile") as File
 
@@ -93,20 +79,16 @@ class FileUploadAppController : AjaxBase() {
 
         //将文件存放到指定目录
         val localFileDto = this.dfsFileService.saveToLocalFile(md5, file.inputStream())
-        this.addDfsFile(userId, localFileDto, path, contentType)
+        this.addDfsFile(super.loginId, localFileDto, path, contentType)
 
         //开启生成缩略图线程
         DfsFileHandleUtil.start()
     }
 
     @Operation(summary = "以流的方式上传文件")
-    @PostMapping("/by_stream/{token}/{md5}")
+    @PostMapping("/by_stream/{md5}")
     @ResponseBody
-    fun byStream(request: HttpServletRequest, @PathVariable token: String, @PathVariable md5: String) {
-
-        //校验用户登录
-        this.userTokenDao.getByUserIdByToken(token) ?: throw ErrorCode.NO_LOGIN
-
+    fun byStream(request: HttpServletRequest, @PathVariable md5: String) {
         synchronized(this.uploadingFileMap) {
             if (this.uploadingFileMap.containsKey(md5)) {
                 throw ErrorCode.FILE_UPLOADING
@@ -165,22 +147,18 @@ class FileUploadAppController : AjaxBase() {
 
     /**
      * 通过MD5上传
-     * @param token 用户登录标识
      * @param md5 文件md5
      * @param path 文件路径
      */
     @PostMapping("/by_md5")
     @ResponseBody
-    fun byMd5(token: String, md5: String, path: String, contentType: String?) {
-
-        //得到用户ID
-        val userId = this.userTokenDao.getByUserIdByToken(token)!!
+    fun byMd5(md5: String, path: String, contentType: String?) {
 
         val localFileDto = this.localFileDao.selectByFileMd5(md5)
             ?: throw ErrorCode.NO_EXISTS
 
         //添加到DFS文件
-        this.addDfsFile(userId, localFileDto, path, contentType)
+        this.addDfsFile(super.loginId, localFileDto, path, contentType)
 
         //删除上传的临时文件
         File(dataPath + "/temp/" + md5).delete()

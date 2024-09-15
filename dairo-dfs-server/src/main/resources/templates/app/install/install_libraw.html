@@ -49,11 +49,11 @@
      * 初始化按钮点击事件
      */
     function onInstallClick() {
-        $.http("/app/install/libraw/install").success(getState).post()
+        $.ajaxByData("/app/install/libraw/install").success(getState).post()
     }
 
     function getState() {
-        $.http("/app/install/libraw/state").hide().success(data => {
+        $.ajaxByData("/app/install/libraw/state").hide().success(data => {
             if (data.hasFinish) {//已经安装完成
                 $("#btnNext").removeAttr("disabled")
                 $("#btnInstall").hide()

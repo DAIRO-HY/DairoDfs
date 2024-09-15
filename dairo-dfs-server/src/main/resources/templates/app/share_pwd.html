@@ -27,14 +27,9 @@
             alert("请输入提取密码")
             return
         }
-        $.ajaxByData({
-            url: location.pathname + "/valid_pwd",
-            data: {
-                pwd: pwd
-            }
-        }, () => {
+        $.ajaxByData(location.pathname + "/valid_pwd").add("pwd", pwd).success(() => {
             history.go(0)
-        })
+        }).post()
     }
 </script>
 </body>

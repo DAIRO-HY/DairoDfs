@@ -26,4 +26,9 @@ class FileForm {
      * 创建日期
      */
     var date: String = ""
+
+    /**
+     * 缩率图
+     */
+    var thumb: String? = null
 }

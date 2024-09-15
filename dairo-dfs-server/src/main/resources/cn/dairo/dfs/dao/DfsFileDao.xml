@@ -11,14 +11,14 @@
     </insert>
 
     <!--通过id获取一条数据-->
-    <select id="getOne" resultType="DfsFileDto">
+    <select id="selectOne" resultType="DfsFileDto">
         select *
         from dfs_file
         where id = #{0}
     </select>
 
     <!--通过文件夹ID和文件名获取文件信息-->
-    <select id="getByParentIdAndName" resultType="DfsFileDto">
+    <select id="selectByParentIdAndName" resultType="DfsFileDto">
         select *
         from dfs_file
         where userId = #{userId}
@@ -29,7 +29,7 @@
     </select>
 
     <!--通过上级Id和文件名列表获取文件列表-->
-    <select id="getByParentIdAndNames" resultType="DfsFileDto">
+    <select id="selectByParentIdAndNames" resultType="DfsFileDto">
         select *
         from dfs_file
         where userId = #{userId}
@@ -43,7 +43,7 @@
     </select>
 
     <!--通过文件夹ID和文件名获取文件Id-->
-    <select id="getIdByParentIdAndName" resultType="Long">
+    <select id="selectIdByParentIdAndName" resultType="Long">
         select id
         from dfs_file
         where userId = #{userId}
@@ -54,7 +54,7 @@
     </select>
 
     <!--通过路径获取文件ID-->
-    <select id="getIdByPath" resultType="Long">
+    <select id="selectIdByPath" resultType="Long">
         <foreach collection="names">
             select id from dfs_file where userId = #{userId} and parentId = (
         </foreach>
@@ -64,18 +64,8 @@
         </foreach>
     </select>
 
-    <!--获取子文件数量-->
-    <select id="getSubFileCount" resultType="Int">
-        select count(*)
-        from dfs_file
-        where userId = #{userId}
-          and parentId = #{parentId}
-          and isHistory = 0
-          and deleteDate is null
-    </select>
-
     <!--获取子文件id和文件名-->
-    <select id="getSubFileIdAndName" resultType="DfsFileDto">
+    <select id="selectSubFileIdAndName" resultType="DfsFileDto">
         select id, name, localId
         from dfs_file
         where userId = #{userId}
@@ -85,25 +75,19 @@
     </select>
 
     <!--获取子文件信息,客户端显示用-->
-    <select id="getSubFile" resultType="DfsFileDto">
-        select id, name, size, date, localId
-        from dfs_file
-        where userId = #{userId}
-          and parentId = #{parentId}
-          and isHistory = 0
-          and deleteDate is null
-    </select>
-
-    <!--获取子文件ID(物理删除用)-->
-    <select id="getSubIdListToLogicDelete" resultType="Long">
-        select id
-        from dfs_file
-        where userId = #{userId}
-          and parentId = #{parentId}
+    <select id="selectSubFile" resultType="DfsFileSubListDto">
+        select df.id, df.name, df.size, df.date, df.localId, thumbDf.id > 0 as hasThumb
+        from dfs_file as df
+                 left join dfs_file as thumbDf
+                           on thumbDf.parentId = df.id and thumbDf.name = 'thumb'
+        where df.userId = #{userId}
+          and df.parentId = #{parentId}
+          and df.isHistory = 0
+          and df.deleteDate is null
     </select>
 
     <!-- 获取全部已经删除的文件 -->
-    <select id="getDeleteList" resultType="DfsFileDto">
+    <select id="selectDeleteList" resultType="DfsFileDto">
         select id, name, size, localId, deleteDate
         from dfs_file
         where userId = #{0}
@@ -112,7 +96,7 @@
     </select>
 
     <!-- 获取所有回收站超时的数据 -->
-    <select id="getIdsByDeleteAndTimeout" resultType="Long">
+    <select id="selectIdsByDeleteAndTimeout" resultType="Long">
         select id
         from dfs_file
         where deleteDate <![CDATA[<]]> #{0}
@@ -120,7 +104,7 @@
     </select>
 
     <!-- 获取文件历史版本 -->
-    <select id="getHistory" resultType="DfsFileDto">
+    <select id="selectHistory" resultType="DfsFileDto">
         select id, size, date
         from dfs_file
         where userId = #{userId}
@@ -175,27 +159,8 @@
           and localId > 0
     </update>
 
-    <!--彻底删除文件(适用于删除文件夹下所有的文件)-->
-    <delete id="deleteByFolder">
-        delete
-        from dfs_file
-        where id = #{0}
-    </delete>
-
-    <!-- 删除文件及文件所有历史版本(适用于删除单的文件) -->
-    <!--<delete id="deleteByFile">
-        delete
-        from dfs_file
-        where userId = (select userId from dfs_file where id = #{0})
-          and parentId = (select parentId from dfs_file where id = #{0})
-          and name = (select name from dfs_file where id = #{0})
-          and localId > 0
-          and deleteDate is not null
-          and deleteDate = (select deleteDate from dfs_file where id = #{0})
-    </delete>-->
-
-    <!-- 删除文件 -->
-    <delete id="deleteByFile">
+    <!-- 删除 -->
+    <delete id="delete">
         delete
         from dfs_file
         where id = #{0}

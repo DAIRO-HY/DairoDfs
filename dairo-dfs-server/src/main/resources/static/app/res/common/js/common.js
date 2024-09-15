@@ -56,24 +56,18 @@ $(function () {
  * 退出登录
  */
 function logout() {
-    $.ajaxByData({
-        url: "/app/login/logout",
-        type: "POST"
-    }, (data) => {
+    $.ajaxByData("/app/login/logout").success(() => {
         window.location.href = "/app/login"
-    })
+    }).post()
 }
 
 /**
  * 重置账户
  */
 function reinit() {
-    $.ajaxByData({
-        url: "/app/index/reinit",
-        type: "POST"
-    }, () => {
+    $.ajaxByData("/app/index/reinit").success(() => {
         window.location.href = "/app/login"
-    })
+    }).post()
 }
 
 function dateFormat(date, pattern = "yyyy-MM-dd hh:mm:ss") {

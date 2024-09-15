@@ -125,16 +125,16 @@
     })
 
     function initData() {
-        $.http("/app/profile").success(data => {
+        $.ajaxByData("/app/profile").success(data => {
             $("form").bindValue(data)
             const token = data.token
-            let syncUrl = location.origin + "/sync/" + token
+            let syncUrl = location.origin + "/distributed/" + token
             $("#url").val(syncUrl)
         }).post()
     }
 
     function onSubmitClick() {
-        $("form").ajaxByForm123().success(() => {
+        $("form").ajaxByForm().success(() => {
             alert("修改成功")
         }).post()
     }
@@ -144,7 +144,7 @@
         if (!rs) {
             return
         }
-        $.http("/app/profile/make_token").success(() => {
+        $.ajaxByData("/app/profile/make_token").success(() => {
 
             //页面刷新
             history.go(0)

@@ -1,4 +1,4 @@
-package cn.dairo.dfs.controller.sync
+package cn.dairo.dfs.controller.distributed
 
 import jakarta.servlet.http.HttpServletResponse
 

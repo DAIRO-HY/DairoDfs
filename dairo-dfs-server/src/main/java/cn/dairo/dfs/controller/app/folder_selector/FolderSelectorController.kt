@@ -39,7 +39,7 @@ class FolderSelectorController : AppBase() {
         val folderId = this.dfsFileService.getIdByFolder(userId, folder)
             ?: throw ErrorCode.NO_FOLDER
         val list = ArrayList<FolderForm>()
-        this.dfsFileDao.getSubFile(userId, folderId).forEach {
+        this.dfsFileDao.selectSubFile(userId, folderId).forEach {
             if (it.isFile) {
                 return@forEach
             }

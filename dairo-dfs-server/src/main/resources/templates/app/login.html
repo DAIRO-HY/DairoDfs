@@ -38,24 +38,20 @@
             localStorage.setItem("deviceId", hexMD5(deviceId))
         }
         $("input[name='deviceId']").val(deviceId)
-        $("form").ajaxByFormAndOption({
-            data: {pwd: hexMD5($("input[name='pwd']").val())}
-        }, token => {
+        $("form").ajaxByForm().add("pwd", hexMD5($("input[name='pwd']").val())).success(token => {
             localStorage.setItem("name", $("input[name='name']").val())
             document.cookie = "token=" + token + "; max-age=3153600000; path=/";
             window.location.href = "/app/files"
-        })
+        }).post()
     }
 
     /**
      * 忘记密码点击事件
      */
     function onForgetClick() {
-        $.ajaxByData({
-            url: "/app/login/forget"
-        }, data => {
+        $.ajaxByData("/app/login/forget").success(data => {
             alert("管理员账户名及密码保存在以下文件中,请直接修改文件里的账户名密码,然后重启服务.\n" + data)
-        })
+        }).post()
     }
 </script>
 </body>

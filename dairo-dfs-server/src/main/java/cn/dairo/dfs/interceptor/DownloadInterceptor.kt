@@ -64,7 +64,7 @@ class DownloadInterceptor : HandlerInterceptor {
 
         //文件名
         val name = path.fileName
-        val dfsFile = this.dfsFileDao.getByParentIdAndName(userId, folderId, name)
+        val dfsFile = this.dfsFileDao.selectByParentIdAndName(userId, folderId, name)
         if (dfsFile == null) {//文件不存在
             response.status = HttpStatus.NOT_FOUND.value()
             return false

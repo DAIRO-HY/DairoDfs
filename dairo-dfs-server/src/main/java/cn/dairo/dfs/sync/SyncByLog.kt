@@ -5,10 +5,9 @@ import cn.dairo.dfs.boot.Boot
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.config.SystemConfig
 import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
-import cn.dairo.dfs.controller.sync.SyncController
+import cn.dairo.dfs.controller.distributed.DistributedController
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.md5
-import cn.dairo.dfs.service.DfsFileDeleteService
 import cn.dairo.dfs.sync.bean.SyncInfo
 import cn.dairo.dfs.sync.bean.SyncLogListenHttpBean
 import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
@@ -125,7 +124,7 @@ object SyncByLog {
                 sleep(1000)
                 val http =
                     URL(info.domain + "/${SystemConfig.instance.token}/listen?lastId=" + this.getLastId(info)).openConnection() as HttpURLConnection
-                http.readTimeout = SyncController.KEEP_ALIVE_TIME + 10
+                http.readTimeout = DistributedController.KEEP_ALIVE_TIME + 10
                 http.connectTimeout = 10000
 
                 val listenHttp = SyncLogListenHttpBean(http)

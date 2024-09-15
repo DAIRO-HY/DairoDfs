@@ -54,11 +54,11 @@
      * 初始化按钮点击事件
      */
     function onInstallClick() {
-        $.http("/app/install/ffprobe/install").success(progress).post()
+        $.ajaxByData("/app/install/ffprobe/install").success(progress).post()
     }
 
     function progress() {
-        $.http("/app/install/ffprobe/progress").hide().success(data => {
+        $.ajaxByData("/app/install/ffprobe/progress").hide().success(data => {
             $("#info").text(data.info)
             $("#error").text(data.error)
             if (data.hasFinish) {//已经安装完成

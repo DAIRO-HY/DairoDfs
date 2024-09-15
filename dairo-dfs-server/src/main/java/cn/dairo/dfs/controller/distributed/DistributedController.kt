@@ -1,4 +1,4 @@
-package cn.dairo.dfs.controller.sync
+package cn.dairo.dfs.controller.distributed
 
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.base.AppBase
@@ -25,8 +25,8 @@ import kotlin.concurrent.thread
  * 数据同步处理Controller
  */
 @Controller
-@RequestMapping("/sync/{token}")
-class SyncController : AppBase() {
+@RequestMapping("/distributed/{token}")
+class DistributedController : AppBase() {
     companion object {
 
         /**

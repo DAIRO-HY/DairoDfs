@@ -88,14 +88,9 @@
                 return
             }
 
-            $.ajaxByData({
-                url: "trash/logic_delete",
-                data: {
-                    ids: ids
-                }
-            }, () => {
+            $.ajaxByData("trash/logic_delete").add("ids", ids).success(() => {
                 reload()
-            })
+            }).post()
         }
 
         /**
@@ -108,14 +103,9 @@
             if (ids.length === 0) {
                 return
             }
-            $.ajaxByData({
-                url: "trash/trash_recover",
-                data: {
-                    ids: ids
-                }
-            }, () => {
+            $.ajaxByData("trash/trash_recover").add("ids", ids).success(() => {
                 reload()
-            })
+            }).post()
         }
 
     </script>

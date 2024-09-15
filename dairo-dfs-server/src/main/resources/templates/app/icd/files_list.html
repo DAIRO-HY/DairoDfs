@@ -19,16 +19,20 @@
          * 获取文件列表部分的HTML
          */
         const fileItemHtml =
-            `<div class="d-flex align-items-center" data-index="{index}" file-item>
-                <div class="text-primary position-relative" style="font-size: 34px;width: 34px;height: 51px;"
+            `<div class="d-flex align-items-center justify-content-between" data-index="{index}" file-item>
+                <div class="text-primary"
                  role="button">
-                    <i class="bi {icon}"></i>
+                    <div style="width: 50px;height: 50px;">
+                    {thumb}
+                    </div>
                 </div>
-                <div class="ms-3 {border}" style="width:99999px;height: 48px;overflow: hidden" role="button">
+                <div class="ms-2 {border} d-flex align-items-center" style="width:99999px;height: 60px;overflow: hidden" role="button">
+                    <div>
                     <div class="text-nowrap">{name}</div>
                     <div class="small"><span>{date}</span><i class="bi bi-dot"></i><span>{size}</span></div>
+                    </div>
                 </div>
-                <div class="{border} px-2" style="height: 48px;line-height: 48px;" check-icon>
+                <div class="{border} px-2" style="height: 60px;line-height: 60px;" check-icon>
                 </div>
             </div>`
 
@@ -74,8 +78,7 @@
                 const file = fileList[index]
                 const currentFolder = getCurrentFolderByUrl()
                 if (file.fileFlag) {//如果是一个文件
-                    const token = sessionStorage.getItem("token")
-                    window.open(location.pathname + "/download/" + file.name + "?_token=" + token + "&folder=" + currentFolder)
+                    window.open(location.pathname + "/download/" + file.name + "?folder=" + currentFolder)
                 } else {
                     const folder = currentFolder + "/" + file.name
                     loadFileData(folder)
@@ -157,7 +160,7 @@
          * 加载文件列表数据
          */
         function loadFileData(folder) {
-            $.ajaxByData({url: location.pathname + "/get_list?folder=" + folder}, data => {
+            $.ajaxByData(location.pathname + "/get_list?folder=" + folder).success(data => {
                 data.forEach(item => item.checked = false)
                 data = data.sort(item => item.fileFlag ? 1 : -1)
 
@@ -177,7 +180,7 @@
 
                 //更新选中状态
                 updateCheckedState()
-            })
+            }).post()
         }
 
         /**
@@ -194,11 +197,20 @@
             const lastIndex = data.length - 1
             data.forEach((item, index) => {
                 const border = index < lastIndex ? "border-bottom" : ""
+
+                let thumb
+                if (item.thumb) {
+                    thumb = `<img src="${item.thumb}" class="rounded" style="width: 50px;height: 50px;">`
+                } else if (item.fileFlag) {
+                    thumb = `<div class="d-flex align-items-center" style="width: 50px;height: 50px;"><i class="bi bi-file-earmark-fill" style="font-size: 50px;"></i></div>`
+                } else {
+                    thumb = `<div class="d-flex align-items-center" style="width: 50px;height: 50px;"><i class="bi bi-folder-fill" style="font-size: 50px;"></i></div>`
+                }
                 $fileListDiv.append(
                     fileItemHtml
-                        .replace("{icon}", item.fileFlag ? "bi-file-earmark-fill" : "bi-folder-fill")
+                        .replace("{thumb}", thumb)
                         .replace("{name}", item.name)
-                        .replace("{size}", item.size)
+                        .replace("{size}", item.size.toDataSize())
                         .replace("{date}", item.date)
                         .replace(/{border}/g, border)
                         .replace(/{index}/g, index)

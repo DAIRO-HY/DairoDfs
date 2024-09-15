@@ -27,5 +27,5 @@ interface ShareDao {
      * @param userId 用户ID
      * @param ids 要删除的分享id列表
      */
-    fun delete(@Param("userId") userId: Long, @Param("ids") ids: List<Long>)
+    fun delete(@Param("userId") userId: Long, @Param("ids") ids: String)
 }

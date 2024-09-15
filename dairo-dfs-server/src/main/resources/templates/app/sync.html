@@ -38,9 +38,9 @@
     })
 
     function getInfoList() {
-        $.ajaxByData("./sync/info_list", data => {
+        $.ajaxByData("./sync/info_list").success(data => {
             fillDataTable(data)
-        })
+        }).post()
     }
 
     /**
@@ -108,29 +108,22 @@
         })
     }
 
-    function onSubmitClick() {
-        $("form").ajaxByForm(() => {
-            alert("修改成功")
-            getInfoList()
-        })
-    }
-
     /**
      * 日志同步按钮点击事件
      */
     function onSyncClick() {
-        $.ajaxByData("./sync/sync", () => {
+        $.ajaxByData("./sync/by_log").success(() => {
             getInfoList()
-        })
+        }).post()
     }
 
     /**
      * 全量同步按钮点击事件
      */
     function onSyncAllClick() {
-        $.ajaxByData("./sync/sync_all", () => {
+        $.ajaxByData("./sync/by_table").success(() => {
             getInfoList()
-        })
+        }).post()
     }
 
     function initSocket() {

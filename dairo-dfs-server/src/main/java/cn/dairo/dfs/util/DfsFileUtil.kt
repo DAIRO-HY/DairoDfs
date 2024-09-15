@@ -120,7 +120,7 @@ object DfsFileUtil {
      * @param response 往客户端返回内容
      */
     fun download(id: Long, request: HttpServletRequest, response: HttpServletResponse) {
-        val dfsFile = Boot.service.dfsFileDao.getOne(id)
+        val dfsFile = Boot.service.dfsFileDao.selectOne(id)
         this.download(dfsFile, request, response)
     }
 

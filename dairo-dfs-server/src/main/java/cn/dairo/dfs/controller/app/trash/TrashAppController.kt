@@ -1,7 +1,6 @@
 package cn.dairo.dfs.controller.app.trash
 
 import cn.dairo.dfs.code.ErrorCode
-import cn.dairo.dfs.config.SystemConfig
 import cn.dairo.dfs.controller.app.trash.form.TrashForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.DfsFileDao
@@ -54,7 +53,7 @@ class TrashAppController : AppBase() {
         val userId = super.loginId
         val now = System.currentTimeMillis()
         val trashSaveTime = this.trashTimeout * 24 * 60 * 60 * 1000
-        val list = this.dfsFileDao.getDeleteList(userId).map {
+        val list = this.dfsFileDao.selectDeleteList(userId).map {
             val deleteDate = it.deleteDate!!
 
             //剩余删除时间
@@ -93,7 +92,7 @@ class TrashAppController : AppBase() {
     ) {
         val userId = super.loginId
         ids.forEach {//验证是否有删除权限
-            val fileDto = this.dfsFileDao.getOne(it)!!
+            val fileDto = this.dfsFileDao.selectOne(it)!!
             if (fileDto.userId != userId) {//非自己的文件，无法删除
                 throw ErrorCode.NOT_ALLOW
             }

@@ -104,17 +104,14 @@
         function saveTo(path) {
             const folder = getCurrentFolderByUrl()
             const names = fileList.filter(item => item.checked).map(item => item.name)
-            $.ajaxByData({
-                url: "/app/share/{id}/save_to",
-                data: {
-                    id:[[{param.id}]],
-                    folder: folder,
-                    names: names,
-                    target: path
-                }
-            }, () => {
+            $.ajaxByData("/app/share/{id}/save_to").addAll({
+                id: [[{param.id}]],
+                folder: folder,
+                names: names,
+                target: path
+            }).success(() => {
                 alert("转存成功")
-            })
+            }).post()
         }
     </script>
 </th:block>

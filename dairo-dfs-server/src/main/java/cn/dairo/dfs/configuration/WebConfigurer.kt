@@ -59,8 +59,7 @@ class WebConfigurer : WebMvcConfigurer {
             .excludePathPatterns(//不拦截的请求
                 "/app/install/**",
                 "/app/login/**",
-                "/app/share/**",
-                "/app/file_upload/**"
+                "/app/share/**"
             )
 
         //管理员拦截器
@@ -75,8 +74,8 @@ class WebConfigurer : WebMvcConfigurer {
         registry.addInterceptor(downloadInterceptor())
             .addPathPatterns("/d/**")
 
-        //数据同步处理
+        //分布式同步
         registry.addInterceptor(syncInterceptor())
-            .addPathPatterns("/sync/**")
+            .addPathPatterns("/distributed/**")
     }
 }

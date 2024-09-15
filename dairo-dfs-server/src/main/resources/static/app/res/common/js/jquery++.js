@@ -23,23 +23,23 @@
      * @param success 成功回调
      */
     $.fn.initData = function (success) {
-        $.ajaxByData({url: location.href}, data => {
+        $.ajaxByData(location.href).success(data => {
             if (success) {
                 success(data)
             } else {
                 this.bindValue(data)
             }
-        })
+        }).post()
     }
 
-    $.http = function (url) {
+    $.ajaxByData = function (url) {
         return new ApiHttp(url)
     }
 
     /**
      * Form表单发起ajax请求
      */
-    $.fn.ajaxByForm123 = function (url) {
+    $.fn.ajaxByForm = function (url) {
 
 
         this.find("span[error-valid]").remove()

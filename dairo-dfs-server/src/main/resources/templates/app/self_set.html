@@ -42,7 +42,7 @@
         if (!btnOk) {
             return
         }
-        $.ajaxByData("/app/self_set/make_api_token?flag=" + flag, () => history.go(0))
+        $.ajaxByData("/app/self_set/make_api_token?flag=" + flag).success(() => history.go(0)).post()
     }
 
     /**
@@ -53,7 +53,7 @@
         if (!btnOk) {
             return
         }
-        $.ajaxByData("/app/self_set/make_url_path?flag=" + flag, () => history.go(0))
+        $.ajaxByData("/app/self_set/make_url_path?flag=" + flag).success(() => history.go(0)).post()
     }
 
     /**
@@ -64,7 +64,7 @@
         if (!btnOk) {
             return
         }
-        $.ajaxByData("/app/self_set/make_encryption?flag=" + flag, () => history.go(0))
+        $.ajaxByData("/app/self_set/make_encryption?flag=" + flag).success(() => history.go(0)).post()
     }
 </script>
 </body>

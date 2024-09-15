@@ -108,7 +108,7 @@
 
             const left = windowWidth - clientX > 160 ? clientX : clientX - 160
             const top = windowHeight - clientY > menuHeight ? clientY : clientY - menuHeight
-            
+
             const $fileOptionPop = $("#fileOptionPop")
             $fileOptionPop.css("left", left + "px")
             $fileOptionPop.css("top", top + "px")
@@ -133,9 +133,9 @@
             }
             const currentFolder = getCurrentFolderByUrl()
             const folder = currentFolder + "/" + folderName
-            $.ajaxByData({url: "/app/files/create_folder?folder=" + folder}, () => {
+            $.ajaxByData("/app/files/create_folder?folder=" + folder).success(() => {
                 reload()
-            })
+            }).post()
         }
 
         /**
@@ -151,14 +151,9 @@
                 alert("请选择要删除的文件或文件夹")
                 return
             }
-            $.ajaxByData({
-                url: "files/delete",
-                data: {
-                    paths: paths
-                }
-            }, () => {
+            $.ajaxByData("files/delete").add("paths", paths).success(() => {
                 reload()
-            })
+            }).post()
         }
 
         /**
@@ -175,15 +170,12 @@
             if (file.name === name) {
                 return
             }
-            $.ajaxByData({
-                url: "files/rename",
-                data: {
-                    sourcePath: sourcePath,
-                    name: name
-                }
-            }, () => {
+            $.ajaxByData("files/rename").addAll({
+                sourcePath: sourcePath,
+                name: name
+            }).success(() => {
                 reload()
-            })
+            }).post()
         }
 
         /**
@@ -244,18 +236,15 @@
                 url = "files/copy"
             }
 
-            $.ajaxByData({
-                url: url,
-                data: {
-                    sourcePaths: paths,
-                    targetFolder: folder,
-                    isOverWrite: isOverWrite
-                }
-            }, () => {
+            $.ajaxByData(url).addAll({
+                sourcePaths: paths,
+                targetFolder: folder,
+                isOverWrite: isOverWrite
+            }).success(() => {
                 sessionStorage.removeItem("clipboard")
                 sessionStorage.removeItem("clipboardType")
                 reload()
-            })
+            }).post()
         }
 
         /**

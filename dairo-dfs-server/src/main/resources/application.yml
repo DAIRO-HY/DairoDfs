@@ -21,9 +21,6 @@ server:
     #request的inputstream读取数据超时设置，客户端突然掉线，服务器端没有感知到客户端掉线，连接就会一直存在
     connection-timeout: 15000
 
-#主分机同步数据时的Socket端口
-sync.port: 8031
-
 spring:
   application:
     name: dairo-dfs-service

@@ -109,7 +109,6 @@ class MyShareAppController : AppBase() {
     @PostMapping("/delete")
     @ResponseBody
     fun delete(ids: Array<Long>) {
-        val userId = super.loginId
-        this.shareDao.delete(userId, ids.toList())
+        this.shareDao.delete(super.loginId, ids.joinToString(separator = ","))
     }
 }

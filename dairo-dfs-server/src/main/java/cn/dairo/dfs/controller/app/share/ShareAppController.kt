@@ -135,7 +135,7 @@ class ShareAppController : AppBase() {
         //分享的文件名或文件夹名列表
         val shareNameList = shareDto.names!!.split("|")
         if (folder == "") {//分享的根目录
-            val list = this.dfsFileDao.getByParentIdAndNames(userId, shareFolderId, shareNameList).map {
+            val list = this.dfsFileDao.selectByParentIdAndNames(userId, shareFolderId, shareNameList).map {
                 ShareForm().apply {
                     this.name = it.name
                     this.size = it.size.toDataSize
@@ -152,7 +152,7 @@ class ShareAppController : AppBase() {
             //得到分享的父文件夹ID
             val folderId = this.dfsFileService.getIdByFolder(userId, trueFolder) ?: throw ErrorCode.NO_FOLDER
 
-            val list = this.dfsFileDao.getSubFile(userId, folderId).map {
+            val list = this.dfsFileDao.selectSubFile(userId, folderId).map {
                 ShareForm().apply {
                     this.name = it.name
                     this.size = it.size.toDataSize
@@ -190,7 +190,7 @@ class ShareAppController : AppBase() {
         val truePath = shareDto.folder + path
 
         //得到文件ID
-        val fileId = this.dfsFileDao.getIdByPath(userId, truePath.toDfsFileNameList)
+        val fileId = this.dfsFileDao.selectIdByPath(userId, truePath.toDfsFileNameList)
         if (fileId == null) {//文件不存在
             response.status = HttpStatus.NOT_FOUND.value()
             return
@@ -212,7 +212,7 @@ class ShareAppController : AppBase() {
             this.dfsFileService.getIdByFolder(shareDto.userId!!, shareDto.folder!!) ?: throw ErrorCode.NO_FOLDER
 
         if (shareFolderId > 0) {//非根目录时,要验证是否存在文件夹
-            val dfsFile = this.dfsFileDao.getOne(shareFolderId) ?: throw ErrorCode.NO_FOLDER
+            val dfsFile = this.dfsFileDao.selectOne(shareFolderId) ?: throw ErrorCode.NO_FOLDER
             if (dfsFile.deleteDate != null) {//文件已经删除
                 throw ErrorCode.NO_FOLDER
             }

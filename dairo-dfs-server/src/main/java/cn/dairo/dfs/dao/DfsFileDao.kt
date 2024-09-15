@@ -1,6 +1,7 @@
 package cn.dairo.dfs.dao
 
 import cn.dairo.dfs.dao.dto.DfsFileDto
+import cn.dairo.dfs.dao.dto.DfsFileSubListDto
 import org.apache.ibatis.annotations.Param
 import org.springframework.stereotype.Service
 
@@ -16,7 +17,7 @@ interface DfsFileDao {
      * 通过id获取一条数据
      * @param id 文件ID
      */
-    fun getOne(id: Long): DfsFileDto?
+    fun selectOne(id: Long): DfsFileDto?
 
     /**
      * 通过文件夹ID和文件名获取文件信息
@@ -24,7 +25,7 @@ interface DfsFileDao {
      * @param name 文件名
      * @return 文件信息
      */
-    fun getByParentIdAndName(
+    fun selectByParentIdAndName(
         @Param("userId") userId: Long,
         @Param("parentId") parentId: Long,
         @Param("name") name: String
@@ -36,7 +37,7 @@ interface DfsFileDao {
      * @param names 文件名列表
      * @return 文件列表
      */
-    fun getByParentIdAndNames(
+    fun selectByParentIdAndNames(
         @Param("userId") userId: Long,
         @Param("parentId") parentId: Long,
         @Param("names") names: List<String>
@@ -48,7 +49,7 @@ interface DfsFileDao {
      * @param name 文件名
      * @return 文件信息
      */
-    fun getIdByParentIdAndName(
+    fun selectIdByParentIdAndName(
         @Param("userId") userId: Long,
         @Param("parentId") parentId: Long,
         @Param("name") name: String
@@ -59,48 +60,34 @@ interface DfsFileDao {
      * @param names 文件名列表
      * @return 文件ID
      */
-    fun getIdByPath(@Param("userId") userId: Long, @Param("names") names: List<String>): Long?
-
-    /**
-     * 获取子文件数量
-     * @param parentId 文件夹id
-     * @return 子文件数量
-     */
-    fun getSubFileCount(@Param("userId") userId: Long, @Param("parentId") parentId: Long): Int
+    fun selectIdByPath(@Param("userId") userId: Long, @Param("names") names: List<String>): Long?
 
     /**
      * 获取子文件id和文件名
      * @param parentId 文件夹id
      * @return 子文件列表
      */
-    fun getSubFileIdAndName(@Param("userId") userId: Long, @Param("parentId") parentId: Long): List<DfsFileDto>
+    fun selectSubFileIdAndName(@Param("userId") userId: Long, @Param("parentId") parentId: Long): List<DfsFileDto>
 
     /**
      * 获取子文件信息,客户端显示用
      * @param parentId 文件夹id
      * @return 子文件列表
      */
-    fun getSubFile(@Param("userId") userId: Long, @Param("parentId") parentId: Long): List<DfsFileDto>
-
-    /**
-     * 获取子文件ID(物理删除用)
-     * @param parentId 文件夹id
-     * @return 子文件ID列表
-     */
-    fun getSubIdListToLogicDelete(@Param("userId") userId: Long, @Param("parentId") parentId: Long): List<Long>
+    fun selectSubFile(@Param("userId") userId: Long, @Param("parentId") parentId: Long): List<DfsFileSubListDto>
 
     /**
      * 获取全部已经删除的文件
      * @param userId 用户ID
      * @return 已删除的文件
      */
-    fun getDeleteList(userId: Long): List<DfsFileDto>
+    fun selectDeleteList(userId: Long): List<DfsFileDto>
 
     /**
      * 获取所有回收站超时的数据
      * @return 已删除的文件
      */
-    fun getIdsByDeleteAndTimeout(time: Long): List<Long>
+    fun selectIdsByDeleteAndTimeout(time: Long): List<Long>
 
     /**
      * 获取文件历史版本
@@ -108,7 +95,7 @@ interface DfsFileDao {
      * @param id 文件id
      * @return 历史版本列表
      */
-    fun getHistory(@Param("userId") userId: Long, @Param("id") id: Long): List<DfsFileDto>
+    fun selectHistory(@Param("userId") userId: Long, @Param("id") id: Long): List<DfsFileDto>
 
     /**
      * 获取尚未处理的数据
@@ -141,16 +128,10 @@ interface DfsFileDao {
     fun setContentType(@Param("id") id: Long, @Param("contentType") contentType: String)
 
     /**
-     * 彻底删除文件(适用于删除文件夹下所有的文件)
+     * 删除
      * @param id 文件ID
      */
-    fun deleteByFolder(id: Long)
-
-    /**
-     * 删除文件及文件所有历史版本(适用于删除单的文件)
-     * @param id 文件ID
-     */
-    fun deleteByFile(id: Long)
+    fun delete(id: Long)
 
     /**
      * 文件移动

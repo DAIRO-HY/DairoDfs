@@ -21,10 +21,13 @@
                         4/6
                     </div>
                     <div>
-                        <button id="btnPre" class="btn btn-primary" onclick="window.location.href='libraw'">上一步
+                        <button type="button" id="btnPre" class="btn btn-primary"
+                                onclick="window.location.href='libraw'">上一步
                         </button>
-                        <button id="btnInstall" class="btn btn-primary" onclick="onSetClick()">设置</button>
-                        <button id="btnNext" class="btn btn-primary" onclick="window.location.href='distributed'">
+                        <button type="button" id="btnInstall" class="btn btn-primary" onclick="onSetClick()">设置
+                        </button>
+                        <button type="button" id="btnNext" class="btn btn-primary"
+                                onclick="window.location.href='distributed'">
                             跳过
                         </button>
                     </div>
@@ -47,7 +50,7 @@
      * 初始化按钮点击事件
      */
     function onSetClick() {
-        $("form").ajaxByForm123().success(() => {
+        $("form").ajaxByForm().success(() => {
             window.location.href = 'distributed'
         }).post()
     }
