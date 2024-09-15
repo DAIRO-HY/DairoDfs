@@ -10,7 +10,7 @@ object FormToModelUtil {
     /**
      * model文件存放目录
      */
-    private const val FORM_FOLDER = "./dairo-dfs-server/src/main/java/com/gl/dfs/controller/app"
+    private const val FORM_FOLDER = "./dairo-dfs-server/src/main/java/cn/dairo/dfs/controller/app"
 
     /**
      * 开始

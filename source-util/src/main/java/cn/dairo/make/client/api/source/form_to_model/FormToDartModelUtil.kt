@@ -12,8 +12,8 @@ object FormToDartModelUtil {
     /**
      * model文件存放目录
      */
-    private const val SWIFT_TARGET_FOLDER = "C:/develop/project/idea/dairo-dfs-app/lib/api/model"
-//    private const val SWIFT_TARGET_FOLDER = "/Users/zhoulq/dev/java/idea/gl_dfs_app/lib/api/model"
+//    private const val SWIFT_TARGET_FOLDER = "C:/develop/project/idea/dairo-dfs-app/lib/api/model"
+    private const val SWIFT_TARGET_FOLDER = "/Users/zhoulq/dev/java/idea/DairoDfsApp/lib/api/model"
 
     /**
      * 将Form文件转swift的Modal代码

@@ -7,8 +7,8 @@ class ControllerToClientHttpApiToDartUtil(private val apiInfoMap: Map<String, Li
     /**
      * model文件存放目录
      */
-    private val DART_TARGET_FOLDER = "C:/develop/project/idea/dairo-dfs-app/lib/api"
-//    private val DART_TARGET_FOLDER = "/Users/zhoulq/dev/java/idea/gl_dfs_app/lib/api"
+//    private val DART_TARGET_FOLDER = "C:/develop/project/idea/dairo-dfs-app/lib/api"
+    private val DART_TARGET_FOLDER = "/Users/zhoulq/dev/java/idea/DairoDfsApp/lib/api"
 
     init {
         val apiConstCode = this.makeApiConst()
