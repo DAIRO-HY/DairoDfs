@@ -1,39 +1,39 @@
-package cn.dairo.dfs.sync.bean
+package cn.dairo.dfs.controller.app.sync.form
 
-class SyncInfo {
+class SyncServerForm {
 
     /**
      * 编号
      */
-    var no = 0
+    var no: Int = 0
 
     /**
-     * 主机域名
+     * 主机端同步连接
      */
-    var domain = ""
+    var url: String = ""
 
     /**
      * 同步状态 0：待机中   1：同步中  2：同步错误
      */
-    var state = 0
+    var state: Int = 0
 
     /**
      * 同步消息
      */
-    var msg = ""
+    var msg: String = ""
 
     /**
      * 同步日志数
      */
-    var syncCount = 0
+    var syncCount: Int = 0
 
     /**
      * 最后一次同步完成时间
      */
-    var lastTime = 0L
+    var lastTime: Long = 0L
 
     /**
      * 最后一次心跳时间
      */
-    var lastHeartTime = 0L
+    var lastHeartTime: Long = 0L
 }

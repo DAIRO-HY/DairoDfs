@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
 import cn.dairo.dfs.extension.bean
-import cn.dairo.dfs.sync.bean.SyncInfo
+import cn.dairo.dfs.sync.bean.SyncServerInfo
 import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
 import cn.dairo.dfs.sync.sync_handle.LocalFileSyncHandle
 import cn.dairo.lib.Json
 import com.fasterxml.jackson.databind.JsonNode
 import org.sqlite.SQLiteException
-import java.lang.Thread.sleep
 
 /**
  * 全量同步工具
@@ -89,7 +88,7 @@ object SyncByTable {
                 }
 
                 //从日志数据表中删除当前已经同步成功的服务端日志
-                Constant.dbService.exec("delete from sql_log where source = ? and id < ?", info.domain, aopId)
+                Constant.dbService.exec("delete from sql_log where source = ? and id < ?", info.url, aopId)
 
                 //设置日志同步最后的ID
                 SyncByLog.saveLastId(info, aopId)
@@ -107,7 +106,7 @@ object SyncByTable {
     /**
      * 循环同步数据，直到包数据同步完成
      */
-    private fun loopSync(info: SyncInfo, tbName: String, lastId: Long, aopId: Long) {
+    private fun loopSync(info: SyncServerInfo, tbName: String, lastId: Long, aopId: Long) {
 
         val masterIds = this.getTableId(info, tbName, lastId, aopId)
         if (masterIds.isEmpty()) {//同步主机端的数据已经全部取完
@@ -150,8 +149,8 @@ object SyncByTable {
      * 获取一个断面ID，防止再全量同步的过程中，主机又增加数据，导致全量同步数据不完整
      * 其实就是服务器端的时间戳
      */
-    private fun getAopId(info: SyncInfo): Long {
-        val url = info.domain + "/get_aop_id"
+    private fun getAopId(info: SyncServerInfo): Long {
+        val url = info.url + "/get_aop_id"
         val aopId = SyncHttp.request(url)
         return aopId.toLong()
     }
@@ -163,8 +162,8 @@ object SyncByTable {
      * @param lastId 上次获取到的最后一个id
      * @param aopId 本次同步的服务器端的最大id
      */
-    private fun getTableId(info: SyncInfo, tbName: String, lastId: Long, aopId: Long): String {
-        val url = info.domain + "/get_table_id?tbName=$tbName&lastId=$lastId&aopId=$aopId"
+    private fun getTableId(info: SyncServerInfo, tbName: String, lastId: Long, aopId: Long): String {
+        val url = info.url + "/get_table_id?tbName=$tbName&lastId=$lastId&aopId=$aopId"
         val ids = SyncHttp.request(url)
         return ids
     }
@@ -188,8 +187,8 @@ object SyncByTable {
     /**
      * 从同步主机端取数据
      */
-    private fun getTableData(info: SyncInfo, tbName: String, ids: String): String {
-        val url = info.domain + "/get_table_data?tbName=$tbName&ids=$ids"
+    private fun getTableData(info: SyncServerInfo, tbName: String, ids: String): String {
+        val url = info.url + "/get_table_data?tbName=$tbName&ids=$ids"
         val data = SyncHttp.request(url)
         return data
     }
@@ -197,7 +196,7 @@ object SyncByTable {
     /**
      * 同步主机数据
      */
-    private fun insertData(info: SyncInfo, tbName: String, data: JsonNode) {
+    private fun insertData(info: SyncServerInfo, tbName: String, data: JsonNode) {
         data.forEach { item ->
             item as ObjectNode
             when (tbName) {

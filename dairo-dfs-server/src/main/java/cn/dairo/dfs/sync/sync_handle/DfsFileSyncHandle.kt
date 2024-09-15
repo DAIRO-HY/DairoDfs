@@ -6,13 +6,13 @@ import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.UserDao
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.service.DfsFileService
-import cn.dairo.dfs.sync.bean.SyncInfo
+import cn.dairo.dfs.sync.bean.SyncServerInfo
 
 /**
  * DFS文件同步之前，本地文件的一些操作
  */
 object DfsFileSyncHandle {
-    fun handle(info: SyncInfo, item: ObjectNode) {
+    fun handle(info: SyncServerInfo, item: ObjectNode) {
         val deleteDate = item.path("deleteDate").asLong()
         if (deleteDate > 0) {//该文件已经被删除，不用做任何处理
             return
@@ -60,11 +60,11 @@ object DfsFileSyncHandle {
 
             //得到发生错误的文件路径
             val path = DfsFileService::class.bean.getPathById(dfsFile.id!!)
-            throw RuntimeException("同步失败，服务器：${info.domain}  用户名：${user?.name}  路径：$path 文件冲突。原因：同一个文件夹下，不允许同名的文件或文件夹。解决方案：请重命名当前或者服务器端 $path 的文件名。")
+            throw RuntimeException("同步失败，服务器：${info.url}  用户名：${user?.name}  路径：$path 文件冲突。原因：同一个文件夹下，不允许同名的文件或文件夹。解决方案：请重命名当前或者服务器端 $path 的文件名。")
         }
     }
 
-    fun handleBySyncLog(info: SyncInfo, params: ArrayList<Any>): String? {
+    fun handleBySyncLog(info: SyncServerInfo, params: ArrayList<Any>): String? {
 
         //用户文件id
         val id = params[0].toString().toLong()
@@ -106,7 +106,7 @@ object DfsFileSyncHandle {
 
             //得到发生错误的文件路径
             val path = DfsFileService::class.bean.getPathById(dfsFile.id!!)
-            throw RuntimeException("同步失败，服务器：${info.domain}  用户名：${user?.name}  路径：$path 文件冲突。原因：同一个文件夹下，不允许同名的文件或文件夹。解决方案：请重命名当前或者服务器端 $path 的文件名。")
+            throw RuntimeException("同步失败，服务器：${info.url}  用户名：${user?.name}  路径：$path 文件冲突。原因：同一个文件夹下，不允许同名的文件或文件夹。解决方案：请重命名当前或者服务器端 $path 的文件名。")
         }
         return null
     }

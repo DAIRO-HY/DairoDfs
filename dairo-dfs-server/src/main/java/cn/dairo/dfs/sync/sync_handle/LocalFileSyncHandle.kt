@@ -7,7 +7,7 @@ import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.md5
 import cn.dairo.dfs.sync.SyncFileUtil
-import cn.dairo.dfs.sync.bean.SyncInfo
+import cn.dairo.dfs.sync.bean.SyncServerInfo
 import cn.dairo.dfs.util.DfsFileUtil
 import java.io.File
 
@@ -19,7 +19,7 @@ object LocalFileSyncHandle {
     /**
      * 全量同步时的特殊处理
      */
-    fun bySyncAll(info: SyncInfo, item: ObjectNode) {
+    fun bySyncAll(info: SyncServerInfo, item: ObjectNode) {
         val md5 = item.path("md5").textValue()
 
         //从本地数据库查找该文件
@@ -51,7 +51,7 @@ object LocalFileSyncHandle {
     /**
      * 日志同步时的特殊处理
      */
-    fun bySyncLog(info: SyncInfo, params: ArrayList<Any>) {
+    fun bySyncLog(info: SyncServerInfo, params: ArrayList<Any>) {
 
         //得到文件的md5
         val md5 = params[2] as String

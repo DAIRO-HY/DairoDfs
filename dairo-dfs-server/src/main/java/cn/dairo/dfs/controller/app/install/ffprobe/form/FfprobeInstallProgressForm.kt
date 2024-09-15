@@ -6,32 +6,32 @@ class FfprobeInstallProgressForm {
     /**
      * 是否正在下载
      */
-    var hasRuning = false
+    var hasRuning: Boolean = false
 
     /**
      * 是否已经安装完成
      */
-    var hasFinish = false
+    var hasFinish: Boolean = false
 
     /**
      * 文件总大小
      */
-    var total = ""
+    var total: String = ""
 
     /**
      * 已经下载大小
      */
-    var downloadedSize = ""
+    var downloadedSize: String = ""
 
     /**
      * 下载速度
      */
-    var speed = ""
+    var speed: String = ""
 
     /**
      * 下载进度
      */
-    var progress = 0
+    var progress: Int = 0
 
     /**
      * 下载url

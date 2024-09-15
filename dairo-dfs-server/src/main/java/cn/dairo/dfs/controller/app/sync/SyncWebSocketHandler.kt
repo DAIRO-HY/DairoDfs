@@ -1,7 +1,8 @@
 package cn.dairo.dfs.controller.app.sync
 
+import cn.dairo.dfs.controller.app.sync.form.SyncServerForm
 import cn.dairo.dfs.extension.toJson
-import cn.dairo.dfs.sync.bean.SyncInfo
+import cn.dairo.dfs.sync.bean.SyncServerInfo
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
@@ -41,8 +42,18 @@ class SyncWebSocketHandler : TextWebSocketHandler(), WebSocketConfigurer {
     /**
      * 发送消息
      */
-    fun send(info: SyncInfo) = try {
-        this.session?.sendMessage(TextMessage(info.toJson))
+    fun send(info: SyncServerInfo) = try {
+        this.session?.also {
+            val form = SyncServerForm()
+            form.url = info.url
+            form.state = info.state
+            form.msg = info.msg
+            form.no = info.no
+            form.syncCount = info.syncCount
+            form.lastHeartTime = info.lastHeartTime
+            form.lastTime = info.lastTime
+            it.sendMessage(TextMessage(form.toJson))
+        }
     } catch (e: Exception) {
     }
 }

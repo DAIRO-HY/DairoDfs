@@ -8,7 +8,7 @@ import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
 import cn.dairo.dfs.controller.distributed.DistributedController
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.md5
-import cn.dairo.dfs.sync.bean.SyncInfo
+import cn.dairo.dfs.sync.bean.SyncServerInfo
 import cn.dairo.dfs.sync.bean.SyncLogListenHttpBean
 import cn.dairo.dfs.sync.sync_handle.DfsFileSyncHandle
 import cn.dairo.dfs.sync.sync_handle.LocalFileSyncHandle
@@ -41,7 +41,7 @@ object SyncByLog {
     /**
      * 当前同步主机信息
      */
-    lateinit var syncInfoList: List<SyncInfo>
+    lateinit var syncInfoList: List<SyncServerInfo>
 
     /**
      * 是否正在同步中
@@ -83,8 +83,8 @@ object SyncByLog {
      */
     fun init() {
         this.syncInfoList = SystemConfig.instance.syncDomains.mapIndexed { index, it ->
-            val info = SyncInfo()
-            info.domain = it
+            val info = SyncServerInfo()
+            info.url = it
             info.no = index + 1
             info
         }
@@ -118,12 +118,12 @@ object SyncByLog {
     /**
      * 监听服务端日志变化
      */
-    private fun listen(info: SyncInfo) {
+    private fun listen(info: SyncServerInfo) {
         thread {
             while (true) {
                 sleep(1000)
                 val http =
-                    URL(info.domain + "/${SystemConfig.instance.token}/listen?lastId=" + this.getLastId(info)).openConnection() as HttpURLConnection
+                    URL(info.url + "/${SystemConfig.instance.token}/listen?lastId=" + this.getLastId(info)).openConnection() as HttpURLConnection
                 http.readTimeout = DistributedController.KEEP_ALIVE_TIME + 10
                 http.connectTimeout = 10000
 
@@ -212,11 +212,11 @@ object SyncByLog {
      * 循环取sql日志
      * @return 是否处理完成
      */
-    private fun requestSqlLog(info: SyncInfo) {
+    private fun requestSqlLog(info: SyncServerInfo) {
 
         //得到最后请求的id
         val lastId = this.getLastId(info)
-        val url = "${info.domain}/get_log?lastId=$lastId"
+        val url = "${info.url}/get_log?lastId=$lastId"
         try {
             val data = SyncHttp.request(url)
             if (data == "[]") {//已经没有sql日志
@@ -252,7 +252,7 @@ object SyncByLog {
     /**
      * 从主机请求到的日志保存到本地日志
      */
-    private fun addLog(info: SyncInfo, jsonData: JsonNode) {
+    private fun addLog(info: SyncServerInfo, jsonData: JsonNode) {
         jsonData.forEach {
             val id = it.path("id").longValue()
             val date = it.path("date").longValue()
@@ -267,7 +267,7 @@ object SyncByLog {
                     sql,
                     paramJson,
                     0,
-                    info.domain
+                    info.url
                 )
             } catch (e: Exception) {
 
@@ -284,7 +284,7 @@ object SyncByLog {
     /**
      * 执行日志里的sql语句
      */
-    private fun executeSqlLog(info: SyncInfo) {
+    private fun executeSqlLog(info: SyncServerInfo) {
         val list =
             Constant.dbService.selectList("select * from sql_log where state in (0,2) order by id asc limit 1000")
         if (list.isEmpty()) {
@@ -336,10 +336,10 @@ object SyncByLog {
     /**
      * 保存最后一次请求的日志ID
      */
-    fun saveLastId(info: SyncInfo, lastId: Long) {
+    fun saveLastId(info: SyncServerInfo, lastId: Long) {
 
         //记录最后一次请求到的日志ID文件
-        val lastLogIdFile = File(this.syncLastIdFilePath + "." + info.domain.md5)
+        val lastLogIdFile = File(this.syncLastIdFilePath + "." + info.url.md5)
 
         //执行成功之后立即将当前日志的日期保存到本地,降低sql被重复执行的BUG
         lastLogIdFile.writeText(lastId.toString())
@@ -348,10 +348,10 @@ object SyncByLog {
     /**
      * 保存最后一次请求的日志ID
      */
-    fun getLastId(info: SyncInfo): Long {
+    fun getLastId(info: SyncServerInfo): Long {
 
         //记录最后一次请求到的日志ID文件
-        val lastLogIdFile = File(this.syncLastIdFilePath + "." + info.domain.md5)
+        val lastLogIdFile = File(this.syncLastIdFilePath + "." + info.url.md5)
 
         //从文件获取最后一次请求到的日志ID
         return try {
@@ -366,7 +366,7 @@ object SyncByLog {
      */
     fun sendNotify() {
         this.syncInfoList.forEach { info ->
-            val url = "${info.domain}/push_notify"
+            val url = "${info.url}/push_notify"
             try {
                 SyncHttp.request(url)
             } catch (e: Exception) {

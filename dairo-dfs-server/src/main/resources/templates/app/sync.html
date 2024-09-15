@@ -56,8 +56,8 @@
                     title: "NO"
                 },
                 {
-                    data: "domain",
-                    title: "域名"
+                    data: "url",
+                    title: "URL"
                 },
                 {
                     data: "state",
@@ -137,14 +137,6 @@
         socket.onmessage = function (event) {
             const data = JSON.parse(event.data)
             $("#table").setRow(data.no - 1, data)
-        };
-
-        socket.onclose = function (event) {
-            if (event.wasClean) {
-                console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-            } else {
-                console.log('[close] Connection died');
-            }
         };
     }
 </script>

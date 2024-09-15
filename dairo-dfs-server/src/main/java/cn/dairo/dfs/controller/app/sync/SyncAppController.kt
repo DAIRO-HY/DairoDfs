@@ -1,9 +1,9 @@
 package cn.dairo.dfs.controller.app.sync
 
+import cn.dairo.dfs.controller.app.sync.form.SyncServerForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.sync.SyncByTable
 import cn.dairo.dfs.sync.SyncByLog
-import cn.dairo.dfs.sync.bean.SyncInfo
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -22,21 +22,19 @@ class SyncAppController : AppBase() {
      */
     @PostMapping("/info_list")
     @ResponseBody
-    fun infoList(): List<SyncInfo> {
-//        val infoList = SyncLogUtil.syncInfoList.map {
-//            val form = SyncForm()
-//            form.domain = it.domain
-//            form.state = when (it.state) {
-//                0 -> "待机中"
-//                1 -> "同步中"
-//                2 -> "同步错误"
-//                else -> ""
-//            }
-//            form.msg = it.msg
-//            form
-//        }
-//        return infoList
-        return SyncByLog.syncInfoList
+    fun infoList(): List<SyncServerForm> {
+        val formList = SyncByLog.syncInfoList.map {
+            val form = SyncServerForm()
+            form.url = it.url
+            form.state = it.state
+            form.msg = it.msg
+            form.no = it.no
+            form.syncCount = it.syncCount
+            form.lastHeartTime = it.lastHeartTime
+            form.lastTime = it.lastTime
+            form
+        }
+        return formList
     }
 
     /**

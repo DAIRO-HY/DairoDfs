@@ -3,8 +3,7 @@ package cn.dairo.dfs.sync
 import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.toDataSize
-import cn.dairo.dfs.sync.bean.SyncInfo
-import com.gl.lib.psd.system.Threading.Thread.sleep
+import cn.dairo.dfs.sync.bean.SyncServerInfo
 import org.springframework.http.HttpStatus
 import java.io.File
 import java.io.FileOutputStream
@@ -24,7 +23,7 @@ object SyncFileUtil {
     /**
      * 开始同步
      */
-    fun download(info: SyncInfo, md5: String): String {
+    fun download(info: SyncServerInfo, md5: String): String {
 
         //得到系统临时目录
         val tmpPath = System.getProperty("java.io.tmpdir")
@@ -39,7 +38,7 @@ object SyncFileUtil {
         if (saveFile.exists()) {//若文件已经存在
             downloadStart = saveFile.length()
         }
-        val httpUrl = URL(info.domain + "/download/$md5")
+        val httpUrl = URL(info.url + "/download/$md5")
         val conn = httpUrl.openConnection() as HttpURLConnection
         try {
 
