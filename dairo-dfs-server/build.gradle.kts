@@ -49,7 +49,6 @@ dependencies {
 
     implementation("org.xerial:sqlite-jdbc:3.41.2.2")
     implementation(project(":dairo-common"))
-    implementation(project(":dairo-uc-auto-lib"))
 
     implementation(fileTree("libs") {
         include("*.jar")
