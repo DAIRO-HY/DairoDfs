@@ -2,6 +2,7 @@ package cn.dairo.make.client.api.source.form_to_model
 
 import cn.dairo.dfs.extension.getField
 import java.io.File
+import kotlin.reflect.KFunction
 import kotlin.reflect.full.declaredMembers
 
 /**
@@ -57,6 +58,9 @@ object FormToDartModelUtil {
         content = content.replace(Regex(".*\\*/.*\n"), "")
         content = content.replace(Regex(".*\\*"), "///")
 
+        //删除函数部分的代码
+        content = this.deleteFunCode(content)
+
         //修改类名.将Form更改成Modal,并继承Codable
         content = content.replace("Form {", "Model extends JsonSerialize{")
 
@@ -108,6 +112,32 @@ object FormToDartModelUtil {
         println(File(saveFile).absolutePath)
     }
 
+    /**
+     * 删除函数部分的代码
+     */
+    private fun deleteFunCode(content: String): String {
+        var newContext = content
+        var funIndex: Int
+        while (newContext.indexOf(" fun ").also { funIndex = it } != -1) {
+            var startBlock = 0//代码块开始出现次数
+            var endBlock = 0//代码块结束出现次数
+            for (i in funIndex until newContext.length) {
+                if (newContext[i] == '{') {
+                    startBlock++
+                }
+                if (newContext[i] == '}') {
+                    endBlock++
+                    if (startBlock == endBlock) {//代码块开始标记和结束标记相等,说明该函数结束了
+                        newContext = newContext.substring(0, funIndex) + newContext.substring(i + 1)
+                        break
+                    }
+                }
+
+            }
+        }
+        return newContext
+    }
+
     private fun makeConstructorAndConvertJsonCode(formFile: File, swiftModelName: String): String {
         var clsName =
             formFile.readLines().find { it.contains("package") }!!.replace("package", "") + "." + formFile.name.replace(
@@ -120,6 +150,9 @@ object FormToDartModelUtil {
         val fromJson = StringBuilder()
         val toJson = StringBuilder()
         Class.forName(clsName).kotlin.declaredMembers.forEach {
+            if (it is KFunction) {//如果这是一个函数
+                return@forEach
+            }
             val name = it.name
             constructor.append("required this.$name,")
 
