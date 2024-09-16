@@ -1,7 +1,6 @@
 package cn.dairo.dfs.interceptor
 
 import cn.dairo.dfs.config.Constant
-import cn.dairo.dfs.dao.UserDao
 import cn.dairo.dfs.dao.UserTokenDao
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

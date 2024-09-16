@@ -168,14 +168,10 @@ class FilesAppController : AppBase() {
         if (form.names.isNullOrEmpty()) {
             throw BusinessException("请选择要分享的路径")
         }
-        val endDate: Date? = if (form.shareDays == 0) {//永久
+        val endDate: Date? = if (form.endDateTime == 0L) {//永久
             null
-        } else if (form.shareDays == -1) {//自定义结束日期
-            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            sdf.parse(form.shareEndDate + " 23:59:59")
         } else {
-            val time = System.currentTimeMillis() + (form.shareDays!! * 24L * 60 * 60 * 1000)
-            Date(time)
+            Date(form.endDateTime!!)
         }
 
         //获取2023年11月5日以后的时间戳转换为短字符之后作为唯一ID

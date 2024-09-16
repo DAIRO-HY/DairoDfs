@@ -13,7 +13,7 @@
                         <div class="row">
                             <div class="col-4 pt-2">有效期</div>
                             <div class="col-8">
-                                <select class="form-select" name="shareDays" onchange="onShareDaysChange(this)">
+                                <select class="form-select" id="shareDays" onchange="onShareDaysChange(this)">
                                     <option value="3">3天</option>
                                     <option value="7">7天</option>
                                     <option value="30">30天</option>
@@ -25,11 +25,11 @@
                         <div id="shareDateDIV" class="row mt-2" style="display: none;">
                             <div class="col-4 pt-2">截止日期</div>
                             <div class="col-8">
-                                <input name="shareEndDate" type="date" class="form-control">
+                                <input name="endDateTime" type="date" class="form-control">
                             </div>
                         </div>
                         <div class="row mt-2" style="line-height: 35px;">
-                            <div class="col-4 pt-2">密码分享</div>
+                            <div class="col-4 pt-2">加密分享</div>
                             <div class="col-8 text-end pt-2">
                                 <div class="form-check form-switch d-inline-block">
                                     <input id="pwdFlag" class="form-check-input" type="checkbox" role="switch"
@@ -121,10 +121,25 @@
             const folder = getCurrentFolderByUrl()
             const names = fileList.filter(item => item.checked)
                 .map(item => item.name)
-            console.log(folder)
+
+            let endDateTime = 0
+            const shareDays = parseInt($("#shareDays").val())
+            if (shareDays === -1) {//使用自定义时间
+                const endDate = $("[name='endDateTime']").val()
+                if (endDate !== "") {
+                    endDateTime = new Date(endDate).getTime() + (24 * 60 * 60 * 1000 - 1)
+                } else {
+                    alert("请选择结束日期")
+                    return
+                }
+            } else {//指定了天数
+                endDateTime = new Date().getTime() + shareDays * 24 * 60 * 60 * 1000
+            }
+
             $("#shareForm").ajaxByForm().addAll({
                 folder: folder,
-                names: names
+                names: names,
+                endDateTime: endDateTime
             }).success(data => {
                 modalShare.hide()
                 showShareDetailDialog(data)
