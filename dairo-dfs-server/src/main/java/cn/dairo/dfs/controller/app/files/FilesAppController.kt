@@ -182,7 +182,7 @@ class FilesAppController : AppBase() {
         shareDto.endDate = endDate?.time
         shareDto.pwd = form.pwd
         shareDto.names = form.names!!.joinToString(separator = "|") { it }
-        shareDto.folder = form.folder ?: ""
+        shareDto.folder = form.folder
         shareDto.date = Date()
         shareDto.id = DBID.id
         this.shareDao.add(shareDto)

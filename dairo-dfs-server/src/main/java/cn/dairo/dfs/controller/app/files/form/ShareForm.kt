@@ -16,9 +16,10 @@ class ShareForm {
     var pwd: String? = null
 
     @Parameter(description = "分享的文件夹")
-    var folder: String? = null
+    var folder: String = ""
 
     @Parameter(description = "要分享的文件名或文件夹名列表")
+    @NotNull
     var names: List<String>? = null
 
     /**
@@ -27,6 +28,7 @@ class ShareForm {
     @AssertTrue(message = "结束日期必须在现在的时间之后")
     fun isEndDateTime(): Boolean {
         this.endDateTime ?: return true
+        if (this.endDateTime == 0L) return true
         if (this.endDateTime!! < System.currentTimeMillis()) {
             return false
         }

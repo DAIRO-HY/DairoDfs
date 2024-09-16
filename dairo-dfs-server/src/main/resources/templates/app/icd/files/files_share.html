@@ -132,6 +132,8 @@
                     alert("请选择结束日期")
                     return
                 }
+            } else if (shareDays === 0) {
+                endDateTime = 0
             } else {//指定了天数
                 endDateTime = new Date().getTime() + shareDays * 24 * 60 * 60 * 1000
             }
