@@ -51,6 +51,9 @@ object ParseController {
 
             //得到类注解伤的URL
             val path1 = requestMapping.value[0]
+            if (path1.contains("{")) {//过滤掉@PathVariable的Controller
+                return@forEach
+            }
             clsKotlin.declaredMemberFunctions.forEach { method ->
 
                 val annotations = method.annotations
