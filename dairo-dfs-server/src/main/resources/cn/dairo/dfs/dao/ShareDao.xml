@@ -10,14 +10,14 @@
     </insert>
 
     <!--通过ID获取一条数据-->
-    <select id="getOne" resultType="ShareDto">
+    <select id="selectOne" resultType="ShareDto">
         select *
         from share
         where id = #{0}
     </select>
 
     <!--获取所有分享列表-->
-    <select id="getByUser" resultType="ShareDto">
+    <select id="selectByUser" resultType="ShareDto">
         select *
         from share
         where userId = #{0}

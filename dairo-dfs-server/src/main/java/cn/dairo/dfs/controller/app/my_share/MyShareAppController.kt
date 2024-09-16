@@ -33,7 +33,7 @@ class MyShareAppController : AppBase() {
     fun getList(): List<MyShareForm> {
         val userId = super.loginId
         val now = System.currentTimeMillis()
-        val list = this.shareDao.getByUser(userId).map {
+        val list = this.shareDao.selectByUser(userId).map {
             val names = it.names!!.split("|")
             val name = if (names.size == 1) {
                 it.names!!
@@ -75,9 +75,9 @@ class MyShareAppController : AppBase() {
      */
     @PostMapping("/get_detail")
     @ResponseBody
-    fun getDetail(id: String): MyShareDetailForm {
+    fun getDetail(id: Long): MyShareDetailForm {
         val userId = super.loginId
-        val shareDto = this.shareDao.getOne(id)!!
+        val shareDto = this.shareDao.selectOne(id)!!
         if (shareDto.userId != userId) {
             throw ErrorCode.NOT_ALLOW
         }

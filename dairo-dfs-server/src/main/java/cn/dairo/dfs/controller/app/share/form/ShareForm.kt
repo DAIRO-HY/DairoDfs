@@ -10,7 +10,7 @@ class ShareForm {
     /**
      * 大小
      */
-    var size: String? = null
+    var size: Long? = null
 
     /**
      * 是否文件
@@ -21,4 +21,9 @@ class ShareForm {
      * 创建日期
      */
     var date: String? = null
+
+    /**
+     * 缩率图
+     */
+    var thumb: String? = null
 }

@@ -5,7 +5,6 @@ import cn.dairo.dfs.controller.app.trash.form.TrashForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.extension.isFile
-import cn.dairo.dfs.extension.toDataSize
 import cn.dairo.dfs.service.DfsFileDeleteService
 import cn.dairo.dfs.service.DfsFileService
 import io.swagger.v3.oas.annotations.Operation
@@ -53,7 +52,7 @@ class TrashAppController : AppBase() {
         val userId = super.loginId
         val now = System.currentTimeMillis()
         val trashSaveTime = this.trashTimeout * 24 * 60 * 60 * 1000
-        val list = this.dfsFileDao.selectDeleteList(userId).map {
+        val list = this.dfsFileDao.selectDelete(userId).map {
             val deleteDate = it.deleteDate!!
 
             //剩余删除时间
@@ -76,9 +75,10 @@ class TrashAppController : AppBase() {
             TrashForm().apply {
                 this.id = it.id
                 this.name = it.name
-                this.size = it.size.toDataSize
+                this.size = it.size
                 this.date = deleteLastTime
                 this.fileFlag = it.isFile
+                this.thumb = if (it.hasThumb) "/app/files/thumb/${it.id}" else null
             }
         }
         return list

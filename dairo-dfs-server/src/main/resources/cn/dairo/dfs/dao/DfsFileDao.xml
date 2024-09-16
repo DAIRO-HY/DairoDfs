@@ -28,20 +28,6 @@
           and deleteDate is null
     </select>
 
-    <!--通过上级Id和文件名列表获取文件列表-->
-    <select id="selectByParentIdAndNames" resultType="DfsFileDto">
-        select *
-        from dfs_file
-        where userId = #{userId}
-        and parentId = #{parentId}
-        and name COLLATE NOCASE in
-        <foreach collection="names" item="item" separator="," open="(" close=")">
-            #{item}
-        </foreach>
-        and isHistory = 0
-        and deleteDate is null
-    </select>
-
     <!--通过文件夹ID和文件名获取文件Id-->
     <select id="selectIdByParentIdAndName" resultType="Long">
         select id
@@ -75,11 +61,11 @@
     </select>
 
     <!--获取子文件信息,客户端显示用-->
-    <select id="selectSubFile" resultType="DfsFileSubListDto">
+    <select id="selectSubFile" resultType="DfsFileThumbDto">
         select df.id, df.name, df.size, df.date, df.localId, thumbDf.id > 0 as hasThumb
         from dfs_file as df
                  left join dfs_file as thumbDf
-                           on thumbDf.parentId = df.id and thumbDf.name = 'thumb'
+                           on thumbDf.parentId = df.id and df.localId > 0 and thumbDf.name = 'thumb'
         where df.userId = #{userId}
           and df.parentId = #{parentId}
           and df.isHistory = 0
@@ -87,12 +73,14 @@
     </select>
 
     <!-- 获取全部已经删除的文件 -->
-    <select id="selectDeleteList" resultType="DfsFileDto">
-        select id, name, size, localId, deleteDate
-        from dfs_file
-        where userId = #{0}
-          and isHistory = 0
-          and deleteDate is not null
+    <select id="selectDelete" resultType="DfsFileThumbDto">
+        select df.id, df.name, df.size, df.localId, df.deleteDate, thumbDf.id > 0 as hasThumb
+        from dfs_file as df
+                 left join dfs_file as thumbDf
+                           on thumbDf.parentId = df.id and df.localId > 0 and thumbDf.name = 'thumb'
+        where df.userId = #{0}
+          and df.isHistory = 0
+          and df.deleteDate is not null
     </select>
 
     <!-- 获取所有回收站超时的数据 -->

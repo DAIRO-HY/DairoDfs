@@ -27,8 +27,8 @@
             <hr class="m-0">
             <div class="content-menu-item px-2" onclick="onRefreshClick()"><i class="bi bi-arrow-clockwise"></i>&nbsp;&nbsp;刷新
             </div>
-            <div class="content-menu-item px-2" onclick="" show-by-1><i class="bi bi-pencil-square"></i>&nbsp;&nbsp;下载
-            </div>
+            <!--<div class="content-menu-item px-2" onclick="" show-by-1><i class="bi bi-pencil-square"></i>&nbsp;&nbsp;下载
+            </div>-->
             <div class="content-menu-item px-2" onclick="onSaveToClick()" show-by-checked><i class="bi bi-trash"></i>&nbsp;&nbsp;转存
             </div>
         </div>
@@ -104,8 +104,7 @@
         function saveTo(path) {
             const folder = getCurrentFolderByUrl()
             const names = fileList.filter(item => item.checked).map(item => item.name)
-            $.ajaxByData("/app/share/{id}/save_to").addAll({
-                id: [[{param.id}]],
+            $.ajaxByData(location.pathname + "/save_to").addAll({
                 folder: folder,
                 names: names,
                 target: path

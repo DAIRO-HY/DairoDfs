@@ -1,16 +1,20 @@
 package cn.dairo.dfs.controller.app.share
 
 import cn.dairo.dfs.code.ErrorCode
+import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.app.share.form.ShareForm
-import cn.dairo.dfs.controller.base.AppBase
+import cn.dairo.dfs.controller.base.AjaxBase
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.ShareDao
+import cn.dairo.dfs.dao.dto.DfsFileThumbDto
 import cn.dairo.dfs.dao.dto.ShareDto
 import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.*
 import cn.dairo.dfs.service.DfsFileService
 import cn.dairo.dfs.util.DfsFileUtil
 import cn.dairo.dfs.util.ServletTool
+import cn.dairo.dfs.util.file_handle.DfsFileHandleUtil
+import cn.dairo.lib.server.AESUtil
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,8 +28,8 @@ import java.util.*
  * 提取分享的文件
  */
 @Controller
-@RequestMapping("/app/share")
-class ShareAppController : AppBase() {
+@RequestMapping("/app/share/{id}")
+class ShareAppController : AjaxBase() {
 
     /**
      * 文件夹数据操作Service
@@ -49,7 +53,7 @@ class ShareAppController : AppBase() {
      * 页面初始化
      */
     @GetMapping
-    fun init(id: String, model: Model): String {
+    fun init(@PathVariable id: Long, model: Model): String {
         try {
             this.getShare(id)
             return "app/share"
@@ -65,15 +69,15 @@ class ShareAppController : AppBase() {
     }
 
     /**
-     * 重置密码
+     * 验证密码
      * @param id 分享ID
      */
     @PostMapping("/valid_pwd")
     @ResponseBody
-    fun validPwd(id: String, pwd: String) {
-        val shareDto = this.shareDao.getOne(id) ?: throw ErrorCode.SHARE_NOT_FOUND//分享不存在
+    fun validPwd(@PathVariable id: Long, pwd: String) {
+        val shareDto = this.shareDao.selectOne(id) ?: throw ErrorCode.SHARE_NOT_FOUND//分享不存在
         if (pwd == shareDto.pwd) {
-            ServletTool.session.setAttribute(id, true)
+            ServletTool.session.setAttribute(id.toString(), true)
         } else {
             throw BusinessException("密码不正确")
         }
@@ -89,19 +93,18 @@ class ShareAppController : AppBase() {
     @PostMapping("/save_to")
     @ResponseBody
     fun saveTo(
-        @RequestParam("id", defaultValue = "") id: String,
+        request: HttpServletRequest,
+        @PathVariable id: Long,
         @RequestParam("folder", defaultValue = "") folder: String,
-        names: Array<String>,
+        @RequestParam("names", defaultValue = "") names: Array<String>,
         @RequestParam("target", defaultValue = "") target: String
     ) {
-        val userId = super.loginId
+        val userId = request.getAttribute(Constant.REQUEST_USER_ID) as Long?
+        if (userId == null) {//没有登录不允许转存
+            throw ErrorCode.NO_LOGIN
+        }
         val paths = names.map { folder + "/" + it }
         val shareDto = this.validateShare(id, *paths.toTypedArray())
-
-        if (userId == shareDto.userId) {
-            throw BusinessException("自己的分享不允许转存")
-        }
-
         val truePaths = paths.map {
             shareDto.folder + it
         }
@@ -112,6 +115,8 @@ class ShareAppController : AppBase() {
             targetFolder = target
         )
 
+        //开启生成缩略图线程
+        DfsFileHandleUtil.start()
     }
 
     /**
@@ -121,29 +126,27 @@ class ShareAppController : AppBase() {
      */
     @PostMapping("/get_list")
     @ResponseBody
-    fun getList(@RequestParam("id") id: String, folder: String): List<ShareForm> {
+    fun getList(@PathVariable id: Long, folder: String): List<ShareForm> {
         val shareDto = this.validateShare(id, folder)
 
         //用户ID
         val userId = shareDto.userId!!
 
-        //得到分享的父文件夹ID
-        val shareFolderId =
-            this.dfsFileService.getIdByFolder(userId, shareDto.folder!!) ?: throw ErrorCode.NO_FOLDER
-
-
-        //分享的文件名或文件夹名列表
-        val shareNameList = shareDto.names!!.split("|")
+        //文件列表
+        val fileList: List<DfsFileThumbDto>
         if (folder == "") {//分享的根目录
-            val list = this.dfsFileDao.selectByParentIdAndNames(userId, shareFolderId, shareNameList).map {
-                ShareForm().apply {
-                    this.name = it.name
-                    this.size = it.size.toDataSize
-                    this.date = it.date?.format()
-                    this.fileFlag = it.isFile
-                }
-            }
-            return list
+
+            //得到分享的父文件夹ID
+            val shareFolderId =
+                this.dfsFileService.getIdByFolder(userId, shareDto.folder!!) ?: throw ErrorCode.NO_FOLDER
+
+
+            //分享的文件名或文件夹名列表
+            val shareFileNameSet = shareDto.names!!.split("|").toHashSet()
+
+            //需要筛选出分享的文件
+            fileList =
+                this.dfsFileDao.selectSubFile(userId, shareFolderId).filter { shareFileNameSet.contains(it.name) }
         } else {
 
             //实际文件夹目录
@@ -152,15 +155,19 @@ class ShareAppController : AppBase() {
             //得到分享的父文件夹ID
             val folderId = this.dfsFileService.getIdByFolder(userId, trueFolder) ?: throw ErrorCode.NO_FOLDER
 
-            val list = this.dfsFileDao.selectSubFile(userId, folderId).map {
-                ShareForm().apply {
-                    this.name = it.name
-                    this.size = it.size.toDataSize
-                    this.date = it.date?.format()
-                    this.fileFlag = it.isFile
-                }
+            fileList = this.dfsFileDao.selectSubFile(userId, folderId)
+        }
+        return fileList.map {
+
+            //将id加密之后再生成图片链接,防止图片链接被非法盗用,保证数据安全
+            val encodeId = AESUtil.encrypt(it.id.toString(), id.toString())
+            ShareForm().apply {
+                this.name = it.name
+                this.size = it.size
+                this.date = it.date?.format()
+                this.fileFlag = it.isFile
+                this.thumb = if (it.hasThumb) "/app/share/$id/thumb?tag=$encodeId" else null
             }
-            return list
         }
     }
 
@@ -176,8 +183,8 @@ class ShareAppController : AppBase() {
     fun download(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        @RequestParam("id") id: String,
-        @RequestParam("name") name: String,
+        @PathVariable("id") id: Long,
+        @PathVariable("name") name: String,
         folder: String
     ) {
         val path = folder + "/" + name
@@ -204,7 +211,7 @@ class ShareAppController : AppBase() {
      * @param id 分享ID
      * @param path 分享的路径数组
      */
-    private fun validateShare(id: String, vararg path: String): ShareDto {
+    private fun validateShare(id: Long, vararg path: String): ShareDto {
         val shareDto = this.getShare(id)
 
         //得到分享的父文件夹ID
@@ -238,8 +245,8 @@ class ShareAppController : AppBase() {
      * @param id 分享ID
      * @return 分享信息
      */
-    private fun getShare(id: String): ShareDto {
-        val shareDto = this.shareDao.getOne(id) ?: throw ErrorCode.SHARE_NOT_FOUND//分享不存在
+    private fun getShare(id: Long): ShareDto {
+        val shareDto = this.shareDao.selectOne(id) ?: throw ErrorCode.SHARE_NOT_FOUND//分享不存在
         if (shareDto.endDate != null) {
             val endDate = Date(shareDto.endDate!!)
             if (endDate < Date()) {//分享已过期
@@ -247,8 +254,34 @@ class ShareAppController : AppBase() {
             }
         }
         if (shareDto.pwd != null) {//如果需要提取码
-            ServletTool.session.getAttribute(id) ?: throw ErrorCode.SHARE_NEED_PWD
+            ServletTool.session.getAttribute(id.toString()) ?: throw ErrorCode.SHARE_NEED_PWD
         }
         return shareDto
+    }
+
+    /**
+     * 缩略图
+     * @param request 客户端请求
+     * @param response 往客户端返回内容
+     * @param id 文件ID
+     */
+    @GetMapping("/thumb")
+    fun thumb(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        @PathVariable id: Long,
+        @RequestParam("tag") tag: String
+    ) {
+        this.shareDao.selectOne(id) ?: throw ErrorCode.SHARE_NOT_FOUND//分享不存在
+        val dfsId = AESUtil.decrypt(tag.replace(" ", "+"), id.toString())
+        val dfsDto = this.dfsFileDao.selectOne(dfsId!!.toLong())
+        if (dfsDto == null) {//文件不存在
+            response.status = HttpStatus.NOT_FOUND.value()
+            return
+        }
+
+        //获取缩率图附属文件
+        val thumb = this.dfsFileDao.selectExtra(dfsDto.id!!, "thumb")
+        DfsFileUtil.download(thumb, request, response)
     }
 }

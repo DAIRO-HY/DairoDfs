@@ -1,7 +1,7 @@
 package cn.dairo.dfs.dao
 
 import cn.dairo.dfs.dao.dto.DfsFileDto
-import cn.dairo.dfs.dao.dto.DfsFileSubListDto
+import cn.dairo.dfs.dao.dto.DfsFileThumbDto
 import org.apache.ibatis.annotations.Param
 import org.springframework.stereotype.Service
 
@@ -30,18 +30,6 @@ interface DfsFileDao {
         @Param("parentId") parentId: Long,
         @Param("name") name: String
     ): DfsFileDto?
-
-    /**
-     * 通过上级Id和文件名列表获取文件列表
-     * @param parentId 文件夹ID
-     * @param names 文件名列表
-     * @return 文件列表
-     */
-    fun selectByParentIdAndNames(
-        @Param("userId") userId: Long,
-        @Param("parentId") parentId: Long,
-        @Param("names") names: List<String>
-    ): List<DfsFileDto>
 
     /**
      * 通过文件夹ID和文件名获取文件Id
@@ -74,14 +62,14 @@ interface DfsFileDao {
      * @param parentId 文件夹id
      * @return 子文件列表
      */
-    fun selectSubFile(@Param("userId") userId: Long, @Param("parentId") parentId: Long): List<DfsFileSubListDto>
+    fun selectSubFile(@Param("userId") userId: Long, @Param("parentId") parentId: Long): List<DfsFileThumbDto>
 
     /**
      * 获取全部已经删除的文件
      * @param userId 用户ID
      * @return 已删除的文件
      */
-    fun selectDeleteList(userId: Long): List<DfsFileDto>
+    fun selectDelete(userId: Long): List<DfsFileThumbDto>
 
     /**
      * 获取所有回收站超时的数据

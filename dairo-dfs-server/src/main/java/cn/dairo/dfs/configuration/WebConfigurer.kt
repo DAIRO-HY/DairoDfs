@@ -44,6 +44,11 @@ class WebConfigurer : WebMvcConfigurer {
         return SyncInterceptor()
     }
 
+    @Bean
+    fun shareInterceptor(): ShareInterceptor {
+        return ShareInterceptor()
+    }
+
     override fun addInterceptors(registry: InterceptorRegistry) {
 
         //全局拦截器
@@ -77,5 +82,9 @@ class WebConfigurer : WebMvcConfigurer {
         //分布式同步
         registry.addInterceptor(syncInterceptor())
             .addPathPatterns("/distributed/**")
+
+        //分享页面拦截器
+        registry.addInterceptor(shareInterceptor())
+            .addPathPatterns("/app/share/**")
     }
 }

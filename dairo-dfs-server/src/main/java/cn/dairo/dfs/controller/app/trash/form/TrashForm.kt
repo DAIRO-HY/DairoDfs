@@ -15,7 +15,7 @@ class TrashForm {
     /**
      * 大小
      */
-    var size: String? = null
+    var size: Long? = null
 
     /**
      * 是否文件
@@ -26,4 +26,9 @@ class TrashForm {
      * 删除日期
      */
     var date: String? = null
+
+    /**
+     * 缩率图
+     */
+    var thumb: String? = null
 }

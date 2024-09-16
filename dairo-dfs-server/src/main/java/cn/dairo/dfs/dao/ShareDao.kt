@@ -15,12 +15,12 @@ interface ShareDao {
     /**
      * 通过ID获取一条数据
      */
-    fun getOne(id: String): ShareDto?
+    fun selectOne(id: Long): ShareDto?
 
     /**
      * 获取所有分享列表
      */
-    fun getByUser(userId: Long): List<ShareDto>
+    fun selectByUser(userId: Long): List<ShareDto>
 
     /**
      * 删除分享
