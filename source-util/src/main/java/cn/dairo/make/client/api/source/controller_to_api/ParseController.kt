@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -127,7 +128,8 @@ object ParseController {
                             }
                             val apiParam = ApiParam()
                             apiParam.name = formField.name
-                            apiParam.isRequired = formField.annotations.any { it is NotBlank || it is NotEmpty }
+                            apiParam.isRequired =
+                                formField.annotations.any { it is NotNull || it is NotBlank || it is NotEmpty }
                             apiParam.type = type
 
                             //注释
