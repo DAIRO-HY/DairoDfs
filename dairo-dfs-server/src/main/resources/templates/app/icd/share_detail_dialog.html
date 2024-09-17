@@ -91,7 +91,7 @@
          * 复制链接按钮
          */
         function onCopyShareLinkClick() {
-            let shareCopyText = `分享的文件:${shareDetailData.names}\n链接: ${location.origin}/app/share/${shareDetailData.id}`
+            let shareCopyText = `分享的文件:${shareDetailData.names}\n链接: ${location.origin}${shareDetailData.url}`
             if (shareDetailData.pwd !== "无") {
                 shareCopyText += `\n提取码: ${shareDetailData.pwd}`
             }

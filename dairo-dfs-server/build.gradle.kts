@@ -57,8 +57,6 @@ dependencies {
     //引入外部网络依赖,目的:减小git仓库体积,如果开发环境的网络无法下载一下两个jar包,请手动下载之后并将其修改为jar包本地目录
     implementation(files(downloadJar("https://github.com/DAIRO-HY/DairoDfsLib/raw/main/lib-psd-rebuild-24.6-all.jar")))
     implementation(files(downloadJar("https://github.com/DAIRO-HY/DairoDfsLib/raw/main/lib-imaging-rebuild-24.6-all.jar")))
-//    implementation(files("/var/folders/x5/1xw4cv9s3f5gkrrxvz5qdzqr0000gn/T/lib-psd-rebuild-24.6-all.jar"))
-//    implementation(files("/var/folders/x5/1xw4cv9s3f5gkrrxvz5qdzqr0000gn/T/lib-imaging-rebuild-24.6-all.jar"))
 }
 
 tasks.withType<KotlinCompile> {
@@ -77,11 +75,12 @@ tasks.withType<Test> {
  */
 fun downloadJar(jarUrl: String): String {
     val jarName = jarUrl.substring(jarUrl.lastIndexOf("/") + 1)
-    val tempFolder = File(System.getProperty("java.io.tmpdir"))
 
     //jar存储文件
-//    val jarFile = file("${rootDir.absolutePath}/.gradle/libs/$jarName")
-    val jarFile = file(tempFolder.path + "/" + jarName)
+    val jarFile = file("${rootDir.absolutePath}/.gradle/libs/$jarName")
+
+//    val tempFolder = File(System.getProperty("java.io.tmpdir"))
+//    val jarFile = file(tempFolder.path + "/" + jarName)
     if (!jarFile.parentFile.exists()) {
         jarFile.parentFile.mkdirs()
     }

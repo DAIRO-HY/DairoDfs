@@ -9,6 +9,11 @@ class MyShareDetailForm {
     var id: Long? = null
 
     /**
+     * 链接
+     */
+    var url: String? = null
+
+    /**
      * 加密分享
      */
     var pwd: String? = null

@@ -6,6 +6,9 @@ import cn.dairo.dfs.controller.app.my_share.form.MyShareForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.ShareDao
 import cn.dairo.dfs.extension.*
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -24,10 +27,7 @@ class MyShareAppController : AppBase() {
     @Autowired
     private lateinit var shareDao: ShareDao
 
-
-    /**
-     * 获取所有的分享
-     */
+    @Operation(summary = "获取所有的分享")
     @PostMapping("/get_list")
     @ResponseBody
     fun getList(): List<MyShareForm> {
@@ -70,12 +70,13 @@ class MyShareAppController : AppBase() {
         return list
     }
 
-    /**
-     * 获取分享详细
-     */
+    @Operation(summary = "获取分享详细")
     @PostMapping("/get_detail")
     @ResponseBody
-    fun getDetail(id: Long): MyShareDetailForm {
+    fun getDetail(
+        request: HttpServletRequest,
+        @Parameter(description = "分享id") @RequestParam("id", required = true) id: Long
+    ): MyShareDetailForm {
         val userId = super.loginId
         val shareDto = this.shareDao.selectOne(id)!!
         if (shareDto.userId != userId) {
@@ -91,8 +92,12 @@ class MyShareAppController : AppBase() {
             Date(shareDto.endDate!!).format()
         }
 
+        //分享链接
+        val url = "/app/share/${shareDto.id}"
+
         val form = MyShareDetailForm()
         form.id = shareDto.id
+        form.url = url
         form.names = shareDto.names
         form.date = shareDto.date!!.format()
         form.endDate = endDate
@@ -101,14 +106,10 @@ class MyShareAppController : AppBase() {
         return form
     }
 
-
-    /**
-     * 取消所选分享
-     * @param ids 选择的id数组
-     */
+    @Operation(summary = "取消所选分享")
     @PostMapping("/delete")
     @ResponseBody
-    fun delete(ids: Array<Long>) {
+    fun delete(@Parameter(description = "分享id列表") @RequestParam("ids", required = true) ids: List<Long>) {
         this.shareDao.delete(super.loginId, ids.joinToString(separator = ","))
     }
 }
