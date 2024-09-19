@@ -23,6 +23,11 @@ interface ShareDao {
     fun selectByUser(userId: Long): List<ShareDto>
 
     /**
+     * 设置缩略图
+     */
+    fun setThumb(id: Long,localId:Long)
+
+    /**
      * 删除分享
      * @param userId 用户ID
      * @param ids 要删除的分享id列表

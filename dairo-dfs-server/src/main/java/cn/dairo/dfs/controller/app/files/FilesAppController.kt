@@ -1,8 +1,8 @@
 package cn.dairo.dfs.controller.app.files
 
 import cn.dairo.dfs.code.ErrorCode
-import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.app.files.form.*
+import cn.dairo.dfs.controller.app.files.service.FileShareService
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.ShareDao
@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import java.text.SimpleDateFormat
 import java.util.Date
 
 /**
@@ -36,6 +35,12 @@ class FilesAppController : AppBase() {
      */
     @Autowired
     private lateinit var dfsFileService: DfsFileService
+
+    /**
+     * 文件分享操作Service
+     */
+    @Autowired
+    private lateinit var fileShareService: FileShareService
 
     /**
      * 文件数据操作Dao
@@ -165,28 +170,7 @@ class FilesAppController : AppBase() {
     @PostMapping("/share")
     @ResponseBody
     fun share(@Validated form: ShareForm): Long {
-        if (form.names.isNullOrEmpty()) {
-            throw BusinessException("请选择要分享的路径")
-        }
-        val endDate: Date? = if (form.endDateTime == 0L) {//永久
-            null
-        } else {
-            Date(form.endDateTime!!)
-        }
-
-        //获取2023年11月5日以后的时间戳转换为短字符之后作为唯一ID
-        val timespan = System.currentTimeMillis() - Constant.BASE_TIME
-        val shareDto = ShareDto()
-        shareDto.id = timespan
-        shareDto.userId = super.loginId
-        shareDto.endDate = endDate?.time
-        shareDto.pwd = form.pwd
-        shareDto.names = form.names!!.joinToString(separator = "|") { it }
-        shareDto.folder = form.folder
-        shareDto.date = Date()
-        shareDto.id = DBID.id
-        this.shareDao.add(shareDto)
-        return shareDto.id!!
+        return this.fileShareService.share(super.loginId,form)
     }
 
     @Operation(summary = "文件或文件夹属性")

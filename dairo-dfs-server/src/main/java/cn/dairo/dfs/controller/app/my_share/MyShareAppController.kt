@@ -34,12 +34,6 @@ class MyShareAppController : AppBase() {
         val userId = super.loginId
         val now = System.currentTimeMillis()
         val list = this.shareDao.selectByUser(userId).map {
-            val names = it.names!!.split("|")
-            val name = if (names.size == 1) {
-                it.names!!
-            } else {
-                names[0] + "等多个文件"
-            }
             val endDate: String
             if (it.endDate == null) {
                 endDate = "永久有效"
@@ -55,15 +49,17 @@ class MyShareAppController : AppBase() {
                     } else if (endTime > 60 * 1000) {//超过1分钟
                         endDate = "${endTime / (60 * 1000)}分钟后过期"
                     } else {
-                        endDate = "马上过期"
+                        endDate = "即将过期"
                     }
                 }
             }
             val form = MyShareForm()
             form.id = it.id
-            form.name = name
-            form.multipleFlag = names.size > 1
+            form.title = it.title
+            form.fileCount = it.fileCount
+            form.folderFlag = it.folderFlag
             form.endDate = endDate
+            form.thumb = if (it.thumb != null) "/app/files/thumb/${it.thumb}" else null
             form.date = it.date!!.format()
             form
         }
