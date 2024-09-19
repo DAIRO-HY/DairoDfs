@@ -19,17 +19,18 @@
 
     <!--获取所有分享列表-->
     <select id="selectByUser" resultType="ShareDto">
-        select *
+        select id
+             , title
+             , pwd
+             , folder
+             , thumb
+             , folderFlag
+             , fileCount
+             , endDate
+             , date
         from share
         where userId = #{0}
     </select>
-
-    <!--设置缩略图-->
-    <update id="setThumb">
-        update share
-        set thumb = #{param2}
-        where id = #{param1}
-    </update>
 
     <!--删除分享-->
     <delete id="delete">

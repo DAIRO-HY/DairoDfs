@@ -31,16 +31,19 @@
      * 获取文件列表部分的HTML
      */
     const itemHtml =
-        `<div class="d-flex align-items-center" data-index="{index}" file-item>
-                <div class="text-primary position-relative" style="font-size: 34px;width: 34px;height: 51px;"
-                 role="button">
-                    <i class="bi {icon}"></i>
+           `<div class="d-flex align-items-center justify-content-between" data-index="{index}" file-item>
+                <div class="text-white" role="button">
+                    <div style="width: 50px;height: 50px;">
+                    {thumb}
+                    </div>
                 </div>
-                <div class="ms-3 {border}" style="width:99999px;height: 48px;overflow: hidden" role="button">
-                    <div class="text-nowrap">{name}</div>
+                <div class="ms-2 {border} d-flex align-items-center" style="width:99999px;height: 60px;overflow: hidden" role="button">
+                    <div>
+                    <div class="text-nowrap">{title}</div>
                     <div class="small"><span>{date}</span><i class="bi bi-dot"></i><span>{size}</span></div>
+                    </div>
                 </div>
-                <div class="{border} px-2" style="height: 48px;line-height: 48px;" check-icon>
+                <div class="{border} px-2" style="height: 60px;line-height: 60px;" check-icon>
                 </div>
             </div>`
     $(function () {
@@ -63,10 +66,21 @@
         const lastIndex = data.length - 1
         data.forEach((item, index) => {
             const border = index < lastIndex ? "border-bottom" : ""
+            let thumb
+            if (item.thumb) {
+                thumb = `<img src="${item.thumb}" class="rounded" style="width: 50px;height: 50px;">`
+            } else if (item.folderFlag) {
+                thumb = `<div class="d-flex align-items-center" style="width: 50px;height: 50px;"><i class="bi bi-folder-fill" style="font-size: 50px;color:#6FBEEA;"></i></div>`
+            } else if (item.fileCount > 1) {
+                thumb = `<div class="d-flex align-items-center" style="width: 50px;height: 50px;"><i class="bi bi-file-earmark-fill" style="font-size: 50px; "></i></div>`
+            } else {
+                thumb = `<div class="d-flex align-items-center" style="width: 50px;height: 50px;"><i class="bi bi-file-earmark-fill" style="font-size: 50px;"></i></div>`
+            }
+
             $listDiv.append(
                 itemHtml
-                    .replace("{icon}", item.multipleFlag ? "bi-files" : "bi-file-earmark")
-                    .replace("{name}", item.name)
+                    .replace("{thumb}", thumb)
+                    .replace("{title}", item.title)
                     .replace("{size}", item.endDate)
                     .replace("{date}", item.date)
                     .replace(/{border}/g, border)
