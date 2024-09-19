@@ -9,6 +9,7 @@ import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.*
 import cn.dairo.dfs.util.DBID
 import cn.dairo.dfs.util.DfsFileUtil
+import cn.dairo.dfs.util.file_handle.DfsFileHandleUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.io.File
@@ -141,6 +142,9 @@ class DfsFileService {
                 this.addFile(createFileDto, isOverWrite)
             }
         }
+
+        //生成缩略图等附属文件
+        DfsFileHandleUtil.start()
     }
 
     /**

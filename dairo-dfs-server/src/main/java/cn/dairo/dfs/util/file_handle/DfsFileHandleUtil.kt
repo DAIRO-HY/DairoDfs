@@ -5,11 +5,9 @@ import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.LocalFileDao
 import cn.dairo.dfs.dao.dto.DfsFileDto
-import cn.dairo.dfs.dao.dto.LocalFileDto
 import cn.dairo.dfs.extension.*
 import cn.dairo.dfs.service.DfsFileService
 import cn.dairo.dfs.util.DBID
-import cn.dairo.dfs.util.DfsFileUtil
 import cn.dairo.dfs.util.DfsFileUtil.dfsContentType
 import cn.dairo.dfs.util.image.ImageUtil
 import cn.dairo.dfs.util.image.PSDUtil
