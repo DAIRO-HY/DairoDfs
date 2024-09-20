@@ -1,0 +1,6 @@
+
+
+docker build -t ${env.DOCKER_USER}/dairo-dfs:${env.VERSION} .
+docker login -u ${env.DOCKER_USER} --password ${env.DOCKER_PASSWORD}
+docker push dairopapa/dairo-dfs:${env.VERSION}
+docker logout
