@@ -16,6 +16,7 @@ import cn.dairo.dfs.util.vedio.VideoUtil
 import java.io.File
 import kotlin.concurrent.thread
 import kotlin.math.round
+import kotlin.time.measureTime
 
 object DfsFileHandleUtil {
 
@@ -51,13 +52,21 @@ object DfsFileHandleUtil {
                     }
                     dfsList.forEach {
                         try {
+                            val startTime = System.currentTimeMillis()
 
                             //设置文件属性
                             this.makeProperty(it)
 
                             //生成附属文件，如标清视频，高清视频，raw预览图片
                             this.makeExtra(it)
-                            this.dfsFileDao.setState(it.id!!, 1, null)
+
+                            //耗时
+                            val measureTime = System.currentTimeMillis() - startTime
+                            this.dfsFileDao.setState(
+                                it.id!!,
+                                1,
+                                "耗时:" + measureTime.chu(1000).chu(60, 2).toString() + "分"
+                            )
                         } catch (e: Exception) {
                             this.dfsFileDao.setState(it.id!!, 2, e.toString())
                         }
