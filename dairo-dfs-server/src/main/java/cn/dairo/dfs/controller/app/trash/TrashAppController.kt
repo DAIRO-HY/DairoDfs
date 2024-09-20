@@ -121,7 +121,7 @@ class TrashAppController : AppBase() {
     }
 
     @Operation(summary = "立即回收储存空间")
-    @PostMapping("/recycle_storage")
+    @RequestMapping("/recycle_storage")
     @ResponseBody
     fun recycleStorage(request: HttpServletRequest) {
 
