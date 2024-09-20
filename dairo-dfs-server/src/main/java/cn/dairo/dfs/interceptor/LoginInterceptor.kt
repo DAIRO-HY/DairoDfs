@@ -33,20 +33,29 @@ class LoginInterceptor : HandlerInterceptor {
         if (handler !is HandlerMethod) {//不是mapping内容,没必要继续执行
             return false
         }
+
+        //获取APP登录票据
         var token = request.getParameter("_token")
         if (token == null) {//判断cookie中是否有值
             token = request.cookies?.find { it.name == "token" }?.value
         }
-        if (token != null) {
-            val userId = this.userTokenDao.getByUserIdByToken(token)
-            if (userId != null) {
-                request.setAttribute(Constant.REQUEST_USER_ID, userId)
-
-                //验证是否管理员
-                val isAdmin = userId == this.userDao.selectAdminId()
-                request.setAttribute(Constant.REQUEST_IS_ADMIN, isAdmin)
-                return true
+        var userId: Long? = null
+        if (token != null) {//如果APP或网页token不为空
+            userId = this.userTokenDao.getByUserIdByToken(token)
+        }
+        if (userId == null) {//尝试通过ApiToken获取
+            val apiToken = request.getParameter("api_token")
+            if (apiToken != null) {
+                userId = this.userDao.selectIdByApiToken(apiToken)
             }
+        }
+        if (userId != null) {//用户登录成功
+            request.setAttribute(Constant.REQUEST_USER_ID, userId)
+
+            //验证是否管理员
+            val isAdmin = userId == this.userDao.selectAdminId()
+            request.setAttribute(Constant.REQUEST_IS_ADMIN, isAdmin)
+            return true
         }
         if (request.method == HttpMethod.POST.name()) {//Post请求时
             response.status = 500

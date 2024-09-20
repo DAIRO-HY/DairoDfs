@@ -60,7 +60,6 @@ class FileUploadAppController : AppBase() {
     fun upload(
         @RequestParam("file") mulFile: MultipartFile,
         folder: String,
-        token: String,
         contentType: String?
     ) {
 
