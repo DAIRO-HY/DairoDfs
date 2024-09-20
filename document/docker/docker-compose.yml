@@ -22,5 +22,4 @@ services:
       LANG: C.UTF-8
       VERSION: 1.0.0
     volumes:
-      - ./data:/app/DairoDfs
-      #- /mnt/gldfs:/mnt/gldfs1
+      - ./DairoDfs:/app/DairoDfs
