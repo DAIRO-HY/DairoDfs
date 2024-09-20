@@ -30,92 +30,93 @@ object VideoUtil {
     fun getInfo(path: String): VedioInfo {
 
         //获取视频第一帧作为缩略图
-        val vedioInfoData = ShellUtil.execToByteArray(""""${Constant.FFPROBE_PATH}/ffprobe" "$path"""", true)
-        val vedioInfoStr = String(vedioInfoData)
+        val videoInfoData = ShellUtil.execToByteArray(""""${Constant.FFPROBE_PATH}/ffprobe" -i "$path"""", true)
+        val videoInfoStr = String(videoInfoData)
 
         //时长
         var duration: Long? = null
         try {
-            var durationStr = Regex("Duration: \\d{2}:\\d{2}:\\d{2}\\.\\d{2}").find(vedioInfoStr)!!.value
+            var durationStr = Regex("Duration: \\d{2}:\\d{2}:\\d{2}\\.\\d{2}").find(videoInfoStr)!!.value
             durationStr = durationStr.substring(10)
             val durationArr = durationStr.split(":")
             duration =
                 ((durationArr[0].toInt() * 60 * 60 + durationArr[1].toInt() * 60 + durationArr[2].toFloat()) * 1000).toLong()
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
         }
 
         //创建时间
         var date: Long? = null
         try {
-            var dateStr = Regex("creation_time   \\: .*\\.").find(vedioInfoStr)!!.value
+            var dateStr = Regex("creation_time   \\: .*\\.").find(videoInfoStr)!!.value
             dateStr = dateStr.substring(dateStr.indexOf(":") + 1, dateStr.length - 1)
             dateStr = dateStr.trim()
             dateStr = dateStr.replace("T", " ")
             date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateStr).time
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
         }
 
         //视频比特率
         var bitrate: Int? = null
         try {
-            var bitrateStr = Regex("\\d+ kb/s,.*fps").find(vedioInfoStr)!!.value
+            var bitrateStr = Regex("\\d+ kb/s,.*fps").find(videoInfoStr)!!.value
             bitrateStr = bitrateStr.substring(0, bitrateStr.indexOf("kb") - 1)
             bitrate = bitrateStr.toInt()
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
         }
 
         //帧率
         var fps = 0F
         try {
-            var fpsStr = Regex("\\d+ kb/s,.*fps").find(vedioInfoStr)!!.value
+            var fpsStr = Regex("\\d+ kb/s,.*fps").find(videoInfoStr)!!.value
             fpsStr = fpsStr.substring(fpsStr.indexOf(",") + 1, fpsStr.length - 3)
             fps = fpsStr.toFloat()
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
         }
 
         //视频宽高
         var width = 0
         var height = 0
         try {
-            var whStr = Regex("\\d+x\\d+ \\[SAR").find(vedioInfoStr)!!.value
-            whStr = whStr.substring(0, whStr.length - 5)
-            width = whStr.substring(0, whStr.indexOf("x")).toInt()
-            height = whStr.substring(whStr.indexOf("x") + 1).toInt()
+            var whStr = Regex("Stream.+ \\d+x\\d+").find(videoInfoStr)!!.value
+            whStr = Regex(", \\d+x\\d+").find(whStr)!!.value
+            whStr = Regex("\\d+x\\d+").find(whStr)!!.value
+            width = whStr.split("x")[0].toInt()
+            height = whStr.split("x")[1].toInt()
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
         }
 
         //音频格式
         var audioFormat: String? = null
         try {
-            var audioFormatStr = Regex("Audio: [A-z,0-9]+").find(vedioInfoStr)!!.value
+            val audioFormatStr = Regex("Audio: [A-z,0-9]+").find(videoInfoStr)!!.value
             audioFormat = audioFormatStr.substring(7)
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
         }
 
         //音频采样率
         var audioSampleRate: Int? = null
         try {
-            var audioSamplerateStr = Regex("Audio: .* Hz").find(vedioInfoStr)!!.value
+            var audioSamplerateStr = Regex("Audio: .* Hz").find(videoInfoStr)!!.value
             audioSamplerateStr = Regex("\\d+ Hz").find(audioSamplerateStr)!!.value
             audioSampleRate = audioSamplerateStr.substring(0, audioSamplerateStr.length - 3).toInt()
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
         }
 
         //音频比特率
         var audioBitrate: Int? = null
         try {
-            var audioBitrateStr = Regex("Audio: .*\\d+ kb/s").find(vedioInfoStr)!!.value
+            var audioBitrateStr = Regex("Audio: .*\\d+ kb/s").find(videoInfoStr)!!.value
             audioBitrateStr = Regex("\\d+ kb/s").find(audioBitrateStr)!!.value
             audioBitrate = audioBitrateStr.substring(0, audioBitrateStr.length - 5).toInt()
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
         }
         val info = VedioInfo()
 

@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "cn.dairo.dfs"
-version = "1.0.1"
+version = "1.0.2"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
