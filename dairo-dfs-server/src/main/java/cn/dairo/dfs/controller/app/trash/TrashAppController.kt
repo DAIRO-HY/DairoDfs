@@ -126,7 +126,8 @@ class TrashAppController : AppBase() {
     fun recycleStorage(request: HttpServletRequest) {
 
         //只有管理员才有权限操作
-        if (request.getAttribute(Constant.REQUEST_IS_ADMIN) as Boolean) {
+        if (request.getAttribute(Constant.REQUEST_IS_ADMIN) as Boolean) {//强制删除
+            Constant.dbService.exec("update dfs_file_delete set deleteDate = 0 where 1=1")
             RecycleStorageTimer::class.bean.recycle()
         }
     }
