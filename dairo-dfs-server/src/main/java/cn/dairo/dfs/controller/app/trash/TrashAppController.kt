@@ -1,14 +1,18 @@
 package cn.dairo.dfs.controller.app.trash
 
+import cn.dairo.dfs.boot.RecycleStorageTimer
 import cn.dairo.dfs.code.ErrorCode
+import cn.dairo.dfs.config.Constant
 import cn.dairo.dfs.controller.app.trash.form.TrashForm
 import cn.dairo.dfs.controller.base.AppBase
 import cn.dairo.dfs.dao.DfsFileDao
+import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.isFile
 import cn.dairo.dfs.service.DfsFileDeleteService
 import cn.dairo.dfs.service.DfsFileService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
@@ -115,4 +119,17 @@ class TrashAppController : AppBase() {
         val userId = super.loginId
         this.dfsFileService.trashRecover(userId, ids)
     }
+
+    @Operation(summary = "立即回收储存空间")
+    @PostMapping("/recycle_storage")
+    @ResponseBody
+    fun recycleStorage(request: HttpServletRequest) {
+
+        //只有管理员才有权限操作
+        if (request.getAttribute(Constant.REQUEST_IS_ADMIN) as Boolean) {
+            RecycleStorageTimer::class.bean.recycle()
+        }
+    }
+
+
 }

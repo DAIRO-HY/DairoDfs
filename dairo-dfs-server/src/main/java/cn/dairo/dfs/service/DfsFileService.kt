@@ -9,6 +9,7 @@ import cn.dairo.dfs.exception.BusinessException
 import cn.dairo.dfs.extension.*
 import cn.dairo.dfs.util.DBID
 import cn.dairo.dfs.util.DfsFileUtil
+import cn.dairo.dfs.util.UserLock.lock
 import cn.dairo.dfs.util.file_handle.DfsFileHandleUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -39,7 +40,7 @@ class DfsFileService {
     /**
      * 添加一个文件或文件夹
      */
-    fun addFile(fileDto: DfsFileDto, isOverWrite: Boolean = false) = synchronized("" + fileDto.userId) {
+    fun addFile(fileDto: DfsFileDto, isOverWrite: Boolean = false) = synchronized(fileDto.userId!!.lock) {
         if (fileDto.localId == 0L) {
             throw BusinessException("本地存储文件ID不能为空")
         }
@@ -69,7 +70,7 @@ class DfsFileService {
     /**
      * 添加文件夹
      */
-    fun addFolder(folderDto: DfsFileDto) = synchronized("" + folderDto.userId) {
+    fun addFolder(folderDto: DfsFileDto) = synchronized(folderDto.userId!!.lock) {
         val existDto =
             this.dfsFileDao.selectByParentIdAndName(folderDto.userId!!, folderDto.parentId!!, folderDto.name!!)
         if (existDto != null) {
@@ -108,44 +109,45 @@ class DfsFileService {
      * @param sourcePaths 要复制的目录数组
      * @param targetFolder 要复制到的目标文件夹目录
      */
-    fun copy(userId: Long, sourcePaths: List<String>, targetFolder: String, isOverWrite: Boolean = false) {
-        val sourceToTargetMap = LinkedHashMap<String, String>()
-        sourcePaths.forEach {
+    fun copy(userId: Long, sourcePaths: List<String>, targetFolder: String, isOverWrite: Boolean = false) =
+        synchronized(userId.lock) {
+            val sourceToTargetMap = LinkedHashMap<String, String>()
+            sourcePaths.forEach {
 
-            //复制的源路径
-            val sourcePath = it
+                //复制的源路径
+                val sourcePath = it
 
-            //复制的目标路径
-            var targetPath = targetFolder + "/" + it.fileName
+                //复制的目标路径
+                var targetPath = targetFolder + "/" + it.fileName
 
-            if (sourcePath == targetPath) {//源路径和目标路径一样时,在目标文件名加上编号
-                val newName = this.makeNameNo(userId, targetPath)
-                targetPath = "$targetFolder/$newName"
+                if (sourcePath == targetPath) {//源路径和目标路径一样时,在目标文件名加上编号
+                    val newName = this.makeNameNo(userId, targetPath)
+                    targetPath = "$targetFolder/$newName"
+                }
+                recursionMakeSourceToTargetMap(userId, sourcePath, targetPath, sourceToTargetMap)
             }
-            recursionMakeSourceToTargetMap(userId, sourcePath, targetPath, sourceToTargetMap)
-        }
-        sourceToTargetMap.forEach { (sourcePath, targetPath) ->
-            val fileId = this.dfsFileDao.selectIdByPath(userId, sourcePath.toDfsFileNameList)!!
-            val fileDto = this.dfsFileDao.selectOne(fileId)!!
-            if (fileDto.isFolder) {//源目录是一个文件夹
-                this.mkdirs(userId, targetPath)
-            } else {
-                val createFileDto = DfsFileDto()
-                val folderId = this.getIdByFolder(userId, targetPath.fileParent, true)
-                createFileDto.parentId = folderId
-                createFileDto.name = targetPath.fileName
-                createFileDto.localId = fileDto.localId
-                createFileDto.size = fileDto.size
-                createFileDto.contentType = fileDto.contentType
-                createFileDto.userId = fileDto.userId
-                createFileDto.date = fileDto.date
-                this.addFile(createFileDto, isOverWrite)
+            sourceToTargetMap.forEach { (sourcePath, targetPath) ->
+                val fileId = this.dfsFileDao.selectIdByPath(userId, sourcePath.toDfsFileNameList)!!
+                val fileDto = this.dfsFileDao.selectOne(fileId)!!
+                if (fileDto.isFolder) {//源目录是一个文件夹
+                    this.mkdirs(userId, targetPath)
+                } else {
+                    val createFileDto = DfsFileDto()
+                    val folderId = this.getIdByFolder(userId, targetPath.fileParent, true)
+                    createFileDto.parentId = folderId
+                    createFileDto.name = targetPath.fileName
+                    createFileDto.localId = fileDto.localId
+                    createFileDto.size = fileDto.size
+                    createFileDto.contentType = fileDto.contentType
+                    createFileDto.userId = fileDto.userId
+                    createFileDto.date = fileDto.date
+                    this.addFile(createFileDto, isOverWrite)
+                }
             }
-        }
 
-        //生成缩略图等附属文件
-        DfsFileHandleUtil.start()
-    }
+            //生成缩略图等附属文件
+            DfsFileHandleUtil.start()
+        }
 
     /**
      * 同一个文件夹下复制时,为新的文件或文件夹加上编号
@@ -189,66 +191,67 @@ class DfsFileService {
      * @param sourcePaths 要复制的目录数组
      * @param targetFolder 要复制到的目标文件夹目录
      */
-    fun move(userId: Long, sourcePaths: List<String>, targetFolder: String, isOverWrite: Boolean = false) {
-        val sourceToTargetMap = LinkedHashMap<String, String>()
-        sourcePaths.forEach {
+    fun move(userId: Long, sourcePaths: List<String>, targetFolder: String, isOverWrite: Boolean = false) =
+        synchronized(userId.lock) {
+            val sourceToTargetMap = LinkedHashMap<String, String>()
+            sourcePaths.forEach {
 
-            //复制的源路径
-            val sourcePath = it
+                //复制的源路径
+                val sourcePath = it
 
-            //复制的目标路径
-            val targetPath = targetFolder + "/" + it.fileName
-            if (("$targetFolder/").startsWith("$it/")) {
-                throw BusinessException("不能移动文件夹到子文件夹下")
+                //复制的目标路径
+                val targetPath = targetFolder + "/" + it.fileName
+                if (("$targetFolder/").startsWith("$it/")) {
+                    throw BusinessException("不能移动文件夹到子文件夹下")
+                }
+                if (sourcePath == targetPath) {//同一个文件路径无需操作
+                    return@forEach
+                }
+                recursionMakeSourceToTargetMap(userId, sourcePath, targetPath, sourceToTargetMap)
             }
-            if (sourcePath == targetPath) {//同一个文件路径无需操作
-                return@forEach
-            }
-            recursionMakeSourceToTargetMap(userId, sourcePath, targetPath, sourceToTargetMap)
-        }
 
-        //用来记录移动完成后要删除的文件夹
-        val afterDeleteFolderList = ArrayList<DfsFileDto>()
-        sourceToTargetMap.forEach { (sourcePath, targetPath) ->
-            val fileId = this.dfsFileDao.selectIdByPath(userId, sourcePath.toDfsFileNameList)!!
-            val sourceFileDto = this.dfsFileDao.selectOne(fileId)!!
-            if (sourceFileDto.isFolder) {//源目录是一个文件夹
-                this.mkdirs(userId, targetPath)
-                afterDeleteFolderList.add(sourceFileDto)
-            } else {
-                val folderId = this.getIdByFolder(userId, targetPath.fileParent, true)!!
-                val existFileDto = this.dfsFileDao.selectByParentIdAndName(userId, folderId, sourceFileDto.name!!)
-                if (existFileDto == null) {//文件不存在时,移动文件包括版本记录
-                    sourceFileDto.parentId = folderId
-                    sourceFileDto.name = targetPath.fileName
-                    this.dfsFileDao.move(sourceFileDto)
-                } else {//目标文件已经存在
-                    if (existFileDto.isFolder) {//移动的对象一个时文件一个是文件夹,禁止移动
-                        val error = ErrorCode.EXISTS_FILE
-                        throw BusinessException(error.code, "文件或文件夹[${targetPath}]已存在")
-                    }
-                    if (!isOverWrite) {
-                        val error = ErrorCode.EXISTS_FILE
-                        throw BusinessException(error.code, "文件或文件夹[${targetPath}]已存在")
-                    }
-                    sourceFileDto.parentId = folderId
-                    sourceFileDto.name = targetPath.fileName
-                    this.dfsFileDao.move(sourceFileDto)
+            //用来记录移动完成后要删除的文件夹
+            val afterDeleteFolderList = ArrayList<DfsFileDto>()
+            sourceToTargetMap.forEach { (sourcePath, targetPath) ->
+                val fileId = this.dfsFileDao.selectIdByPath(userId, sourcePath.toDfsFileNameList)!!
+                val sourceFileDto = this.dfsFileDao.selectOne(fileId)!!
+                if (sourceFileDto.isFolder) {//源目录是一个文件夹
+                    this.mkdirs(userId, targetPath)
+                    afterDeleteFolderList.add(sourceFileDto)
+                } else {
+                    val folderId = this.getIdByFolder(userId, targetPath.fileParent, true)!!
+                    val existFileDto = this.dfsFileDao.selectByParentIdAndName(userId, folderId, sourceFileDto.name!!)
+                    if (existFileDto == null) {//文件不存在时,移动文件包括版本记录
+                        sourceFileDto.parentId = folderId
+                        sourceFileDto.name = targetPath.fileName
+                        this.dfsFileDao.move(sourceFileDto)
+                    } else {//目标文件已经存在
+                        if (existFileDto.isFolder) {//移动的对象一个时文件一个是文件夹,禁止移动
+                            val error = ErrorCode.EXISTS_FILE
+                            throw BusinessException(error.code, "文件或文件夹[${targetPath}]已存在")
+                        }
+                        if (!isOverWrite) {
+                            val error = ErrorCode.EXISTS_FILE
+                            throw BusinessException(error.code, "文件或文件夹[${targetPath}]已存在")
+                        }
+                        sourceFileDto.parentId = folderId
+                        sourceFileDto.name = targetPath.fileName
+                        this.dfsFileDao.move(sourceFileDto)
 
-                    //将已经存在的文件标记为历史版本
-                    this.dfsFileDao.setHistory(existFileDto.id!!)
+                        //将已经存在的文件标记为历史版本
+                        this.dfsFileDao.setHistory(existFileDto.id!!)
+                    }
                 }
             }
+            afterDeleteFolderList.forEach {//删除源文件夹,不能在移动的途中删除文件夹,否则导致无法找到要移动的文件
+                this.dfsFileDao.delete(it.id!!)
+            }
         }
-        afterDeleteFolderList.forEach {//删除源文件夹,不能在移动的途中删除文件夹,否则导致无法找到要移动的文件
-            this.dfsFileDao.delete(it.id!!)
-        }
-    }
 
     /**
      * 文件重命名
      */
-    fun rename(userId: Long, sourcePath: String, name: String) {
+    fun rename(userId: Long, sourcePath: String, name: String) = synchronized(userId.lock) {
 
         //获取源目录文件id
         val fileId = this.dfsFileDao.selectIdByPath(userId, sourcePath.toDfsFileNameList)
@@ -310,29 +313,33 @@ class DfsFileService {
 
         //用来标记,以后所有文件夹都需要创建
         var isCreatModel = false
+        synchronized(userId.lock) {//防止多线程被创建同名文件夹
 
-        //记录当前文件路径
-        val curPathSB = StringBuilder()
-        path.toDfsFileNameList.forEach {
-            curPathSB.append('/').append(it)
-            if (!isCreatModel) {
-                val folderDto = this.dfsFileDao.selectByParentIdAndName(userId, lastFolderId, it)
-                if (folderDto != null) {//父级文件夹不存在,创建文件夹
-                    if (folderDto.isFile) {
-                        throw BusinessException("${curPathSB}是一个文件,不允许创建文件夹")
+            //记录当前文件路径
+            val curPathSB = StringBuilder()
+            path.toDfsFileNameList.forEach {
+                curPathSB.append('/').append(it)
+                if (!isCreatModel) {
+                    val folderDto = this.dfsFileDao.selectByParentIdAndName(userId, lastFolderId, it)
+                    if (folderDto != null) {//父级文件夹已经存在
+                        if (folderDto.isFile) {
+                            throw BusinessException("${curPathSB}是一个文件,不允许创建文件夹")
+                        }
+                        lastFolderId = folderDto.id!!
+                        return@forEach
                     }
-                    lastFolderId = folderDto.id!!
-                    return@forEach
+
+                    //标记往后的文件夹都需要创建
+                    isCreatModel = true
                 }
-                isCreatModel = true
+                val createFolderDto = DfsFileDto()
+                createFolderDto.userId = userId
+                createFolderDto.name = it
+                createFolderDto.parentId = lastFolderId
+                createFolderDto.size = 0
+                this.addFolder(createFolderDto)
+                lastFolderId = createFolderDto.id!!
             }
-            val createFolderDto = DfsFileDto()
-            createFolderDto.userId = userId
-            createFolderDto.name = it
-            createFolderDto.parentId = lastFolderId
-            createFolderDto.size = 0
-            this.addFolder(createFolderDto)
-            lastFolderId = createFolderDto.id!!
         }
         return lastFolderId
     }
@@ -349,7 +356,7 @@ class DfsFileService {
      * @param userId 用户ID
      * @param ids 要删除的文件ID
      */
-    fun trashRecover(userId: Long, ids: List<Long>, isOverWrite: Boolean = false) {
+    fun trashRecover(userId: Long, ids: List<Long>, isOverWrite: Boolean = false) = synchronized(userId.lock) {
         ids.forEach {
             val fileDto = this.dfsFileDao.selectOne(it)!!
             if (fileDto.userId != userId) {
@@ -397,7 +404,7 @@ class DfsFileService {
         sourcePaths: List<String>,
         targetFolder: String,
         isOverWrite: Boolean = false
-    ) {
+    ) = synchronized(userId.lock) {
         val sourceToTargetMap = LinkedHashMap<String, String>()
         sourcePaths.forEach {
 

@@ -1,11 +1,9 @@
 package cn.dairo.dfs.boot
 
 import cn.dairo.dfs.config.Constant
-import cn.dairo.dfs.config.SystemConfig
 import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.DfsFileDeleteDao
 import cn.dairo.dfs.dao.LocalFileDao
-import cn.dairo.dfs.service.DfsFileDeleteService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
@@ -13,10 +11,10 @@ import org.springframework.stereotype.Component
 import java.io.File
 
 /**
- * 彻底删除文件计时器
+ * 回收存储空间计时器
  */
 @Component
-class DeleteFileTimer {
+class RecycleStorageTimer {
 
     @Value("\${config.delete-file-timeout}")
     private var deleteFileTimeout = 0L
@@ -45,7 +43,7 @@ class DeleteFileTimer {
      */
 //    @Scheduled(cron = "*/10 * * * * *")  // 10,000毫秒 = 10秒
     @Scheduled(cron = "0 0 3 * * ?")
-    fun deleteFile() {
+    fun recycle() {
 
         //当前时间戳
         val nowTime = System.currentTimeMillis()

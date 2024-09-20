@@ -17,3 +17,6 @@ spring:
       enabled: true
     livereload:
       enabled: true
+
+#仅在开发模式时打印sql日志
+mybatis.config-location: classpath:my-batis-dev.xml
