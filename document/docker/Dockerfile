@@ -7,7 +7,7 @@ RUN mkdir /app
 WORKDIR /app
 
 #下载启动脚本
-ADD https://github.com/DAIRO-HY/DairoDfs/raw/main/document/%E4%B8%80%E9%94%AE%E5%90%AF%E5%8A%A8/Linux/start.sh /app
+ADD https://github.com/DAIRO-HY/DairoDfs/raw/main/document/quick-start/Linux/start.sh /app
 
 #授权可执行
 RUN chmod +x start.sh
