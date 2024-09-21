@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   dairo-dfs:
-    image: dairopapa/dairo-dfs:1.1
+    image: dairopapa/dairo-dfs:1.2
     #    build: .
     restart: always
     container_name: dairo-dfs
@@ -20,6 +20,6 @@ services:
       TZ: Asia/Shanghai
       #解决控制台输出中文乱码
       LANG: C.UTF-8
-      VERSION: 1.0.0
+      VERSION: 1.0.4
     volumes:
       - ./DairoDfs:/app/DairoDfs

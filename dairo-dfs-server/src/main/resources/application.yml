@@ -13,6 +13,15 @@ config.trash-timeout: 30
 #彻底删除文件间隔天数
 config.delete-file-timeout: 10
 
+#ffmpeg安装目录
+config.ffmpeg.path: ${data.path}/lib/ffmpeg
+
+#ffprobe安装目录
+config.ffprobe.path: ${data.path}/lib/ffprobe
+
+#libraw安装目录
+config.libraw.path: ${data.path}/lib/libraw
+
 #启动模式,dev:开发模式,prod:生产模式
 active: prod
 server:

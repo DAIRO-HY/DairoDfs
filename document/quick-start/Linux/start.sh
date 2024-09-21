@@ -60,4 +60,6 @@ if [ ! -f "dairo-dfs-server-$JAR_VERSION.jar" ]; then
   mv dairo-dfs-server-$JAR_VERSION.jar.tmp dairo-dfs-server-$JAR_VERSION.jar
   echo "dairo-dfs-server.jar下载完成"
 fi
-jdk-17.0.1/bin/java -jar dairo-dfs-server-$JAR_VERSION.jar
+
+#将接受到的参数,从第二个起,全部传递给jar包,第一个参数是版本号没必要传递
+jdk-17.0.1/bin/java -jar dairo-dfs-server-$JAR_VERSION.jar "${@:2}"

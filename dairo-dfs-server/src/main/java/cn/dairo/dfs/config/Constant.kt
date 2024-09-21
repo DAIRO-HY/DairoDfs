@@ -1,6 +1,7 @@
 package cn.dairo.dfs.config
 
 import cn.dairo.dfs.boot.Boot
+import cn.dairo.dfs.extension.bean
 import cn.dairo.lib.server.dbtool.DBService
 import cn.dairo.lib.server.dbtool.SqliteTool
 
@@ -45,21 +46,20 @@ object Constant {
             return SqliteTool(Boot.service.dbPath)
         }
 
-
     /**
      * ffmpeg安装目录
      */
-    val FFMPEG_PATH = "${Boot.service.dataPath}/lib/ffmpeg"
+    val FFMPEG_PATH = Boot.service.ffmpegPath
 
     /**
      * ffprobe安装目录
      */
-    val FFPROBE_PATH = "${Boot.service.dataPath}/lib/ffprobe"
+    val FFPROBE_PATH = Boot.service.ffprobePath
 
     /**
      * libraw安装目录
      */
-    val LIBRAW_PATH = "${Boot.service.dataPath}/lib/libraw"
+    val LIBRAW_PATH = Boot.service.librawPath
 
     /**
      * dcraw安装目录

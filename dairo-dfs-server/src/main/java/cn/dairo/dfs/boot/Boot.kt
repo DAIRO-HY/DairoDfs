@@ -31,6 +31,24 @@ class Boot : ApplicationRunner {
     lateinit var dataPath: String
 
     /**
+     * ffmpeg安装目录
+     */
+    @Value("\${config.ffmpeg.path}")
+    lateinit var ffmpegPath: String
+
+    /**
+     * ffprobe安装目录
+     */
+    @Value("\${config.ffprobe.path}")
+    lateinit var ffprobePath: String
+
+    /**
+     * libraw安装目录
+     */
+    @Value("\${config.libraw.path}")
+    lateinit var librawPath: String
+
+    /**
      * 运行环境
      */
     @Value("\${active}")
