@@ -13,10 +13,11 @@ import cn.dairo.dfs.util.image.ImageUtil
 import cn.dairo.dfs.util.image.PSDUtil
 import cn.dairo.dfs.util.image.RawUtil
 import cn.dairo.dfs.util.vedio.VideoUtil
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.PrintStream
 import kotlin.concurrent.thread
 import kotlin.math.round
-import kotlin.time.measureTime
 
 object DfsFileHandleUtil {
 
@@ -44,32 +45,30 @@ object DfsFileHandleUtil {
             isRuning = true
         }
         thread {
-            Constant.dbService.use { db ->
-                while (true) {
-                    val dfsList = this.dfsFileDao.selectNoHandle()
-                    if (dfsList.isEmpty()) {
-                        break
-                    }
-                    dfsList.forEach {
-                        try {
-                            val startTime = System.currentTimeMillis()
+            while (true) {
+                val dfsList = this.dfsFileDao.selectNoHandle()
+                if (dfsList.isEmpty()) {
+                    break
+                }
+                dfsList.forEach {
+                    try {
+                        val startTime = System.currentTimeMillis()
 
-                            //设置文件属性
-                            this.makeProperty(it)
+                        //设置文件属性
+                        this.makeProperty(it)
 
-                            //生成附属文件，如标清视频，高清视频，raw预览图片
-                            this.makeExtra(it)
+                        //生成附属文件，如标清视频，高清视频，raw预览图片
+                        this.makeExtra(it)
 
-                            //耗时
-                            val measureTime = System.currentTimeMillis() - startTime
-                            this.dfsFileDao.setState(
-                                it.id!!,
-                                1,
-                                "耗时:" + measureTime.chu(1000).chu(60, 2).toString() + "分"
-                            )
-                        } catch (e: Exception) {
-                            this.dfsFileDao.setState(it.id!!, 2, e.toString())
-                        }
+                        //耗时
+                        val measureTime = System.currentTimeMillis() - startTime
+                        this.dfsFileDao.setState(
+                            it.id!!,
+                            1,
+                            "耗时:" + measureTime.chu(1000).chu(60, 2).toString() + "分"
+                        )
+                    } catch (e: Exception) {
+                        this.dfsFileDao.setState(it.id!!, 2, e.stackMessage)
                     }
                 }
             }
@@ -264,6 +263,12 @@ object DfsFileHandleUtil {
             || lowerName.endsWith(".psb")
             || lowerName.endsWith(".ai")
         ) {
+
+            //获取已经存在的附属文件
+            val existsExtra = this.dfsFileDao.selectExtra(dfsFileDto.id!!, "preview")
+            if (existsExtra != null) {//已经存在附属文件,则跳过  重新生成附属文件时用到
+                return
+            }
             val pngData = PSDUtil.toPng(path)
             val md5 = pngData.md5
 
@@ -298,6 +303,12 @@ object DfsFileHandleUtil {
                 val targetArr = it.split(":")
                 val targetSize = targetArr[0].toInt()//目标最大边
                 var targetFps = targetArr[1].toFloat()//目标帧数
+
+                //获取已经存在的附属文件
+                val existsExtra = this.dfsFileDao.selectExtra(dfsFileDto.id!!, targetSize.toString())
+                if (existsExtra != null) {//已经存在附属文件,则跳过  重新生成附属文件时用到
+                    return@forEach
+                }
 
                 //是否横向视频
                 val isHorizontal = videoInfo.width > videoInfo.height
@@ -360,6 +371,12 @@ object DfsFileHandleUtil {
         } else if (lowerName.endsWith(".cr3")
             || lowerName.endsWith(".cr2")
         ) {
+
+            //获取已经存在的附属文件
+            val existsExtra = this.dfsFileDao.selectExtra(dfsFileDto.id!!, "preview")
+            if (existsExtra != null) {//已经存在附属文件,则跳过  重新生成附属文件时用到
+                return
+            }
             val jpgData = RawUtil.jpeg(path, lowerName.fileExt)
             val md5 = jpgData.md5
 

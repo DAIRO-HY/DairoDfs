@@ -6,6 +6,7 @@ import cn.dairo.dfs.dao.UserDao
 import cn.dairo.dfs.extension.format
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
@@ -22,6 +23,12 @@ class UserListAppController : AppBase() {
      */
     @Autowired
     private lateinit var userDao: UserDao
+
+    /**
+     * 初始化
+     */
+    @GetMapping
+    fun execute() = "app/user_list"
 
     /**
      * 页面初始化

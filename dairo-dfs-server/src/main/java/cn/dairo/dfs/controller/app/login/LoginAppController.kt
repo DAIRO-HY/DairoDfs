@@ -59,7 +59,7 @@ class LoginAppController : AppBase() {
      * 页面初始化
      */
     @GetMapping
-    fun init(): String {
+    fun execute(): String {
         if (!this.userDao.isInit()) {//是否已经初始化
             return "redirect:/app/install/ffmpeg"
         }

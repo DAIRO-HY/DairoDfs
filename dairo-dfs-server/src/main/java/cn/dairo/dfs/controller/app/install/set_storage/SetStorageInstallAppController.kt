@@ -20,9 +20,7 @@ class SetStorageInstallAppController : AppBase() {
 
 
     @GetMapping
-    fun init(): String {
-        return "app/install/install_set_storage"
-    }
+    fun execute() = "app/install/install_set_storage"
 
     /**
      * 设置存储目录

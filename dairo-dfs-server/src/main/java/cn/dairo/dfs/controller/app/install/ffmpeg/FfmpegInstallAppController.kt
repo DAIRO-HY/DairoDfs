@@ -80,9 +80,7 @@ class FfmpegInstallAppController : AppBase() {
      * 页面初始化
      */
     @GetMapping
-    fun init(): String {
-        return "app/install/install_ffmpeg"
-    }
+    fun execute() = "app/install/install_ffmpeg"
 
     /**
      * 开始安装

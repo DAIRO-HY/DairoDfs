@@ -38,7 +38,7 @@ class CreateAdminAppController : AppBase() {
      * 页面初始化
      */
     @GetMapping
-    fun init(): String {
+    fun execute(): String {
         if (this.userDao.selectOne(1) != null) {
             return "redirect:/app/login"
         }

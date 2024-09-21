@@ -53,7 +53,7 @@ class ShareAppController : AjaxBase() {
      * 页面初始化
      */
     @GetMapping
-    fun init(@PathVariable id: Long, model: Model): String {
+    fun execute(@PathVariable id: Long, model: Model): String {
         try {
             this.getShare(id)
             return "app/share"

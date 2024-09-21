@@ -26,9 +26,6 @@ class UserService {
      * @param dto 用户Dto
      */
     fun add(dto: UserDto) {
-        if (dto.pwd == null) {//生成临时密码
-            dto.pwd = Constant.NO_SET_PWD_PRE + StringUtil.getRandomNum(6)
-        }
         dto.date = Date()
         dto.id = DBID.id
         this.userDao.add(dto)

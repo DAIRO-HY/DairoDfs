@@ -15,15 +15,11 @@ class IndexAppController : AppBase() {
      * 页面初始化
      */
     @GetMapping
-    fun init(): String {
-        return "redirect:/app/files"
-    }
+    fun execute() = "redirect:/app/files"
 
     /**
      * 页面初始化
      */
     @GetMapping("/app")
-    fun html(): String {
-        return "redirect:/app/files"
-    }
+    fun html() = "redirect:/app/files"
 }

@@ -80,9 +80,7 @@ class FfprobeInstallAppController : AppBase() {
      * 页面初始化
      */
     @GetMapping
-    fun init(): String {
-        return "app/install/install_ffprobe"
-    }
+    fun execute() = "app/install/install_ffprobe"
 
     /**
      * 开始安装

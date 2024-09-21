@@ -38,7 +38,7 @@ class UserEditAppController : AppBase() {
      * 初始化
      */
     @GetMapping
-    fun init() = "app/user_edit"
+    fun execute() = "app/user_edit"
 
     /**
      * 页面初始化
@@ -81,9 +81,6 @@ class UserEditAppController : AppBase() {
             }
         } catch (e: Exception) {
             val message = e.message ?: throw e
-            if (message.contains("UNIQUE constraint failed: user.name")) {//该用户名已被注册
-                throw ErrorCode.EXISTS_NAME
-            }
             if (message.contains("UNIQUE constraint failed: user.email")) {//该邮箱已被其他用户注册
                 throw ErrorCode.EXISTS_EMAIL
             }

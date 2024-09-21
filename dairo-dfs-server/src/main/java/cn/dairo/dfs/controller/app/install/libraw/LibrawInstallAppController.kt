@@ -57,7 +57,7 @@ class LibrawInstallAppController : AppBase() {
      * 页面初始化
      */
     @GetMapping
-    fun init(): String {
+    fun execute(): String {
         if (this.consoleByteArrayOutputStream == null) {
             this.consoleByteArrayOutputStream = ByteArrayOutputStream()
         }

@@ -20,9 +20,7 @@ class DistributedInstallAppController : AppBase() {
 
 
     @GetMapping
-    fun init(): String {
-        return "app/install/install_distributed"
-    }
+    fun execute() = "app/install/install_distributed"
 
     /**
      * 设置分布式部署

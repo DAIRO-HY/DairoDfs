@@ -49,10 +49,10 @@ class FilesAppController : AppBase() {
     private lateinit var dfsFileDao: DfsFileDao
 
     /**
-     * 分享操作Dao
+     * 页面初始化
      */
-    @Autowired
-    private lateinit var shareDao: ShareDao
+    @GetMapping
+    fun execute() = "app/files"
 
     @Operation(summary = "获取文件列表")
     @PostMapping("/get_list")
@@ -170,7 +170,7 @@ class FilesAppController : AppBase() {
     @PostMapping("/share")
     @ResponseBody
     fun share(@Validated form: ShareForm): Long {
-        return this.fileShareService.share(super.loginId,form)
+        return this.fileShareService.share(super.loginId, form)
     }
 
     @Operation(summary = "文件或文件夹属性")

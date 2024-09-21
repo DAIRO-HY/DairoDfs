@@ -72,27 +72,9 @@
         </div>
     </form>
 </div>
-<!--<th:block th:insert="app/icd/uc::content">
-    <common-content>
-        <th:block th:insert="app/icd/uc :: c-form('/app/profile/update')">
-            <common-form>
-                <th:block
-                        th:insert="app/icd/uc::form-input(label='最大文件(Byte)', name='uploadMaxSize', btn='MB')"/>
-                <th:block
-                        th:insert="app/icd/uc::form-textarea(label='存储目录', name='folders')"/>
-                <th:block
-                        th:insert="app/icd/uc::form-textarea(label='同步域名', name='syncDomains')"/>
-            </common-form>
-            <common-form-btn>
-                <button type="button" class="btn btn-primary" onclick="onSubmitClick()">提交</button>
-            </common-form-btn>
-        </th:block>
-    </common-content>
-</th:block>-->
 <th:block th:include="app/icd/js :: js"/>
 <script>
     $(function () {
-        //$("form").initData()
         initData()
     })
 

@@ -28,11 +28,6 @@ object Constant {
     const val SYSTEM_JSON_PATH = "./data/system.json"
 
     /**
-     * 初始化密码前缀
-     */
-    const val NO_SET_PWD_PRE = "@@-"
-
-    /**
      * 登录用户ID
      */
     const val REQUEST_USER_ID = "USER_ID"

@@ -8,6 +8,7 @@ import cn.dairo.dfs.extension.md5
 import cn.dairo.dfs.sync.SyncByLog
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
@@ -19,6 +20,12 @@ import java.io.File
 @Controller
 @RequestMapping("/app/profile")
 class ProfileAppController : AppBase() {
+
+    /**
+     * 页面初始化
+     */
+    @GetMapping
+    fun execute() = "app/profile"
 
     /**
      * 页面数据初始化

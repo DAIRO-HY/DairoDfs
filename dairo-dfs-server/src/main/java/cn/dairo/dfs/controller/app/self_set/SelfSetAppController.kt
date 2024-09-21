@@ -10,6 +10,7 @@ import cn.dairo.dfs.extension.toShortString
 import cn.dairo.lib.StringUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
@@ -26,6 +27,12 @@ class SelfSetAppController : AppBase() {
      */
     @Autowired
     private lateinit var userDao: UserDao
+
+    /**
+     * 页面初始化
+     */
+    @GetMapping
+    fun execute() = "app/self_set"
 
     /**
      * 页面初始化

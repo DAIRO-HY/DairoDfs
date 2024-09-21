@@ -27,6 +27,12 @@ class MyShareAppController : AppBase() {
     @Autowired
     private lateinit var shareDao: ShareDao
 
+    /**
+     * 页面初始化
+     */
+    @GetMapping
+    fun execute() = "app/my_share"
+
     @Operation(summary = "获取所有的分享")
     @PostMapping("/get_list")
     @ResponseBody

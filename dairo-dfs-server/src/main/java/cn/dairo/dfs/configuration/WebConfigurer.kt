@@ -73,6 +73,7 @@ class WebConfigurer : WebMvcConfigurer {
                 "/app/profile/**",
                 "/app/user_list/**",
                 "/app/user_edit/**",
+                "/app/advanced/**",
             )//过滤拦截的请求
 
         //文件下载拦截器

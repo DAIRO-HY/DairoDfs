@@ -81,7 +81,7 @@ object VideoUtil {
         var width = 0
         var height = 0
         try {
-            var whStr = Regex("Stream.+ \\d+x\\d+").find(videoInfoStr)!!.value
+            var whStr = Regex("Stream.+Video:.+, \\d+x\\d+").find(videoInfoStr)!!.value
             whStr = Regex(", \\d+x\\d+").find(whStr)!!.value
             whStr = Regex("\\d+x\\d+").find(whStr)!!.value
             width = whStr.split("x")[0].toInt()

@@ -1,11 +1,8 @@
 package cn.dairo.dfs.controller.app.file_upload
 
 import cn.dairo.dfs.code.ErrorCode
-import cn.dairo.dfs.controller.base.AjaxBase
 import cn.dairo.dfs.controller.base.AppBase
-import cn.dairo.dfs.dao.DfsFileDao
 import cn.dairo.dfs.dao.LocalFileDao
-import cn.dairo.dfs.dao.UserTokenDao
 import cn.dairo.dfs.dao.dto.DfsFileDto
 import cn.dairo.dfs.dao.dto.LocalFileDto
 import cn.dairo.dfs.exception.BusinessException
