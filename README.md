@@ -135,4 +135,5 @@ sudo chmod +x start.sh
 
 > 若浏览器没有自动打开后台管理页面，请手动打开浏览器输入后台管理网址[http://localhost:8030](http://localhost:8030)。
 
-
+## 客户端安装
++ 各个平台的安装包下载地址[https://github.com/DAIRO-HY/DairoDfsApp/releases](https://github.com/DAIRO-HY/DairoDfsApp/releases)
