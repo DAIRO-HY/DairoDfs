@@ -162,8 +162,15 @@ class DistributedController : AppBase() {
         if (SyncByTable.isRuning || SyncByLog.isRunning) {
             throw BusinessException("主机正在同步数据中，请等待完成后继续。")
         }
+
+        //条数不宜过大,过大可能导致客户端请求失败
+        val maxLimit = 100
         return Constant.dbService.selectList(
-            String::class, "select id from $tbName where id > ? and id < ? order by id asc limit 1000", lastId, aopId
+            String::class,
+            "select id from $tbName where id > ? and id < ? order by id asc limit ?",
+            lastId,
+            aopId,
+            maxLimit
         ).joinToString(separator = ",") { it }
     }
 
