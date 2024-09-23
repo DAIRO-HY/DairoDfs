@@ -15,7 +15,7 @@ class SyncInterceptor : HandlerInterceptor {
         if (handler !is HandlerMethod) {//不是mapping内容,没必要继续执行
             return false
         }
-        var token = request.requestURI.substring(6)
+        var token = request.servletPath.split("/")[2]
         if (token.length >= 32) {
             token = token.substring(0, 32)
         } else {
