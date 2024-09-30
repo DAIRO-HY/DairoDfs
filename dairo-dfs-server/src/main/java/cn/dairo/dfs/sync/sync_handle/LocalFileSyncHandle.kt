@@ -34,7 +34,10 @@ object LocalFileSyncHandle {
             val saveLocalFile = File(saveLocalPath)
 
             //移动文件
-            File(tmpFilePath).renameTo(saveLocalFile)
+            val isMove = File(tmpFilePath).renameTo(saveLocalFile)
+            if (!isMove) {
+                throw RuntimeException("文件下载完成,但移动文件失败;\n文件:$tmpFilePath 移动到:$saveLocalPath 失败.")
+            }
             item.put("path", saveLocalPath)
         } else {//本机存在同样的文件,将本地记录删除，然后改用主机端同步过来的id
             val id = item.path("id").longValue()

@@ -25,7 +25,7 @@ object SyncFileUtil {
      */
     fun download(info: SyncServerInfo, md5: String): String {
 
-        //得到系统临时目录
+        //得到系统临时目录@TODO:linux环境不是以/结尾
         val tmpPath = System.getProperty("java.io.tmpdir")
 //        val tmpPath = "./data/"
 
