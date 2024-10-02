@@ -1,5 +1,6 @@
 package cn.dairo.dfs.sync
 
+import cn.dairo.dfs.boot.Boot
 import cn.dairo.dfs.controller.app.sync.SyncWebSocketHandler
 import cn.dairo.dfs.extension.bean
 import cn.dairo.dfs.extension.toDataSize
@@ -21,13 +22,23 @@ object SyncFileUtil {
     private val socket = SyncWebSocketHandler::class.bean
 
     /**
-     * 开始同步
+     * 数据存储目录
      */
-    fun download(info: SyncServerInfo, md5: String): String {
+    private val dataPath = Boot::class.bean.dataPath
+
+    /**
+     * 开始同步
+     * @param info 同步主机信息
+     * @param md5 文件md5
+     * @param retryTimes 记录出错重试次数
+     * @return 存储目录
+     */
+    fun download(info: SyncServerInfo, md5: String, retryTimes: Int = 0): String {
 
         //得到系统临时目录@TODO:linux环境不是以/结尾
-        val tmpPath = System.getProperty("java.io.tmpdir")
-//        val tmpPath = "./data/"
+//        val tmpPath = System.getProperty("java.io.tmpdir")
+
+        val tmpPath = this.dataPath + "/temp/"
 
         //得到文件存储目录
         val savePath = tmpPath + md5
@@ -48,10 +59,10 @@ object SyncFileUtil {
             conn.requestMethod = "GET"
 
             //连接超时
-            conn.connectTimeout = 15000
+            conn.connectTimeout = 30000
 
             //读数据超时
-            conn.readTimeout = 15000
+            conn.readTimeout = 30000
             conn.connect()
 
             //返回状态码
@@ -83,6 +94,13 @@ object SyncFileUtil {
             }
             info.msg = ""
             return savePath
+        } catch (e: Exception) {
+            if (retryTimes < 10) {//重试10次
+                Thread.sleep(15_000)
+                return this.download(info, md5, retryTimes + 1)
+            } else {
+                throw e
+            }
         } finally {
             conn.disconnect()
         }

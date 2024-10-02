@@ -77,13 +77,19 @@ object SyncByTable {
 
                 //断面ID,从主机端获取的数据ID不得大于该值
                 val aopId = this.getAopId(info)
-                val tbNames = Constant.dbService.selectList(
-                    String::class, "select name from sqlite_master where type = 'table'"
+//                val tbNames = Constant.dbService.selectList(
+//                    String::class, "select name from sqlite_master where type = 'table'"
+//                ).filter { it != "sql_log"}//不要同步日志数据表
+
+                val tbNames = arrayOf(
+                    "user",
+                    "user_token",
+                    "dfs_file",
+                    "dfs_file_delete",
+                    "share",
+                    "local_file"
                 )
                 tbNames.forEach {
-                    if (it == "sql_log") {//不要同步日志数据表
-                        return@forEach
-                    }
                     this.loopSync(info, it, 0, aopId)
                 }
 

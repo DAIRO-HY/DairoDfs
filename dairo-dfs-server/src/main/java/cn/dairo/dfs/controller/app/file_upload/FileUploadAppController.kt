@@ -93,7 +93,7 @@ class FileUploadAppController : AppBase() {
         }
 
         try {//保存到文件
-            val file = File(dataPath + "/temp/" + md5)
+            val file = File(this.dataPath + "/temp/" + md5)
 
             //文件输出流
             FileOutputStream(file, true).use {
