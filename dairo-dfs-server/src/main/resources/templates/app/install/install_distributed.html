@@ -86,7 +86,7 @@
             $("#syncUrlDiv").hide()
             $("#syncLogDiv").show()
             const data = JSON.parse(event.data)
-            $("#syncResult").append(`<div class="text-nowrap">${data.domain} 件数:${data.syncCount} ${data.msg}</div>`)
+            $("#syncResult").append(`<div class="text-nowrap">${data.url} 件数:${data.syncCount} ${data.msg}</div>`)
 
             if (data.state === 2) {
                 $("#syncResult").append(`<div class="text-danger">同步失败</div>`)

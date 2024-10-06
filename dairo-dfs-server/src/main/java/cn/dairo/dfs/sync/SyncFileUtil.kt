@@ -59,10 +59,10 @@ object SyncFileUtil {
             conn.requestMethod = "GET"
 
             //连接超时
-            conn.connectTimeout = 30000
+            conn.connectTimeout = 10000
 
             //读数据超时
-            conn.readTimeout = 30000
+            conn.readTimeout = 10000
             conn.connect()
 
             //返回状态码
@@ -82,21 +82,27 @@ object SyncFileUtil {
             //以追加的方式写入文件
             FileOutputStream(saveFile, true).use { oStream ->
                 conn.inputStream.use { iStream ->
-                    val cache = ByteArray(128 * 1024)
+                    val cache = ByteArray(64 * 1024)
                     var len: Int
                     while (iStream.read(cache, 0, cache.size).also { len = it } != -1) {
                         oStream.write(cache, 0, len)
                         downloadedSize += len.toLong()
-                        info.msg = "正在同步文件：${downloadedSize.toDataSize}/${total.toDataSize}"
+//                        info.msg = "正在同步文件：${downloadedSize.toDataSize}/${total.toDataSize}"
+                        info.msg = "正在同步文件3：${downloadedSize}(${downloadedSize.toDataSize})/${total.toDataSize}"
                         this.socket.send(info)
                     }
                 }
+                oStream.flush()
+            }
+            if (downloadedSize != total || total != saveFile.length()) {
+                throw RuntimeException("文件虽然下载完成,但文件并不完成,请排查问题;total=${total} downloadedSize=${downloadedSize} fileSize=${saveFile.length()}")
             }
             info.msg = ""
             return savePath
         } catch (e: Exception) {
             if (retryTimes < 10) {//重试10次
-                Thread.sleep(15_000)
+                info.msg = "文件下载失败,正常第${retryTimes + 1}次尝试重试"
+                Thread.sleep(15_00)
                 return this.download(info, md5, retryTimes + 1)
             } else {
                 throw e

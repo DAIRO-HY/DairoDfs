@@ -63,7 +63,7 @@ object DfsFileUtil {
             SystemConfig.instance.saveFolderList.forEach {
                 val localFolder = File(it)
                 if (!localFolder.exists()) {
-                    return@forEach
+                    throw BusinessException("目录${localFolder.absolutePath}不存在")
                 }
                 val freeSpace = localFolder.freeSpace
                 if (freeSpace > maxSize) {

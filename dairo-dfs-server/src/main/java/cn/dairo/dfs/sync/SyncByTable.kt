@@ -208,7 +208,7 @@ object SyncByTable {
             when (tbName) {
 
                 //当前请求的是本地文件存储表，先去下载文件
-                "local_file" -> LocalFileSyncHandle.bySyncAll(info, item)
+                "local_file" -> LocalFileSyncHandle.byTable(info, item)
 
                 //如果是用户文件表
                 "dfs_file" -> DfsFileSyncHandle.handle(info, item)

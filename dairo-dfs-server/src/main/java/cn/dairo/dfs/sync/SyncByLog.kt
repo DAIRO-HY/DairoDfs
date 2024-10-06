@@ -302,7 +302,7 @@ object SyncByLog {
             var afterSql: String? = null
             val handleSql = sql.replace(" ", "").replace("\n", "").lowercase()
             if (handleSql.startsWith("insertintolocal_file")) {//如果当前sql语句是往本地文件表里添加一条数据
-                LocalFileSyncHandle.bySyncLog(info, params)
+                LocalFileSyncHandle.byLog(info, params)
             } else if (handleSql.startsWith("insertintodfs_file(")) {//如果该sql语句是添加文件
                 afterSql = DfsFileSyncHandle.handleBySyncLog(info, params)
             } else {

@@ -19,7 +19,7 @@ object LocalFileSyncHandle {
     /**
      * 全量同步时的特殊处理
      */
-    fun bySyncAll(info: SyncServerInfo, item: ObjectNode) {
+    fun byTable(info: SyncServerInfo, item: ObjectNode) {
         val md5 = item.path("md5").textValue()
 
         //从本地数据库查找该文件
@@ -28,7 +28,7 @@ object LocalFileSyncHandle {
             val tmpFilePath = SyncFileUtil.download(info, md5)
             val tempFileMd5 = File(tmpFilePath).md5
             if (md5 != tempFileMd5) {
-                throw RuntimeException("同步的文件数据不完整，目标文件MD5:$md5，实际文件MD5:$tempFileMd5")
+                throw RuntimeException("同步的文件数据不完整，目标文件MD5:$md5，实际文件MD5(${File(tmpFilePath).length()}):$tempFileMd5")
             }
             val saveLocalPath = DfsFileUtil.localPath
             val saveLocalFile = File(saveLocalPath)
@@ -54,7 +54,7 @@ object LocalFileSyncHandle {
     /**
      * 日志同步时的特殊处理
      */
-    fun bySyncLog(info: SyncServerInfo, params: ArrayList<Any>) {
+    fun byLog(info: SyncServerInfo, params: ArrayList<Any>) {
 
         //得到文件的md5
         val md5 = params[2] as String
